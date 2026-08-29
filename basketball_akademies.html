@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
       <div id="fmonth" style="display:none"><div class="lbl">Μήνας</div><input type="month" id="fmonthval" style="width:160px"></div>
       <div id="frange" style="display:none"><div style="display:flex;gap:8px;flex-wrap:wrap"><div><div class="lbl">Από</div><input type="date" id="ffrom" style="width:145px"></div><div><div class="lbl">Έως</div><input type="date" id="fto" style="width:145px"></div></div></div>
       <div><div class="lbl">Παίκτης</div><select id="fplayer" style="width:180px"><option value="all">Όλοι</option></select></div>
+      <div><div class="lbl">Χρονολογία Γέννησης</div><select id="fbirth" style="width:180px"><option value="all">Όλες οι χρονολογίες</option></select></div>
     </div>
     <div style="display:flex;gap:8px"><button class="btn btn-blue" onclick="renderStats()">🔍 Εφαρμογή</button><button class="btn" onclick="clearFilter()">✕ Καθαρισμός</button></div>
   </div>
@@ -395,8 +396,19 @@ window.editMatchAtt=function(i){const s=matchSessions[i];editMatchIdx=i;curMatch
 window.delMatchAtt=async function(id){if(!confirm('Διαγραφή αγώνα;'))return;await deleteDoc(doc(db,CM,id));renderMatchHistory();};
 
 window.onFilterChange=function(){const t=document.getElementById('ftype').value;document.getElementById('fmonth').style.display=t==='month'?'block':'none';document.getElementById('frange').style.display=t==='range'?'block':'none';};
-window.clearFilter=function(){document.getElementById('ftype').value='all';document.getElementById('fmonth').style.display='none';document.getElementById('frange').style.display='none';document.getElementById('fmonthval').value='';document.getElementById('ffrom').value='';document.getElementById('fto').value='';document.getElementById('fplayer').value='all';renderStats();};
-function updatePlayerFilter(){const sel=document.getElementById('fplayer');const cur=sel.value;sel.innerHTML='<option value="all">Όλοι</option>';players.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;sel.appendChild(o);});sel.value=cur;}
+window.clearFilter=function(){document.getElementById('ftype').value='all';document.getElementById('fmonth').style.display='none';document.getElementById('frange').style.display='none';document.getElementById('fmonthval').value='';document.getElementById('ffrom').value='';document.getElementById('fto').value='';document.getElementById('fplayer').value='all';document.getElementById('fbirth').value='all';renderStats();};
+function updatePlayerFilter(){
+  const sel=document.getElementById('fplayer');const cur=sel.value;
+  sel.innerHTML='<option value="all">Όλοι</option>';
+  players.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;sel.appendChild(o);});
+  sel.value=cur;
+  // Fill birth years
+  const bsel=document.getElementById('fbirth');const bcur=bsel.value;
+  const years=[...new Set(players.map(p=>p.birth).filter(b=>b))].sort((a,b)=>+b-+a);
+  bsel.innerHTML='<option value="all">Όλες οι χρονολογίες</option>';
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;bsel.appendChild(o);});
+  bsel.value=bcur;
+}
 function getFiltered(){const t=document.getElementById('ftype').value;let r=[...attSessions];if(t==='month'){const m=document.getElementById('fmonthval').value;if(m)r=r.filter(s=>(s.date||'').startsWith(m));}else if(t==='range'){const f=document.getElementById('ffrom').value,to=document.getElementById('fto').value;if(f)r=r.filter(s=>s.date>=f);if(to)r=r.filter(s=>s.date<=to);}return r;}
 
 function renderStats(){
@@ -407,8 +419,10 @@ function renderStats(){
   if(!filtered.length){el.innerHTML='<p class="empty">Δεν υπάρχουν προπονήσεις για το επιλεγμένο διάστημα.</p>';return;}
   const total=filtered.length;
   const pIdx=document.getElementById('fplayer').value;const filterP=(pIdx&&pIdx!=='all')?parseInt(pIdx):null;
+  const bIdx=document.getElementById('fbirth').value;const filterB=(bIdx&&bIdx!=='all')?bIdx:null;
   const allStats=players.map((p,idx)=>({...p,idx,present:filtered.filter(s=>(s.att||[])[idx]==='p').length,injured:filtered.filter(s=>(s.att||[])[idx]==='i').length,justified:filtered.filter(s=>(s.att||[])[idx]==='j').length,absent:filtered.filter(s=>(s.att||[])[idx]==='a').length,pct:Math.round(filtered.filter(s=>(s.att||[])[idx]==='p').length/total*100)})).sort((a,b)=>b.pct-a.pct);
-  const pstats=filterP!==null?allStats.filter(p=>p.idx===filterP):allStats;
+  let pstats=filterP!==null?allStats.filter(p=>p.idx===filterP):allStats;
+  if(filterB)pstats=pstats.filter(p=>p.birth===filterB);
   const avg=Math.round(allStats.reduce((s,p)=>s+p.pct,0)/allStats.length)||0;
   const presAvg=Math.round(filtered.reduce((s,sess)=>s+(sess.att||[]).filter(v=>v==='p').length,0)/total);
   const sessWithAth=sessions.filter(s=>s.athletes&&+s.athletes>0);
