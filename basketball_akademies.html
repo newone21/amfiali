@@ -142,6 +142,11 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 </div>
 
 <div class="sec" id="sec3">
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button class="btn btn-blue" id="stab0" onclick="setStatsTab(0)" style="flex:1">📊 Παρουσίες Προπονήσεων</button>
+    <button class="btn" id="stab1" onclick="setStatsTab(1)" style="flex:1">🏆 Παρουσίες Αγώνων</button>
+  </div>
+  <div id="stats-training">
   <div class="card" style="margin-bottom:14px">
     <p class="sec-title">🔍 Φίλτρο</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
@@ -159,6 +164,10 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
     <label class="btn btn-yellow" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAtt(event)"></label>
   </div>
   <div id="statsWrap"><p class="empty">Καταγράψτε τουλάχιστον μία προπόνηση.</p></div>
+  </div>
+  <div id="stats-matches" style="display:none">
+    <div id="matchStatsWrap"><p class="empty">Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p></div>
+  </div>
 </div>
 
 <div class="sec" id="sec4">
@@ -390,6 +399,40 @@ function renderStats(){
   +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${s.date}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
 }
 window.renderStats=renderStats;
+
+window.setStatsTab=function(i){
+  document.getElementById('stab0').className='btn '+(i===0?'btn-blue':'');
+  document.getElementById('stab1').className='btn '+(i===1?'btn-blue':'');
+  document.getElementById('stats-training').style.display=i===0?'block':'none';
+  document.getElementById('stats-matches').style.display=i===1?'block':'none';
+  if(i===1)renderMatchStats();
+};
+
+function renderMatchStats(){
+  const el=document.getElementById('matchStatsWrap');
+  if(!matchSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p>';return;}
+  const total=matchSessions.length;
+  const pstats=players.map((p,idx)=>({
+    name:p.name,pos:p.pos||'',
+    present:matchSessions.filter(s=>(s.att||[])[idx]==='p').length,
+    absent:matchSessions.filter(s=>(s.att||[])[idx]==='a').length,
+    pct:Math.round(matchSessions.filter(s=>(s.att||[])[idx]==='p').length/total*100)
+  })).sort((a,b)=>b.pct-a.pct);
+  const avg=Math.round(pstats.reduce((s,p)=>s+p.pct,0)/pstats.length)||0;
+  el.innerHTML=`<div class="g3" style="margin-bottom:16px">
+    <div class="met"><div class="met-n">${total}</div><div class="met-l">Αγώνες</div></div>
+    <div class="met"><div class="met-n">${avg}%</div><div class="met-l">Μέση παρουσία</div></div>
+    <div class="met"><div class="met-n">${matchSessions.filter(s=>s.location==='home').length}/${matchSessions.filter(s=>s.location==='away').length}</div><div class="met-l">Εντός/Εκτός</div></div>
+  </div>
+  <div class="card">
+    <p class="sec-title">Παρουσίες ανά παίκτη σε αγώνες</p>
+    ${pstats.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:14px;font-weight:600">${p.name}</span><span class="ml" style="display:flex;gap:4px;align-items:center"><span class="tag tg">${p.present}/${total}</span>${p.absent?'<span class="tag tr">'+p.absent+' απών</span>':''}<span style="font-size:14px;font-weight:700;color:#1a6fa8">${p.pct}%</span></span></div><div class="pbar"><div class="pfill" style="width:${p.pct}%"></div></div></div></div>`).join('')}
+  </div>
+  <div class="card">
+    <p class="sec-title">Ιστορικό αγώνων</p>
+    ${matchSessions.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.result?' · '+s.result:''}</div></div><div class="ml"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span></div></div>`;}).join('')}
+  </div>`;
+}
 
 window.exportRoster=function(){const rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία Γέννησης']];players.forEach(p=>rows.push([p.name,p.num||'',p.pos||'',stLbl(p.st),p.birth||'']));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Ρόστερ');XLSX.writeFile(wb,'roster.xlsx',{cellDates:true});};
 window.exportAtt=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const rows=[['Ημερομηνία','Θέμα','Παίκτης','Θέση','Κατάσταση']];filtered.forEach(s=>players.forEach((p,idx)=>rows.push([fmtDate(s.date),s.topic,p.name,p.pos||'',LABEL[(s.att||[])[idx]||'a']])));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Παρουσίες');XLSX.writeFile(wb,'parousies.xlsx',{cellDates:true});};
