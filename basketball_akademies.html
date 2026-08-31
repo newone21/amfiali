@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <div class="met"><div class="met-n" id="rm3">0</div><div class="met-l">Ανενεργοί</div></div>
   </div>
   <div class="xbar"><button class="btn btn-green" onclick="exportRoster()">📥 Εξαγωγή ρόστερ</button></div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center"><span style="font-size:12px;color:#666;font-weight:500">Ταξινόμηση:</span><button id="rsort-alpha" class="btn btn-blue" onclick="setRosterSort('alpha')" style="padding:5px 12px;font-size:12px">Α-Ω</button><button id="rsort-age" class="btn" onclick="setRosterSort('age')" style="padding:5px 12px;font-size:12px">Ανά ηλικία</button></div>
   <div class="card">
     <p class="sec-title">Προσθήκη παίκτη</p>
     <div class="g2 mb"><div><div class="lbl">Όνομα</div><input id="pn" placeholder="π.χ. Παπαδόπουλος"></div><div><div class="lbl">Αρ. φανέλας</div><input id="pnum" type="number" placeholder="#" min="0" max="99"></div></div>
@@ -194,6 +195,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
 <div class="sec" id="sec4">
   <div class="card">
     <p class="sec-title">🏆 Παρουσιολόγιο Αγώνων</p>
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center"><span style="font-size:12px;color:#666;font-weight:500">Ταξινόμηση:</span><button id="msort-alpha" class="btn btn-blue" onclick="setMatchSort('alpha')" style="padding:5px 12px;font-size:12px">Α-Ω</button><button id="msort-age" class="btn" onclick="setMatchSort('age')" style="padding:5px 12px;font-size:12px">Ανά ηλικία</button></div>
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="mdate" type="date"></div><div><div class="lbl">Αντίπαλος</div><input id="mopponent" placeholder="π.χ. Πειραϊκός"></div></div>
     <div class="g2 mb"><div><div class="lbl">Αποτέλεσμα (προαιρετικό)</div><input id="mresult" placeholder="π.χ. 78-65"></div><div><div class="lbl">Έδρα</div><select id="mlocation"><option value="home">🏠 Εντός έδρας</option><option value="away">✈️ Εκτός έδρας</option></select></div></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:12px;color:#999">Υπόμνημα:</span><span class="tag tg">Παρών</span><span class="tag tr">Απών</span></div>
@@ -223,7 +225,7 @@ const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
-let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null,attSort='alpha';
+let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null,attSort='alpha',matchSort='alpha',rosterSort='alpha';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function today(){return new Date().toISOString().split('T')[0]}
@@ -270,7 +272,8 @@ function renderPlayers(){
   document.getElementById('rm3').textContent=players.filter(p=>p.st==='inactive').length;
   const el=document.getElementById('plist');
   if(!players.length){el.innerHTML='<p class="empty">Δεν έχεις παίκτες ακόμα.</p>';return;}
-  el.innerHTML='<div class="card">'+players.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${p.num?'#'+p.num+' ':''}${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${stCls(p.st)}">${stLbl(p.st)}</span><button class="editbtn" onclick="window.editPlayer('${p.id}')">✏️</button><button class="delbtn" onclick="window.delPlayer('${p.id}')">🗑️</button></div></div>`).join('')+'</div>';
+  const rPlayers=getSortedPlayersBy(rosterSort);
+  el.innerHTML='<div class="card">'+rPlayers.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${p.num?'#'+p.num+' ':''}${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${stCls(p.st)}">${stLbl(p.st)}</span><button class="editbtn" onclick="window.editPlayer('${p.id}')">✏️</button><button class="delbtn" onclick="window.delPlayer('${p.id}')">🗑️</button></div></div>`).join('')+'</div>';
 }
 
 window.addPlayer=async function(){
@@ -331,12 +334,38 @@ function makeSegment(opts,curArr,idx){
   return seg;
 }
 
+window.setRosterSort=function(s){
+  rosterSort=s;
+  document.getElementById('rsort-alpha').className='btn '+(s==='alpha'?'btn-blue':'');
+  document.getElementById('rsort-age').className='btn '+(s==='age'?'btn-blue':'');
+  renderPlayers();
+};
+
+window.setMatchSort=function(s){
+  matchSort=s;
+  document.getElementById('msort-alpha').className='btn '+(s==='alpha'?'btn-blue':'');
+  document.getElementById('msort-age').className='btn '+(s==='age'?'btn-blue':'');
+  renderMatchAttForm();
+};
+
 window.setAttSort=function(s){
   attSort=s;
   document.getElementById('sort-alpha').className='btn '+(s==='alpha'?'btn-blue':'');
   document.getElementById('sort-age').className='btn '+(s==='age'?'btn-blue':'');
   renderAttForm();
 };
+
+function getSortedPlayersBy(sortType){
+  if(sortType==='age'){
+    return [...players].sort((a,b)=>{
+      if(!a.birth&&!b.birth)return 0;
+      if(!a.birth)return 1;
+      if(!b.birth)return -1;
+      return +a.birth-+b.birth;
+    });
+  }
+  return [...players].sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+}
 
 function getSortedPlayers(){
   if(attSort==='age'){
@@ -392,7 +421,9 @@ function renderMatchAttForm(){
   act.style.display='flex';
   document.getElementById('msavebtn').textContent=editMatchIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
-  players.forEach((p,idx)=>{
+  const mSortedPlayers=getSortedPlayersBy(matchSort);
+  mSortedPlayers.forEach((p)=>{
+    const idx=players.findIndex(x=>x.id===p.id);
     const row=document.createElement('div');row.className='prow';
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
