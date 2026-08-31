@@ -70,10 +70,10 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 <script>
 function checkPin(){
   var val=document.getElementById('pinInput').value;
-  if(val==='5555'){document.getElementById('lockscreen').style.display='none';sessionStorage.setItem('unlocked_akad','1');}
+  if(val==='5555'){document.getElementById('lockscreen').style.display='none';sessionStorage.setItem('unlocked_ak_2018_2019_2020','1');}
   else{document.getElementById('pinErr').style.display='block';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus();}
 }
-if(sessionStorage.getItem('unlocked_akad')==='1'){document.addEventListener('DOMContentLoaded',function(){var ls=document.getElementById('lockscreen');if(ls)ls.style.display='none';});}
+if(sessionStorage.getItem('unlocked_ak_2018_2019_2020')==='1'){document.addEventListener('DOMContentLoaded',function(){var ls=document.getElementById('lockscreen');if(ls)ls.style.display='none';});}
 document.addEventListener('DOMContentLoaded',function(){var inp=document.getElementById('pinInput');if(inp)inp.focus();});
 </script>
 <div class="app">
