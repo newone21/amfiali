@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
   <div class="card">
     <p class="sec-title">✅ Παρουσιολόγιο Προπονήσεων</p>
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="adate" type="date"></div><div><div class="lbl">Θέμα</div><input id="atopic" placeholder="π.χ. Στίβος"></div></div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center"><span style="font-size:12px;color:#666;font-weight:500">Ταξινόμηση:</span><button id="sort-alpha" class="btn btn-blue" onclick="setAttSort('alpha')" style="padding:5px 12px;font-size:12px">Α-Ω</button><button id="sort-age" class="btn" onclick="setAttSort('age')" style="padding:5px 12px;font-size:12px">Ανά ηλικία</button></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:12px;color:#999">Υπόμνημα:</span><span class="tag tg">Παρών</span><span class="tag tr">Απών</span><span class="tag ta">Τραυματίας</span><span class="tag tb">Δικαιολογημένος</span></div>
   </div>
   <div id="attlist"></div>
@@ -222,7 +223,7 @@ const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
-let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null,attSort='alpha';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function today(){return new Date().toISOString().split('T')[0]}
@@ -330,6 +331,25 @@ function makeSegment(opts,curArr,idx){
   return seg;
 }
 
+window.setAttSort=function(s){
+  attSort=s;
+  document.getElementById('sort-alpha').className='btn '+(s==='alpha'?'btn-blue':'');
+  document.getElementById('sort-age').className='btn '+(s==='age'?'btn-blue':'');
+  renderAttForm();
+};
+
+function getSortedPlayers(){
+  if(attSort==='age'){
+    return [...players].sort((a,b)=>{
+      if(!a.birth&&!b.birth)return 0;
+      if(!a.birth)return 1;
+      if(!b.birth)return -1;
+      return +a.birth-+b.birth;
+    });
+  }
+  return [...players].sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+}
+
 function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
@@ -338,7 +358,9 @@ function renderAttForm(){
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
-  players.forEach((p,idx)=>{
+  const sortedPlayers=getSortedPlayers();
+  sortedPlayers.forEach((p)=>{
+    const idx=players.findIndex(x=>x.id===p.id);
     const row=document.createElement('div');row.className='prow';
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
