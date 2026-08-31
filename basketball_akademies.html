@@ -465,7 +465,7 @@ function renderMatchStats(){
     <p class="sec-title">Ιστορικό αγώνων</p>
     ${matchSessions.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.result?' · '+s.result:''}</div></div><div class="ml"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span></div></div>`;}).join('')}
   </div>`;
-}
+} 
 
 window.exportRoster=function(){const rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία Γέννησης']];players.forEach(p=>rows.push([p.name,p.num||'',p.pos||'',stLbl(p.st),p.birth||'']));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Ρόστερ');XLSX.writeFile(wb,'roster.xlsx',{cellDates:true});};
 window.exportAtt=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const rows=[['Ημερομηνία','Θέμα','Παίκτης','Θέση','Κατάσταση']];filtered.forEach(s=>players.forEach((p,idx)=>rows.push([fmtDate(s.date),s.topic,p.name,p.pos||'',LABEL[(s.att||[])[idx]||'a']])));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Παρουσίες');XLSX.writeFile(wb,'parousies.xlsx',{cellDates:true});};
