@@ -219,7 +219,7 @@ const cfg={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 
-const CP='ak_2018_2019_2020_players',CS='sessions',CA='attendance',CM='matches';
+const CP='ak_2018_2019_2020_players',CS='ak_2018_2019_2020_sessions',CA='ak_2018_2019_2020_attendance',CM='ak_2018_2019_2020_matches';
 const OPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'},{k:'i',l:'Τραυματίας',bg:'#FAEEDA',c:'#854F0B',b:'2px solid #854F0B'},{k:'j',l:'Δικαιολ.',bg:'#E6F1FB',c:'#185FA5',b:'2px solid #185FA5'}];
 const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'}];
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
@@ -532,31 +532,32 @@ setTimeout(async()=>{
   try{
     const snap=await getDocs(collection(db,CP));
     if(snap.empty){
-    await setDoc(doc(db,CP,uid()),{name:"Κουτσούκος Γιάννης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Κουλάου Ελιόν",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Δαρατζίκης Λουκάς",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Χαραλαμπόπουλος Πέτρος",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Αλεξόπουλος Αλέξανδρος",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Πάντος Κων/νος",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Δομάζος Λευτέρης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Καδιανάκης Παύλος",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Μίχας Νικόλας",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Μπένετος Γιάννης",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Καρατσόλης Λευτέρης",num:"",pos:"",st:"active",birth:"2019"});
-    await setDoc(doc(db,CP,uid()),{name:"Μινόπετρος Κων/νος",num:"",pos:"",st:"active",birth:"2019"});
-    await setDoc(doc(db,CP,uid()),{name:"Παυλίδης Δημήτρης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Αθηνιώτης Γιώργος",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Σκοτεινιώτης Βασίλης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Παγώνη Μαρίσια",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Κυβερνήτη Καλυψώ",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Παπαποστόλης Μιχάλης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Νερομυλιώτη Χρυσοβαλάντω",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Καραγάννης Γιάννης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Λιζάρδος Δημήτρης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Βερβενιώτης Ραφαήλ",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Πέππας Ερμής",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Κεπεσίδη Ευαγγελία",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Δελατόλας Γεώργιος",num:"",pos:"",st:"active",birth:"2017"});
+    await setDoc(doc(db,CP,uid()),{name:"Δενδρινού Νικόλ",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Σπανάκη Ευτυχία",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Σπανάκης Γιώργος",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Σκουλαξινός Θάνος",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Τάνης Ισίδωρος",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Τούσα Άγγελος",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Λαδακάκος Παναγιώτης",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Δέτσης Ιάσωνας",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Τσαλαπατανάκης Ταξιάρχης",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Πάλης Κλεάνθης",num:"",pos:"",st:"active",birth:"2018"});
+    await setDoc(doc(db,CP,uid()),{name:"Σωτήρης Μίμης",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Δεληγιάννης Άγγελος",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Παπαδάκης Κωνσταντίνος",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Αδαμόπουλους Νικόλας",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Φιλίνης Ανδριανός",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Καρατζίκης Λευτέρης",num:"",pos:"",st:"active",birth:"2019"});
+    await setDoc(doc(db,CP,uid()),{name:"Κρητικός Νίκανδρος",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Γρηγοριάδης Αντώνης",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Δανάκας Πέτρος",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Σούκα Νεφέλη",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Γκόκας Παναγιώτης",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Αναστασιάδης Παναγιώτης",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Πετρίδης Πέτρος",num:"",pos:"",st:"active",birth:"2020"});
+    await setDoc(doc(db,CP,uid()),{name:"Κουβάρης Παντελής",num:"",pos:"",st:"active",birth:"2017"});
+    await setDoc(doc(db,CP,uid()),{name:"Δανάκα Αναστασία",num:"",pos:"",st:"active",birth:"2017"});
+    await setDoc(doc(db,CP,uid()),{name:"Αλαμάνι Άρης",num:"",pos:"",st:"active",birth:"2017"});
     }
   }catch(e){console.log('Seed error:',e);}
 },1500);

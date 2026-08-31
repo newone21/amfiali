@@ -219,7 +219,7 @@ const cfg={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 
-const CP='ak_koritsia_b_players',CS='sessions',CA='attendance',CM='matches';
+const CP='ak_koritsia_b_players',CS='ak_koritsia_b_sessions',CA='ak_koritsia_b_attendance',CM='ak_koritsia_b_matches';
 const OPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'},{k:'i',l:'Τραυματίας',bg:'#FAEEDA',c:'#854F0B',b:'2px solid #854F0B'},{k:'j',l:'Δικαιολ.',bg:'#E6F1FB',c:'#185FA5',b:'2px solid #185FA5'}];
 const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'}];
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
@@ -532,31 +532,21 @@ setTimeout(async()=>{
   try{
     const snap=await getDocs(collection(db,CP));
     if(snap.empty){
-    await setDoc(doc(db,CP,uid()),{name:"Κουτσούκος Γιάννης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Κουλάου Ελιόν",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Δαρατζίκης Λουκάς",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Χαραλαμπόπουλος Πέτρος",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Αλεξόπουλος Αλέξανδρος",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Πάντος Κων/νος",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Δομάζος Λευτέρης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Καδιανάκης Παύλος",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Μίχας Νικόλας",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Μπένετος Γιάννης",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Καρατσόλης Λευτέρης",num:"",pos:"",st:"active",birth:"2019"});
-    await setDoc(doc(db,CP,uid()),{name:"Μινόπετρος Κων/νος",num:"",pos:"",st:"active",birth:"2019"});
-    await setDoc(doc(db,CP,uid()),{name:"Παυλίδης Δημήτρης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Αθηνιώτης Γιώργος",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Σκοτεινιώτης Βασίλης",num:"",pos:"",st:"active",birth:"2017"});
+    await setDoc(doc(db,CP,uid()),{name:"Ρούστεμι Μαρίλλι",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Αρφάνη Μαρία",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Δεμέστιχα Φένια",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Νικολέτου Ελένη",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Λαμέ Βαλέρια",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Κάλκανο Ιωάννα",num:"",pos:"",st:"active",birth:"2014"});
+    await setDoc(doc(db,CP,uid()),{name:"Γκιόκα Μαριάννα",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Αναστασοπούλου Ελισάβετ",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Γιαννοπούλου Μαρία",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Ξυμητήρη Μαριάννα",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Χασιώτη Θάλεια",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Λεμονούδι Μαριτίνα",num:"",pos:"",st:"active",birth:"2015"});
+    await setDoc(doc(db,CP,uid()),{name:"Κούκουρα Αγγελική",num:"",pos:"",st:"active",birth:"2016"});
+    await setDoc(doc(db,CP,uid()),{name:"Καραμπόικη Μαρίζα",num:"",pos:"",st:"active",birth:"2016"});
     await setDoc(doc(db,CP,uid()),{name:"Παγώνη Μαρίσια",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Κυβερνήτη Καλυψώ",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Παπαποστόλης Μιχάλης",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Νερομυλιώτη Χρυσοβαλάντω",num:"",pos:"",st:"active",birth:"2018"});
-    await setDoc(doc(db,CP,uid()),{name:"Καραγάννης Γιάννης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Λιζάρδος Δημήτρης",num:"",pos:"",st:"active",birth:"2016"});
-    await setDoc(doc(db,CP,uid()),{name:"Βερβενιώτης Ραφαήλ",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Πέππας Ερμής",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Κεπεσίδη Ευαγγελία",num:"",pos:"",st:"active",birth:"2017"});
-    await setDoc(doc(db,CP,uid()),{name:"Δελατόλας Γεώργιος",num:"",pos:"",st:"active",birth:"2017"});
     }
   }catch(e){console.log('Seed error:',e);}
 },1500);
