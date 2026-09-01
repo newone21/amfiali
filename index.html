@@ -90,6 +90,16 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="prog" id="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
     <div class="io-status" id="iostatus"></div>
   </div>
+
+  <div class="io-wrap">
+    <div class="io-title">✅ Εξαγωγή / Εισαγωγή Παρουσιών Προπονήσεων</div>
+    <div class="io-btns">
+      <button class="io-btn io-exp" onclick="exportAttAll()">📥 Εξαγωγή παρουσιών</button>
+      <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAttAll(event)"></label>
+    </div>
+    <div class="prog" id="prog2"><div class="prog-fill" id="progFill2" style="width:0%"></div></div>
+    <div class="io-status" id="iostatus2"></div>
+  </div>
 </div>
 
 <script>
@@ -253,6 +263,92 @@ async function importAll(event){
       setStatus('✓ Εισαγωγή ολοκληρώθηκε! Τα ρόστερ ενημερώθηκαν.');
       setProgress(100);
     }catch(err){setStatus('Σφάλμα: '+err.message);}
+    event.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setStatus2(msg){document.getElementById('iostatus2').textContent=msg;}
+function setProgress2(pct){
+  var p=document.getElementById('prog2');var f=document.getElementById('progFill2');
+  p.style.display='block';f.style.width=pct+'%';
+  if(pct>=100)setTimeout(function(){p.style.display='none';},1000);
+}
+
+var LABEL_MAP={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
+var LABEL_REV={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};
+
+async function exportAttAll(){
+  setStatus2('Εξαγωγή παρουσιών...');setProgress2(0);
+  var XLSX=window.XLSX;
+  var wb=XLSX.utils.book_new();
+  var done=0;
+  for(var i=0;i<ALL_TEAMS.length;i++){
+    var t=ALL_TEAMS[i];
+    setStatus2('Εξαγωγή: '+t.team+'...');
+    try{
+      var pSnap=await db.collection(t.players).get();
+      var players=pSnap.docs.map(function(d){return d.data().name||'';});
+      var snap=await db.collection(t.attendance).get();
+      var rows=[['Ομάδα','Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
+      snap.docs.forEach(function(d){
+        var s=d.data();
+        (s.att||[]).forEach(function(v,idx){
+          rows.push([t.team,s.date||'',s.topic||'',players[idx]||'',LABEL_MAP[v]||v]);
+        });
+      });
+      if(rows.length>1){
+        var sheetName=(t.team).substring(0,31);
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),sheetName);
+      }
+    }catch(e){}
+    done++;setProgress2(done/ALL_TEAMS.length*100);
+  }
+  XLSX.writeFile(wb,'parousies_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellDates:true});
+  setStatus2('✓ Εξαγωγή παρουσιών ολοκληρώθηκε!');setProgress2(100);
+}
+
+async function importAttAll(event){
+  var file=event.target.files[0];if(!file)return;
+  if(!confirm('Θα αντικατασταθούν οι παρουσίες. Συνέχεια;')){event.target.value='';return;}
+  var XLSX=window.XLSX;
+  var reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      setStatus2('Εισαγωγή παρουσιών...');setProgress2(0);
+      var done=0;
+      for(var i=0;i<ALL_TEAMS.length;i++){
+        var t=ALL_TEAMS[i];
+        var sheetName=(t.team).substring(0,31);
+        if(wb.SheetNames.indexOf(sheetName)<0){done++;continue;}
+        var rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
+        // Delete existing
+        var snap=await db.collection(t.attendance).get();
+        for(var d of snap.docs)await db.collection(t.attendance).doc(d.id).delete();
+        // Get players for index mapping
+        var pSnap=await db.collection(t.players).get();
+        var players=pSnap.docs.map(function(d){return d.data().name||'';});
+        // Group by date+topic
+        var groups={};
+        rows.forEach(function(r){
+          var key=(r['Ημερομηνία']||'')+'||'+(r['Θέμα']||'');
+          if(!groups[key])groups[key]={date:String(r['Ημερομηνία']||''),topic:String(r['Θέμα']||''),entries:[]};
+          groups[key].entries.push({name:String(r['Παίκτης']||''),status:LABEL_REV[r['Κατάσταση']]||'a'});
+        });
+        for(var key in groups){
+          var g=groups[key];
+          var att=players.map(function(pname){
+            var e=g.entries.find(function(x){return x.name===pname;});
+            return e?e.status:'a';
+          });
+          await db.collection(t.attendance).add({date:g.date,topic:g.topic,att:att});
+        }
+        done++;setProgress2(done/ALL_TEAMS.length*100);
+        setStatus2('Εισαγωγή: '+t.team+'...');
+      }
+      setStatus2('✓ Εισαγωγή παρουσιών ολοκληρώθηκε!');setProgress2(100);
+    }catch(err){setStatus2('Σφάλμα: '+err.message);}
     event.target.value='';
   };
   reader.readAsArrayBuffer(file);
