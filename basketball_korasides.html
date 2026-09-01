@@ -230,7 +230,7 @@ const cfg={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 
-const CP='korasides_players',CS='sessions',CA='attendance',CM='matches';
+const CP='korasides_players',CS='korasides_sessions',CA='korasides_attendance',CM='korasides_matches';
 const OPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'},{k:'i',l:'Τραυματίας',bg:'#FAEEDA',c:'#854F0B',b:'2px solid #854F0B'},{k:'j',l:'Δικαιολ.',bg:'#E6F1FB',c:'#185FA5',b:'2px solid #185FA5'}];
 const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'}];
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
