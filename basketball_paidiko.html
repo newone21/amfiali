@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏀 Παιδικό Μπάσκετ</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#f5f5f5;color:#222}
@@ -568,7 +568,66 @@ function renderMatchStats(){
 }
 
 window.exportRoster=function(){const rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία Γέννησης']];players.forEach(p=>rows.push([p.name,p.num||'',p.pos||'',stLbl(p.st),p.birth||'']));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Ρόστερ');XLSX.writeFile(wb,'roster.xlsx',{cellDates:true});};
-window.exportAtt=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const rows=[['Ημερομηνία','Θέμα','Παίκτης','Θέση','Κατάσταση']];filtered.forEach(s=>players.forEach((p,idx)=>rows.push([fmtDate(s.date),s.topic,p.name,p.pos||'',(LABEL[(s.att||[])[idx]]||LABEL['a'])])));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Παρουσίες');XLSX.writeFile(wb,'parousies.xlsx',{cellDates:true});};
+window.exportAtt=function(){
+  if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}
+  const filtered=getFiltered();
+  // Status colors
+  const statusColors={
+    'Παρών':{fgColor:{rgb:'C6EFCE'}},
+    'Απών':{fgColor:{rgb:'FFC7CE'}},
+    'Τραυματίας':{fgColor:{rgb:'FFEB9C'}},
+    'Δικαιολογημένος':{fgColor:{rgb:'BDD7EE'}},
+  };
+  // Date row colors (alternating per unique date)
+  const dateColors=['EBF1DE','DAEEF3','FDE9D9','E4DFEC','DCE6F1','FFF2CC'];
+  const uniqueDates=[...new Set(filtered.map(s=>s.date))];
+  const dateColorMap={};
+  uniqueDates.forEach((d,i)=>dateColorMap[d]=dateColors[i%dateColors.length]);
+
+  // Header row
+  const header=['Ημερομηνία','Θέμα','Παίκτης','Θέση','Κατάσταση'];
+  const wsData=[header];
+  const cellStyles=[null]; // null for header row
+
+  filtered.forEach(s=>{
+    players.forEach((p,idx)=>{
+      const status=LABEL[(s.att||[])[idx]]||LABEL['a'];
+      wsData.push([fmtDate(s.date),s.topic,p.name,p.pos||'',status]);
+      cellStyles.push({date:s.date,status});
+    });
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(wsData,{cellDates:true});
+
+  // Apply styles
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let R=1;R<=range.e.r;R++){
+    const rowStyle=cellStyles[R];
+    if(!rowStyle)continue;
+    const dateBg=dateColorMap[rowStyle.date]||'FFFFFF';
+    const statusBg=(statusColors[rowStyle.status]||{}).fgColor?.rgb||dateBg;
+    for(let C=0;C<=range.e.c;C++){
+      const addr=XLSX.utils.encode_cell({r:R,c:C});
+      if(!ws[addr])ws[addr]={v:'',t:'s'};
+      const bg=C===4?statusBg:dateBg;
+      ws[addr].s={fill:{patternType:'solid',fgColor:{rgb:bg}},border:{top:{style:'thin',color:{rgb:'CCCCCC'}},bottom:{style:'thin',color:{rgb:'CCCCCC'}},left:{style:'thin',color:{rgb:'CCCCCC'}},right:{style:'thin',color:{rgb:'CCCCCC'}}}};
+    }
+  }
+  // Header styles
+  for(let C=0;C<=range.e.c;C++){
+    const addr=XLSX.utils.encode_cell({r:0,c:C});
+    if(!ws[addr])ws[addr]={v:header[C],t:'s'};
+    ws[addr].s={fill:{patternType:'solid',fgColor:{rgb:'1F4E79'}},font:{bold:true,color:{rgb:'FFFFFF'}},alignment:{horizontal:'center'}};
+  }
+  // Autofilter
+  ws['!autofilter']={ref:ws['!ref']};
+  // Column widths
+  ws['!cols']=[{wch:14},{wch:20},{wch:22},{wch:18},{wch:16}];
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Παρουσίες');
+  XLSX.writeFile(wb,'parousies.xlsx',{cellDates:true,bookType:'xlsx'});
+};
 window.exportStats=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const total=filtered.length;const rows=[['Παίκτης','Θέση','Χρονολογία','Παρών','Τραυματίας','Δικαιολογημένος','Απών','Σύνολο','Ποσοστό %']];players.map((p,idx)=>({name:p.name,pos:p.pos||'',birth:p.birth||'',present:filtered.filter(s=>(s.att||[])[idx]==='p').length,injured:filtered.filter(s=>(s.att||[])[idx]==='i').length,justified:filtered.filter(s=>(s.att||[])[idx]==='j').length,absent:filtered.filter(s=>(s.att||[])[idx]==='a').length})).sort((a,b)=>b.present-a.present).forEach(p=>rows.push([p.name,p.pos,p.birth,p.present,p.injured,p.justified,p.absent,total,Math.round(p.present/total*100)]));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Στατιστικά');XLSX.writeFile(wb,'statistika.xlsx',{cellDates:true});};
 window.importRoster=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχοντες παίκτες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CP));for(const d of snap.docs)await deleteDoc(doc(db,CP,d.id));const stMap={'Ενεργός':'active','Τραυματίας':'injured','Ανενεργός':'inactive'};for(const r of rows){if(!r['Όνομα'])continue;await setDoc(doc(db,CP,uid()),{name:String(r['Όνομα']),num:String(r['Αριθμός']||''),pos:String(r['Θέση']||''),st:stMap[r['Κατάσταση']]||'active',birth:String(r['Χρονολογία Γέννησης']||'')});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};
 window.importAtt=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχουσες παρουσίες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CA));for(const d of snap.docs)await deleteDoc(doc(db,CA,d.id));const labMap={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};const groups={};rows.forEach(r=>{const k=r['Ημερομηνία']+'||'+r['Θέμα'];if(!groups[k])groups[k]={date:String(r['Ημερομηνία']),topic:String(r['Θέμα']),entries:[]};groups[k].entries.push({name:String(r['Παίκτης']),status:labMap[r['Κατάσταση']]||'a'});});for(const g of Object.values(groups)){const att=players.map(p=>{const e=g.entries.find(x=>x.name===p.name);return e?e.status:'a';});await setDoc(doc(db,CA,uid()),{date:g.date,topic:g.topic,att});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};

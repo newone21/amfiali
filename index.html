@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏀 Α.Π.Σ.Ε. Αμφιάλης 1967</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
@@ -283,6 +283,9 @@ async function exportAttAll(){
   var XLSX=window.XLSX;
   var wb=XLSX.utils.book_new();
   var done=0;
+  var statusColors={'Παρών':'C6EFCE','Απών':'FFC7CE','Τραυματίας':'FFEB9C','Δικαιολογημένος':'BDD7EE'};
+  var dateColorsList=['EBF1DE','DAEEF3','FDE9D9','E4DFEC','DCE6F1','FFF2CC'];
+
   for(var i=0;i<ALL_TEAMS.length;i++){
     var t=ALL_TEAMS[i];
     setStatus2('Εξαγωγή: '+t.team+'...');
@@ -290,21 +293,57 @@ async function exportAttAll(){
       var pSnap=await db.collection(t.players).get();
       var players=pSnap.docs.map(function(d){return d.data().name||'';});
       var snap=await db.collection(t.attendance).get();
-      var rows=[['Ομάδα','Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
-      snap.docs.forEach(function(d){
-        var s=d.data();
+      var sessions=snap.docs.map(function(d){return d.data();}).sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+
+      // Get unique dates for color mapping
+      var uniqueDates=[...new Set(sessions.map(function(s){return s.date||'';}))];
+      var dateColorMap={};
+      uniqueDates.forEach(function(d,i){dateColorMap[d]=dateColorsList[i%dateColorsList.length];});
+
+      var header=['Ομάδα','Ημερομηνία','Θέμα','Παίκτης','Κατάσταση'];
+      var wsData=[header];
+      var cellMeta=[];
+
+      sessions.forEach(function(s){
         (s.att||[]).forEach(function(v,idx){
-          rows.push([t.team,s.date||'',s.topic||'',players[idx]||'',LABEL_MAP[v]||v]);
+          var status=LABEL_MAP[v]||v;
+          var dateObj=s.date?new Date(s.date+'T00:00:00'):null;
+          wsData.push([t.team,dateObj,s.topic||'',players[idx]||'',status]);
+          cellMeta.push({date:s.date||'',status:status});
         });
       });
-      if(rows.length>1){
+
+      if(wsData.length>1){
+        var ws=XLSX.utils.aoa_to_sheet(wsData,{cellDates:true});
+        // Apply styles
+        var range=XLSX.utils.decode_range(ws['!ref']);
+        // Header
+        for(var C=0;C<=range.e.c;C++){
+          var haddr=XLSX.utils.encode_cell({r:0,c:C});
+          if(!ws[haddr])ws[haddr]={v:header[C],t:'s'};
+          ws[haddr].s={fill:{patternType:'solid',fgColor:{rgb:'1F4E79'}},font:{bold:true,color:{rgb:'FFFFFF'}},alignment:{horizontal:'center'}};
+        }
+        // Data rows
+        for(var R=1;R<=range.e.r;R++){
+          var meta=cellMeta[R-1];
+          var dateBg=dateColorMap[meta.date]||'FFFFFF';
+          var statusBg=statusColors[meta.status]||dateBg;
+          for(var C=0;C<=range.e.c;C++){
+            var addr=XLSX.utils.encode_cell({r:R,c:C});
+            if(!ws[addr])ws[addr]={v:'',t:'s'};
+            var bg=C===4?statusBg:dateBg;
+            ws[addr].s={fill:{patternType:'solid',fgColor:{rgb:bg}},border:{top:{style:'thin',color:{rgb:'CCCCCC'}},bottom:{style:'thin',color:{rgb:'CCCCCC'}},left:{style:'thin',color:{rgb:'CCCCCC'}},right:{style:'thin',color:{rgb:'CCCCCC'}}}};
+          }
+        }
+        ws['!autofilter']={ref:ws['!ref']};
+        ws['!cols']=[{wch:14},{wch:14},{wch:20},{wch:22},{wch:16}];
         var sheetName=(t.team).substring(0,31);
-        XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),sheetName);
+        XLSX.utils.book_append_sheet(wb,ws,sheetName);
       }
-    }catch(e){}
+    }catch(e){console.log('Error',t.team,e);}
     done++;setProgress2(done/ALL_TEAMS.length*100);
   }
-  XLSX.writeFile(wb,'parousies_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellDates:true});
+  XLSX.writeFile(wb,'parousies_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellDates:true,bookType:'xlsx'});
   setStatus2('✓ Εξαγωγή παρουσιών ολοκληρώθηκε!');setProgress2(100);
 }
 
