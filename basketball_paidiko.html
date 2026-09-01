@@ -496,6 +496,36 @@ window.importRoster=async function(event){const file=event.target.files[0];if(!f
 window.importAtt=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχουσες παρουσίες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CA));for(const d of snap.docs)await deleteDoc(doc(db,CA,d.id));const labMap={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};const groups={};rows.forEach(r=>{const k=r['Ημερομηνία']+'||'+r['Θέμα'];if(!groups[k])groups[k]={date:String(r['Ημερομηνία']),topic:String(r['Θέμα']),entries:[]};groups[k].entries.push({name:String(r['Παίκτης']),status:labMap[r['Κατάσταση']]||'a'});});for(const g of Object.values(groups)){const att=players.map(p=>{const e=g.entries.find(x=>x.name===p.name);return e?e.status:'a';});await setDoc(doc(db,CA,uid()),{date:g.date,topic:g.topic,att});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};
 
 document.getElementById('adate').value=today();document.getElementById('mdate').value=today();document.getElementById('sdate').value=today();fillYearSelect('pbirth','');
+// Auto-seed players
+setTimeout(async()=>{
+  try{
+    const snap=await getDocs(collection(db,CP));
+    if(snap.empty){
+    await setDoc(doc(db,CP,uid()),{name:"Αγιαννιτόπουλος Μίλτος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Αντωνιάδης Άγγελος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Βρυλάκης Μανώλης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Γαλής Παναγιώτης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Γεωργούδης Ευάγγελος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Διαμαντής Γεώργιος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Ευμορφιάδης Φίλιππος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Καπουρελάκος Παναγιώτης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Καραμπαμπάς Δημήτρης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κορώνης Βασίλης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κρικλάνης Στράτος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Λαουτάρης Ευάγγελος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Λεβέντης Νίκος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μαργαρίτης Απόλλωνας",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μεθενίτης Αναστάσιος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μπόσινης Παναγιώτης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Ξυμητήρης Φώτης",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Σκουμπούρης Αλέξανδρος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Ταμουράντζης Γιώργος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τσολάκης Χρήστος",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Χότζα Φλόριαν",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Φιοράτος Νίκος",num:"",pos:"",st:"active",birth:"2012",phone:"",notes:""});
+    }
+  }catch(e){console.log('Seed error:',e);}
+},1500);
 </script>
 </body>
 </html>
