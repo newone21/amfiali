@@ -92,18 +92,21 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
 
 <div class="sec active" id="sec0">
   <div class="g4">
-    <div class="met"><div class="met-n" id="rm0">0</div><div class="met-l">Παίκτριες</div></div>
-    <div class="met"><div class="met-n" id="rm1">0</div><div class="met-l">Ενεργές</div></div>
+    <div class="met"><div class="met-n" id="rm0">0</div><div class="met-l">Παίκτες</div></div>
+    <div class="met"><div class="met-n" id="rm1">0</div><div class="met-l">Ενεργοί</div></div>
     <div class="met"><div class="met-n" id="rm2">0</div><div class="met-l">Τραυματίες</div></div>
-    <div class="met"><div class="met-n" id="rm3">0</div><div class="met-l">Ανενεργές</div></div>
+    <div class="met"><div class="met-n" id="rm3">0</div><div class="met-l">Ανενεργοί</div></div>
   </div>
-  <div class="xbar"><button class="btn btn-green" onclick="exportRoster()">📥 Εξαγωγή ρόστερ</button></div>
-  <div class="card">
-    <p class="sec-title">Προσθήκη παίκτριας</p>
+  <div class="xbar">
+    <button class="btn btn-green" onclick="exportRoster()">📥 Εξαγωγή ρόστερ</button>
+    <button class="btn btn-blue" onclick="toggleAddForm()" id="toggleAddBtn">+ Προσθήκη</button>
+  </div>
+  <div class="card" id="addPlayerForm" style="display:none">
+    <p class="sec-title">Προσθήκη</p>
     <div class="g2 mb"><div><div class="lbl">Όνομα</div><input id="pn" placeholder="π.χ. Παπαδόπουλος"></div><div><div class="lbl">Αρ. φανέλας</div><input id="pnum" type="number" placeholder="#" min="0" max="99"></div></div>
     <div class="g2 mb">
       <div><div class="lbl">Θέση (προαιρετικό)</div><select id="ppos"><option value="">— Επίλεξε —</option><option>PG – Πλεμέικερ</option><option>SG – Σούτινγκ Γκαρντ</option><option>SF – Σμολ Φόργουορντ</option><option>PF – Πάουερ Φόργουορντ</option><option>C – Σέντερ</option></select></div>
-      <div><div class="lbl">Κατάσταση</div><select id="pst"><option value="active">Ενεργή</option><option value="injured">Τραυματίας</option><option value="inactive">Ανενεργή</option></select></div>
+      <div><div class="lbl">Κατάσταση</div><select id="pst"><option value="active">Ενεργός</option><option value="injured">Τραυματίας</option><option value="inactive">Ανενεργός</option></select></div>
     </div>
     <div class="g2 mb"><div><div class="lbl">Χρονολογία Γέννησης</div><select id="pbirth"><option value="">— Επίλεξε —</option></select></div><div><div class="lbl">Τηλέφωνο επικοινωνίας</div><input id="pphone" type="tel" placeholder="π.χ. 6912345678"></div></div>
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="pnotes" placeholder="π.χ. Αδερφός του Παπαδόπουλου"></div>
@@ -111,11 +114,11 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <p class="err" id="perr">Συμπλήρωσε όνομα.</p>
   </div>
   <div class="epanel" id="pedit">
-    <p class="sec-title">✏️ Επεξεργασία παίκτριας</p>
+    <p class="sec-title">✏️ Επεξεργασία παίκτη</p>
     <div class="g2 mb"><div><div class="lbl">Όνομα</div><input id="epn"></div><div><div class="lbl">Αρ. φανέλας</div><input id="epnum" type="number" min="0" max="99"></div></div>
     <div class="g2 mb">
       <div><div class="lbl">Θέση</div><select id="eppos"><option value="">— Επίλεξε —</option><option>PG – Πλεμέικερ</option><option>SG – Σούτινγκ Γκαρντ</option><option>SF – Σμολ Φόργουορντ</option><option>PF – Πάουερ Φόργουορντ</option><option>C – Σέντερ</option></select></div>
-      <div><div class="lbl">Κατάσταση</div><select id="epst"><option value="active">Ενεργή</option><option value="injured">Τραυματίας</option><option value="inactive">Ανενεργή</option></select></div>
+      <div><div class="lbl">Κατάσταση</div><select id="epst"><option value="active">Ενεργός</option><option value="injured">Τραυματίας</option><option value="inactive">Ανενεργός</option></select></div>
     </div>
     <div class="g2 mb"><div><div class="lbl">Χρονολογία Γέννησης</div><select id="epbirth"><option value="">— Επίλεξε —</option></select></div><div><div class="lbl">Τηλέφωνο επικοινωνίας</div><input id="epphone" type="tel" placeholder="π.χ. 6912345678"></div></div>
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="epnotes" placeholder="π.χ. Αδερφός του Παπαδόπουλου"></div>
@@ -130,7 +133,15 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="sdate" type="date"></div><div><div class="lbl">Τύπος</div><select id="stype"><option value="training">🏋️ Προπόνηση</option><option value="match">🏆 Αγώνας</option></select></div></div>
     <div class="mb"><div class="lbl">Θέμα / Αντίπαλος</div><input id="stit" placeholder="π.χ. Άμυνα zone ή Πειραϊκός"></div>
     <div class="g3 mb"><div><div class="lbl">Ώρα έναρξης</div><input id="stime" type="time" value="18:00"></div><div><div class="lbl">Ώρα λήξης</div><input id="stime2" type="time" value="20:00"></div><div><div class="lbl">Αριθμός αθλητών</div><input id="sath" type="number" min="1" max="30" placeholder="π.χ. 10"></div></div>
-    <div class="g2 mb"><div><div class="lbl">Ένταση</div><select id="sint"><option value="">— Επίλεξε —</option><option value="low">🟢 Χαμηλή</option><option value="medium">🟡 Μέτρια</option><option value="high">🔴 Υψηλή</option></select></div><div><div class="lbl">Link</div><input id="surl" type="url" placeholder="https://..."></div></div>
+    <div class="g2 mb"><div><div class="lbl">Ένταση</div><select id="sint"><option value="">— Επίλεξε —</option><option value="low">🟢 Χαμηλή</option><option value="medium">🟡 Μέτρια</option><option value="high">🔴 Υψηλή</option></select></div><div></div></div>
+    <div class="mb"><div class="lbl">Links (έως 4)</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <input id="surl1" type="url" placeholder="Link 1 https://...">
+        <input id="surl2" type="url" placeholder="Link 2 https://...">
+        <input id="surl3" type="url" placeholder="Link 3 https://...">
+        <input id="surl4" type="url" placeholder="Link 4 https://...">
+      </div>
+    </div>
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="snotes" placeholder="π.χ. Γυμναστήριο Β"></div>
     <div style="text-align:right"><button class="btn btn-blue" onclick="addSession()">+ Προσθήκη</button></div>
     <p class="err" id="serr">Συμπλήρωσε θέμα.</p>
@@ -140,7 +151,15 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="edate" type="date"></div><div><div class="lbl">Τύπος</div><select id="etype"><option value="training">🏋️ Προπόνηση</option><option value="match">🏆 Αγώνας</option></select></div></div>
     <div class="mb"><div class="lbl">Θέμα / Αντίπαλος</div><input id="etit"></div>
     <div class="g3 mb"><div><div class="lbl">Ώρα έναρξης</div><input id="etime" type="time"></div><div><div class="lbl">Ώρα λήξης</div><input id="etime2" type="time"></div><div><div class="lbl">Αθλητές</div><input id="eaths" type="number"></div></div>
-    <div class="g2 mb"><div><div class="lbl">Ένταση</div><select id="eint"><option value="">— Επίλεξε —</option><option value="low">🟢 Χαμηλή</option><option value="medium">🟡 Μέτρια</option><option value="high">🔴 Υψηλή</option></select></div><div><div class="lbl">Link</div><input id="eurl" type="url"></div></div>
+    <div class="g2 mb"><div><div class="lbl">Ένταση</div><select id="eint"><option value="">— Επίλεξε —</option><option value="low">🟢 Χαμηλή</option><option value="medium">🟡 Μέτρια</option><option value="high">🔴 Υψηλή</option></select></div><div></div></div>
+    <div class="mb"><div class="lbl">Links (έως 4)</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <input id="eurl1" type="url" placeholder="Link 1 https://...">
+        <input id="eurl2" type="url" placeholder="Link 2 https://...">
+        <input id="eurl3" type="url" placeholder="Link 3 https://...">
+        <input id="eurl4" type="url" placeholder="Link 4 https://...">
+      </div>
+    </div>
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="enotes"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="cancelEditSess()">Ακύρωση</button><button class="btn btn-blue" onclick="saveEditSess()">💾 Αποθήκευση</button></div>
   </div>
@@ -188,6 +207,17 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
   <div id="statsWrap"><p class="empty">Καταγράψτε τουλάχιστον μία προπόνηση.</p></div>
   </div>
   <div id="stats-matches" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <p class="sec-title">🔍 Φίλτρο Αγώνων</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+        <div><div class="lbl">Τύπος</div><select id="mftype" style="width:180px" onchange="onMatchFilterChange()"><option value="all">Όλοι οι αγώνες</option><option value="month">Ανά μήνα</option><option value="range">Εύρος ημερομηνιών</option></select></div>
+        <div id="mfmonth" style="display:none"><div class="lbl">Μήνας</div><input type="month" id="mfmonthval" style="width:160px"></div>
+        <div id="mfrange" style="display:none"><div style="display:flex;gap:8px;flex-wrap:wrap"><div><div class="lbl">Από</div><input type="date" id="mffrom" style="width:145px"></div><div><div class="lbl">Έως</div><input type="date" id="mfto" style="width:145px"></div></div></div>
+        <div><div class="lbl">Παίκτης</div><select id="mfplayer" style="width:180px"><option value="all">Όλοι</option></select></div>
+        <div><div class="lbl">Είδος</div><select id="mfkind" style="width:160px"><option value="all">Όλα</option><option value="ΕΣΚΑΝΑ">ΕΣΚΑΝΑ</option><option value="Φιλικό">Φιλικό</option><option value="ΦΕΑ">ΦΕΑ</option><option value="Κύπελλο">Κύπελλο</option><option value="Τουρνουά">Τουρνουά</option></select></div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn btn-blue" onclick="renderMatchStats()">🔍 Εφαρμογή</button><button class="btn" onclick="clearMatchFilter()">✕ Καθαρισμός</button></div>
+    </div>
     <div id="matchStatsWrap"><p class="empty">Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p></div>
   </div>
   <div id="stats-total" style="display:none">
@@ -240,6 +270,14 @@ function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return new Date(+
 function applyBtn(btn,opt,sel){btn.style.background=sel?opt.bg:'#f5f5f5';btn.style.color=sel?opt.c:'#666';btn.style.border=sel?opt.b:'1px solid #ccc';btn.style.fontWeight=sel?'700':'400';}
 function fillYearSelect(id,val){const sel=document.getElementById(id);if(!sel)return;const cur=new Date().getFullYear();sel.innerHTML='<option value="">— Επίλεξε —</option>';for(let y=cur;y>=1990;y--){const o=document.createElement('option');o.value=y;o.textContent=y;if(val&&+val===y)o.selected=true;sel.appendChild(o);}}
 
+window.toggleAddForm=function(){
+  const f=document.getElementById('addPlayerForm');
+  const b=document.getElementById('toggleAddBtn');
+  const open=f.style.display==='none';
+  f.style.display=open?'block':'none';
+  b.textContent=open?'✕ Κλείσιμο':'+ Προσθήκη';
+};
+
 window.go=function(i){
   const order=[0,1,2,4,3];
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',order[j]===i));
@@ -274,7 +312,7 @@ function renderPlayers(){
   document.getElementById('rm2').textContent=players.filter(p=>p.st==='injured').length;
   document.getElementById('rm3').textContent=players.filter(p=>p.st==='inactive').length;
   const el=document.getElementById('plist');
-  if(!players.length){el.innerHTML='<p class="empty">Δεν έχεις παίκτριες ακόμα.</p>';return;}
+  if(!players.length){el.innerHTML='<p class="empty">Δεν έχεις παίκτες ακόμα.</p>';return;}
   el.innerHTML='<div class="card">'+players.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${p.num?'#'+p.num+' ':''}${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${stCls(p.st)}">${stLbl(p.st)}</span><button class="editbtn" onclick="window.editPlayer('${p.id}')">✏️</button><button class="delbtn" onclick="window.delPlayer('${p.id}')">🗑️</button></div></div>`).join('')+'</div>';
 }
 
@@ -285,7 +323,7 @@ window.addPlayer=async function(){
   await setDoc(doc(db,CP,uid()),{name,num:document.getElementById('pnum').value||'',pos:document.getElementById('ppos').value||'',st:document.getElementById('pst').value,birth:document.getElementById('pbirth').value||'',phone:document.getElementById('pphone').value.trim()||'',notes:document.getElementById('pnotes').value.trim()||''});
   document.getElementById('pn').value='';document.getElementById('pnum').value='';document.getElementById('ppos').value='';document.getElementById('pbirth').value='';document.getElementById('pphone').value='';document.getElementById('pnotes').value='';
 };
-window.delPlayer=async function(id){if(!confirm('Διαγραφή παίκτριας;'))return;await deleteDoc(doc(db,CP,id));};
+window.delPlayer=async function(id){if(!confirm('Διαγραφή παίκτη;'))return;await deleteDoc(doc(db,CP,id));};
 window.editPlayer=function(id){
   const p=players.find(x=>x.id===id);if(!p)return;editPlayerId=id;
   document.getElementById('epn').value=p.name||'';document.getElementById('epnum').value=p.num||'';document.getElementById('eppos').value=p.pos||'';document.getElementById('epst').value=p.st||'active';
@@ -303,25 +341,28 @@ window.saveEditPlayer=async function(){
 function renderSessions(){
   const el=document.getElementById('slist');
   if(!sessions.length){el.innerHTML='<p class="empty">Δεν έχεις καταχωρήσεις ακόμα.</p>';return;}
-  el.innerHTML=sessions.map(s=>`<div class="sess"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;margin-bottom:3px">${s.type==='match'?'🏆':'🏋️'} ${s.title||''}</div><div style="font-size:12px;color:#999;display:flex;gap:8px;flex-wrap:wrap"><span>📅 ${s.date||''}</span><span>🕐 ${s.time||''}${s.timeEnd?' – '+s.timeEnd:''}</span>${s.athletes?'<span>👥 '+s.athletes+' αθλήτριες</span>':''}${s.intensity?'<span>'+(INTLBL[s.intensity]||'')+'</span>':''}${s.notes?'<span>📝 '+s.notes+'</span>':''}${s.url?'<span><a href="'+s.url+'" target="_blank" style="color:#1a6fa8">🔗 Link</a></span>':''}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="editbtn" onclick="window.editSess('${s.id}')">✏️</button><button class="delbtn" onclick="window.delSess('${s.id}')">🗑️</button></div></div>`).join('');
+  el.innerHTML=sessions.map(s=>`<div class="sess"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;margin-bottom:3px">${s.type==='match'?'🏆':'🏋️'} ${s.title||''}</div><div style="font-size:12px;color:#999;display:flex;gap:8px;flex-wrap:wrap"><span>📅 ${s.date||''}</span><span>🕐 ${s.time||''}${s.timeEnd?' – '+s.timeEnd:''}</span>${s.athletes?'<span>👥 '+s.athletes+' αθλητές</span>':''}${s.intensity?'<span>'+(INTLBL[s.intensity]||'')+'</span>':''}${s.notes?'<span>📝 '+s.notes+'</span>':''}${(s.urls||[]).map((u,i)=>'<span><a href="'+u+'" target="_blank" style="color:#1a6fa8">🔗 Link '+(i+1)+'</a></span>').join('')}${s.url?'<span><a href="'+s.url+'" target="_blank" style="color:#1a6fa8">🔗 Link</a></span>':''}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="editbtn" onclick="window.editSess('${s.id}')">✏️</button><button class="delbtn" onclick="window.delSess('${s.id}')">🗑️</button></div></div>`).join('');
 }
 window.addSession=async function(){
   const title=document.getElementById('stit').value.trim();if(!title){document.getElementById('serr').style.display='block';return;}
   document.getElementById('serr').style.display='none';sync('loading','Αποθήκευση...');
-  await setDoc(doc(db,CS,uid()),{date:document.getElementById('sdate').value||today(),type:document.getElementById('stype').value,title,time:document.getElementById('stime').value,timeEnd:document.getElementById('stime2').value,athletes:document.getElementById('sath').value,intensity:document.getElementById('sint').value,url:document.getElementById('surl').value.trim(),notes:document.getElementById('snotes').value.trim()});
-  document.getElementById('stit').value='';document.getElementById('snotes').value='';document.getElementById('surl').value='';document.getElementById('sint').value='';document.getElementById('sath').value='';
+  const urls=[1,2,3,4].map(i=>document.getElementById('surl'+i).value.trim()).filter(Boolean);
+  await setDoc(doc(db,CS,uid()),{date:document.getElementById('sdate').value||today(),type:document.getElementById('stype').value,title,time:document.getElementById('stime').value,timeEnd:document.getElementById('stime2').value,athletes:document.getElementById('sath').value,intensity:document.getElementById('sint').value,urls,notes:document.getElementById('snotes').value.trim()});
+  document.getElementById('stit').value='';document.getElementById('snotes').value='';[1,2,3,4].forEach(i=>document.getElementById('surl'+i).value='');document.getElementById('sint').value='';document.getElementById('sath').value='';
 };
 window.delSess=async function(id){if(!confirm('Διαγραφή;'))return;await deleteDoc(doc(db,CS,id));};
 window.editSess=function(id){
   const s=sessions.find(x=>x.id===id);if(!s)return;editSessId=id;
-  document.getElementById('edate').value=s.date||'';document.getElementById('etype').value=s.type||'training';document.getElementById('etit').value=s.title||'';document.getElementById('etime').value=s.time||'';document.getElementById('etime2').value=s.timeEnd||'';document.getElementById('eaths').value=s.athletes||'';document.getElementById('eint').value=s.intensity||'';document.getElementById('eurl').value=s.url||'';document.getElementById('enotes').value=s.notes||'';
+  document.getElementById('edate').value=s.date||'';document.getElementById('etype').value=s.type||'training';document.getElementById('etit').value=s.title||'';document.getElementById('etime').value=s.time||'';document.getElementById('etime2').value=s.timeEnd||'';document.getElementById('eaths').value=s.athletes||'';document.getElementById('eint').value=s.intensity||'';document.getElementById('enotes').value=s.notes||'';
+  const eu=s.urls||[];[1,2,3,4].forEach((n,i)=>{document.getElementById('eurl'+n).value=eu[i]||'';});
   document.getElementById('sedit').style.display='block';document.getElementById('sedit').scrollIntoView({behavior:'smooth'});
 };
 window.cancelEditSess=function(){editSessId=null;document.getElementById('sedit').style.display='none';};
 window.saveEditSess=async function(){
   if(!editSessId)return;const title=document.getElementById('etit').value.trim();if(!title){alert('Συμπλήρωσε θέμα.');return;}
   sync('loading','Αποθήκευση...');
-  await setDoc(doc(db,CS,editSessId),{date:document.getElementById('edate').value||today(),type:document.getElementById('etype').value,title,time:document.getElementById('etime').value,timeEnd:document.getElementById('etime2').value,athletes:document.getElementById('eaths').value,intensity:document.getElementById('eint').value,url:document.getElementById('eurl').value.trim(),notes:document.getElementById('enotes').value.trim()});
+  const eurls=[1,2,3,4].map(i=>document.getElementById('eurl'+i).value.trim()).filter(Boolean);
+  await setDoc(doc(db,CS,editSessId),{date:document.getElementById('edate').value||today(),type:document.getElementById('etype').value,title,time:document.getElementById('etime').value,timeEnd:document.getElementById('etime2').value,athletes:document.getElementById('eaths').value,intensity:document.getElementById('eint').value,urls:eurls,notes:document.getElementById('enotes').value.trim()});
   editSessId=null;document.getElementById('sedit').style.display='none';
 };
 
@@ -340,7 +381,7 @@ function makeSegment(opts,curArr,idx){
 function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
-  if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
+  if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτες στο Ρόστερ.</p>';act.style.display='none';return;}
   if(editAttIdx<0)curAtt=players.map(()=>'p');
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
@@ -372,7 +413,7 @@ window.delAtt=async function(id){if(!confirm('Διαγραφή;'))return;await d
 function renderMatchAttForm(){
   const el=document.getElementById('mattlist'),act=document.getElementById('mattact');
   if(editMatchIdx<0){document.getElementById('mdate').value=today();document.getElementById('mopponent').value='';document.getElementById('mresult').value='';}
-  if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
+  if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτες στο Ρόστερ.</p>';act.style.display='none';return;}
   if(editMatchIdx<0)curMatchAtt=players.map(()=>'p');
   act.style.display='flex';
   document.getElementById('msavebtn').textContent=editMatchIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
@@ -463,10 +504,47 @@ window.setStatsTab=function(i){
   if(i===2)renderTotalStats();
 };
 
+window.onMatchFilterChange=function(){
+  const t=document.getElementById('mftype').value;
+  document.getElementById('mfmonth').style.display=t==='month'?'block':'none';
+  document.getElementById('mfrange').style.display=t==='range'?'block':'none';
+};
+window.clearMatchFilter=function(){
+  document.getElementById('mftype').value='all';
+  document.getElementById('mfmonth').style.display='none';
+  document.getElementById('mfrange').style.display='none';
+  document.getElementById('mfmonthval').value='';
+  document.getElementById('mffrom').value='';
+  document.getElementById('mfto').value='';
+  document.getElementById('mfplayer').value='all';
+  document.getElementById('mfkind').value='all';
+  renderMatchStats();
+};
+function getMatchFiltered(){
+  let r=[...matchSessions];
+  const t=document.getElementById('mftype').value;
+  if(t==='month'){const m=document.getElementById('mfmonthval').value;if(m)r=r.filter(s=>(s.date||'').startsWith(m));}
+  else if(t==='range'){const f=document.getElementById('mffrom').value,to=document.getElementById('mfto').value;if(f)r=r.filter(s=>s.date>=f);if(to)r=r.filter(s=>s.date<=to);}
+  const kind=document.getElementById('mfkind').value;
+  if(kind&&kind!=='all')r=r.filter(s=>s.mkind===kind);
+  return r;
+}
+function updateMatchPlayerFilter(){
+  const sel=document.getElementById('mfplayer');const cur=sel.value;
+  sel.innerHTML='<option value="all">Όλοι</option>';
+  players.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;sel.appendChild(o);});
+  sel.value=cur;
+}
+
 function renderMatchStats(){
+  updateMatchPlayerFilter();
   const el=document.getElementById('matchStatsWrap');
   if(!matchSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p>';return;}
-  const total=matchSessions.length;
+  const filtered=getMatchFiltered();
+  if(!filtered.length){el.innerHTML='<p class="empty">Δεν υπάρχουν αγώνες για το επιλεγμένο διάστημα.</p>';return;}
+  const total=filtered.length;
+  const pIdx=document.getElementById('mfplayer').value;
+  const filterP=(pIdx&&pIdx!=='all')?parseInt(pIdx):null;
   const pstats=players.map((p,idx)=>({
     name:p.name,pos:p.pos||'',
     present:matchSessions.filter(s=>(s.att||[])[idx]==='p').length,
@@ -485,7 +563,7 @@ function renderMatchStats(){
   </div>
   <div class="card">
     <p class="sec-title">Ιστορικό αγώνων</p>
-    ${matchSessions.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span></div></div>`;}).join('')}
+    ${filtered.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span></div></div>`;}).join('')}
   </div>`;
 }
 
