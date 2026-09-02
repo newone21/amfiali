@@ -91,6 +91,12 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="io-status" id="iostatus"></div>
   </div>
 
+  <div class="io-wrap" style="text-align:center">
+    <div class="io-title" style="text-align:center">👥 Σύνολο Εγγεγραμμένων</div>
+    <div id="totalCount" style="font-size:36px;font-weight:700;color:#1a6fa8;margin:8px 0">—</div>
+    <div style="font-size:13px;color:#666">παίκτες σε όλα τα τμήματα</div>
+  </div>
+
   <div class="io-wrap">
     <div class="io-title">✅ Εξαγωγή / Εισαγωγή Παρουσιών Προπονήσεων</div>
     <div class="io-btns">
@@ -139,7 +145,8 @@ async function doSearch(){
   if(!results.length){el.innerHTML='<p class="empty">Δεν βρέθηκαν αποτελέσματα.</p>';return;}
   // Sort by team then name
   results.sort(function(a,b){return a.team.localeCompare(b.team)||a.name.localeCompare(b.name,'el');});
-  el.innerHTML=results.map(function(r){
+  var countHtml=searchType==='birth'?'<div style="font-size:13px;font-weight:600;color:#1a6fa8;margin-bottom:8px;text-align:left">Βρέθηκαν <strong>'+results.length+'</strong> παίκτες με χρονολογία γέννησης '+q+'</div>':'';
+  el.innerHTML=countHtml+results.map(function(r){
     var ini=(r.name||'??').slice(0,2).toUpperCase();
     var info=[r.pos,r.birth,r.phone?'📞 '+r.phone:''].filter(Boolean).join(' · ');
     return '<div class="result"><div class="av">'+ini+'</div><div style="flex:1;min-width:0"><div class="result-name">'+r.name+'</div>'+(info?'<div class="result-info">'+info+'</div>':'')+'</div><span class="result-team">'+r.team+'</span></div>';
@@ -359,6 +366,25 @@ async function importAttAll(event){
   };
   reader.readAsArrayBuffer(file);
 }
+
+// Count total players across all teams
+async function countAllPlayers(){
+  var total=0;
+  var counted=new Set();
+  for(var i=0;i<ALL_TEAMS.length;i++){
+    try{
+      var snap=await db.collection(ALL_TEAMS[i].players).get();
+      snap.docs.forEach(function(d){
+        var name=(d.data().name||'').trim();
+        // Count unique per collection (same name in different teams = different player)
+        counted.add(ALL_TEAMS[i].players+'_'+name);
+        total++;
+      });
+    }catch(e){}
+  }
+  document.getElementById('totalCount').textContent=total;
+}
+countAllPlayers();
 </script>
 </body>
 </html>
