@@ -123,6 +123,13 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <div class="g2 mb"><div><div class="lbl">Χρονολογία Γέννησης</div><select id="epbirth"><option value="">— Επίλεξε —</option></select></div><div><div class="lbl">Τηλέφωνο επικοινωνίας</div><input id="epphone" type="tel" placeholder="π.χ. 6912345678"></div></div>
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="epnotes" placeholder="π.χ. Αδερφός του Παπαδόπουλου"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="cancelEditPlayer()">Ακύρωση</button><button class="btn btn-blue" onclick="saveEditPlayer()">💾 Αποθήκευση</button></div>
+    <hr style="margin:14px 0;border:none;border-top:1px solid #f0d080">
+    <div style="margin-bottom:8px"><div class="lbl">↔️ Μεταφορά σε άλλο τμήμα</div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <select id="transferTarget" style="flex:1;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px"><option value="">Φόρτωση τμημάτων...</option></select>
+        <button class="btn" style="background:#fff3cd;color:#856404;border-color:#ffc107;font-weight:600;white-space:nowrap" onclick="transferPlayer()">↔️ Μεταφορά</button>
+      </div>
+    </div>
   </div>
   <div id="plist"></div>
 </div>
@@ -278,6 +285,64 @@ window.toggleAddForm=function(){
   b.textContent=open?'✕ Κλείσιμο':'+ Προσθήκη';
 };
 
+// TRANSFER PLAYER
+var ALL_TEAM_COLLECTIONS=[
+  {label:'Ανδρικό', col:'players'},
+  {label:'Νεανίδες', col:'neanides_players'},
+  {label:'Κορασίδες', col:'korasides_players'},
+  {label:'Παιδικό', col:'paidiko_players'},
+  {label:'Εφηβικό', col:'efiviko_players'},
+  {label:'2016-2019', col:'akademies_players'},
+  {label:'2010-2011 Β', col:'ak_2010_2011_players'},
+  {label:'2012-2013 Α', col:'ak_2012_2013_a_players'},
+  {label:'2012-2013-2014', col:'ak_2012_2013_2014_players'},
+  {label:'2014-2015-2016', col:'ak_2014_2015_2016_players'},
+  {label:'2018-2019-2020', col:'ak_2018_2019_2020_players'},
+  {label:'Κορίτσια Α', col:'ak_koritsia_a_players'},
+  {label:'Κορίτσια Β', col:'ak_koritsia_b_players'},
+];
+
+function populateTransferDropdown(){
+  const sel=document.getElementById('transferTarget');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Επίλεξε τμήμα —</option>';
+  ALL_TEAM_COLLECTIONS.forEach(function(t){
+    if(t.col===CP)return; // skip current team
+    const o=document.createElement('option');
+    o.value=t.col;
+    o.textContent=t.label;
+    sel.appendChild(o);
+  });
+}
+
+window.transferPlayer=async function(){
+  if(!editPlayerId)return;
+  const targetCol=document.getElementById('transferTarget').value;
+  if(!targetCol){alert('Επίλεξε τμήμα προορισμού.');return;}
+  const targetLabel=ALL_TEAM_COLLECTIONS.find(t=>t.col===targetCol)?.label||targetCol;
+  const player=players.find(p=>p.id===editPlayerId);
+  if(!player)return;
+  if(!confirm('Μεταφορά του '+player.name+' στο τμήμα "'+targetLabel+'";\nΟι παρουσίες του στο τρέχον τμήμα παραμένουν στο ιστορικό.'))return;
+  sync('loading','Μεταφορά...');
+  try{
+    // Add to new team
+    await setDoc(doc(db,targetCol,uid()),{
+      name:player.name,num:player.num||'',pos:player.pos||'',
+      st:player.st||'active',birth:player.birth||'',
+      phone:player.phone||'',notes:player.notes||''
+    });
+    // Delete from current team
+    await deleteDoc(doc(db,CP,editPlayerId));
+    editPlayerId=null;
+    document.getElementById('pedit').style.display='none';
+    sync('ok','Μεταφορά ολοκληρώθηκε!');
+    alert('✓ Ο παίκτης μεταφέρθηκε στο τμήμα "'+targetLabel+'" επιτυχώς!');
+  }catch(e){
+    sync('err','Σφάλμα μεταφοράς');
+    alert('Σφάλμα: '+e.message);
+  }
+};
+
 window.go=function(i){
   const order=[0,1,2,4,3];
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',order[j]===i));
@@ -328,7 +393,9 @@ window.editPlayer=function(id){
   const p=players.find(x=>x.id===id);if(!p)return;editPlayerId=id;
   document.getElementById('epn').value=p.name||'';document.getElementById('epnum').value=p.num||'';document.getElementById('eppos').value=p.pos||'';document.getElementById('epst').value=p.st||'active';
   document.getElementById('epphone').value=p.phone||'';document.getElementById('epnotes').value=p.notes||'';
-  fillYearSelect('epbirth',p.birth);document.getElementById('pedit').style.display='block';document.getElementById('pedit').scrollIntoView({behavior:'smooth'});
+  fillYearSelect('epbirth',p.birth);
+  populateTransferDropdown();
+  document.getElementById('pedit').style.display='block';document.getElementById('pedit').scrollIntoView({behavior:'smooth'});
 };
 window.cancelEditPlayer=function(){editPlayerId=null;document.getElementById('pedit').style.display='none';};
 window.saveEditPlayer=async function(){

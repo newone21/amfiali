@@ -78,7 +78,15 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
       <input id="searchInput" type="text" placeholder="π.χ. Παπαδόπουλος ή 2012" onkeydown="if(event.key==='Enter')doSearch()">
       <button onclick="doSearch()">Αναζήτηση</button>
     </div>
+    <div id="monthFilterWrap" style="display:none;margin-bottom:10px">
+      <div style="font-size:12px;color:#666;margin-bottom:4px;font-weight:500">Φίλτρο παρουσιών ανά μήνα (προαιρετικό)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="month" id="attMonth" style="flex:1;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px">
+        <button class="btn" style="background:#1a6fa8;color:#fff;border-color:#1a6fa8;font-size:13px;padding:0 12px;height:38px" onclick="loadPlayerAttendance()">📊 Παρουσίες</button>
+      </div>
+    </div>
     <div id="searchResults"></div>
+    <div id="attResults"></div>
   </div>
 
   <div class="io-wrap">
@@ -364,6 +372,70 @@ async function importAttAll(event){
   };
   reader.readAsArrayBuffer(file);
 }
+
+// Load attendance for searched player across all teams
+window.loadPlayerAttendance=async function(){
+  var results=window._lastSearchResults||[];
+  if(!results.length){alert('Κάνε πρώτα αναζήτηση παίκτη.');return;}
+  var month=document.getElementById('attMonth').value;
+  var el=document.getElementById('attResults');
+  el.innerHTML='<p class="empty">Φόρτωση παρουσιών...</p>';
+
+  var totalPresent=0,totalAbsent=0,totalInjured=0,totalJustified=0,totalSessions=0;
+  var teamDetails=[];
+
+  for(var i=0;i<results.length;i++){
+    var r=results[i];
+    // Find which collection this player is in
+    var teamCol=ALL_TEAMS.find(function(t){return t.team===r.team;});
+    if(!teamCol)continue;
+    try{
+      // Get players list to find index
+      var pSnap=await db.collection(teamCol.players).get();
+      var playersList=pSnap.docs.map(function(d){return d.data().name||'';});
+      var pIdx=playersList.indexOf(r.name);
+      if(pIdx<0)continue;
+      // Get attendance
+      var aSnap=await db.collection(teamCol.attendance).get();
+      var sessions=aSnap.docs.map(function(d){return d.data();});
+      // Filter by month if set
+      if(month)sessions=sessions.filter(function(s){return (s.date||'').startsWith(month);});
+      var present=0,absent=0,injured=0,justified=0;
+      sessions.forEach(function(s){
+        var v=(s.att||[])[pIdx];
+        if(v==='p')present++;
+        else if(v==='a')absent++;
+        else if(v==='i')injured++;
+        else if(v==='j')justified++;
+      });
+      if(sessions.length>0){
+        teamDetails.push({team:r.team,total:sessions.length,present,absent,injured,justified});
+        totalPresent+=present;totalAbsent+=absent;totalInjured+=injured;totalJustified+=justified;totalSessions+=sessions.length;
+      }
+    }catch(e){}
+  }
+
+  if(!teamDetails.length){
+    el.innerHTML='<p class="empty">Δεν βρέθηκαν παρουσίες'+(month?' για τον επιλεγμένο μήνα':'')+'.</p>';
+    return;
+  }
+
+  var pct=totalSessions>0?Math.round(totalPresent/totalSessions*100):0;
+  var monthLabel=month?(' — '+new Date(month+'-01').toLocaleDateString('el-GR',{month:'long',year:'numeric'})):'';
+
+  el.innerHTML='<div class="card" style="margin-top:12px;text-align:left">'
+    +'<p class="sec-title" style="margin-bottom:12px">📊 Παρουσίες'+monthLabel+'</p>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">'
+    +'<div style="background:#EAF3DE;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#3B6D11">'+totalPresent+'</div><div style="font-size:11px;color:#3B6D11">Παρών</div></div>'
+    +'<div style="background:#FCEBEB;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#A32D2D">'+totalAbsent+'</div><div style="font-size:11px;color:#A32D2D">Απών</div></div>'
+    +'<div style="background:#FAEEDA;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#854F0B">'+totalInjured+'</div><div style="font-size:11px;color:#854F0B">Τραυμ.</div></div>'
+    +'<div style="background:#E6F1FB;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#185FA5">'+totalJustified+'</div><div style="font-size:11px;color:#185FA5">Δικαιολ.</div></div>'
+    +'</div>'
+    +'<div style="font-size:13px;color:#666;margin-bottom:10px">Σύνολο: <strong>'+totalSessions+'</strong> προπονήσεις · Ποσοστό παρουσίας: <strong>'+pct+'%</strong></div>'
+    +(teamDetails.length>1?'<div style="font-size:12px;font-weight:600;color:#999;margin-bottom:6px">Ανά τμήμα:</div>'
+      +teamDetails.map(function(d){return '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #f0f0f0"><span style="color:#444">'+d.team+'</span><span style="color:#1a6fa8;font-weight:600">'+d.present+'/'+d.total+' παρουσίες</span></div>';}).join(''):'')
+    +'</div>';
+};
 
 // Count total players across all teams
 async function countAllPlayers(){
