@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
       <div style="display:flex;gap:8px;margin-top:6px">
         <select id="transferTarget" style="flex:1;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px"><option value="">Φόρτωση τμημάτων...</option></select>
         <button class="btn" style="background:#fff3cd;color:#856404;border-color:#ffc107;font-weight:600;white-space:nowrap" onclick="transferPlayer()">↔️ Μεταφορά</button>
+        <button class="btn" style="background:#e8f4fd;color:#1a6fa8;border-color:#1a6fa8;font-weight:600;white-space:nowrap" onclick="copyPlayer()">📋 Αντιγραφή</button>
       </div>
     </div>
   </div>
@@ -339,6 +340,29 @@ window.transferPlayer=async function(){
     alert('✓ Ο παίκτης μεταφέρθηκε στο τμήμα "'+targetLabel+'" επιτυχώς!');
   }catch(e){
     sync('err','Σφάλμα μεταφοράς');
+    alert('Σφάλμα: '+e.message);
+  }
+};
+
+window.copyPlayer=async function(){
+  if(!editPlayerId)return;
+  const targetCol=document.getElementById('transferTarget').value;
+  if(!targetCol){alert('Επίλεξε τμήμα προορισμού.');return;}
+  const targetLabel=ALL_TEAM_COLLECTIONS.find(t=>t.col===targetCol)?.label||targetCol;
+  const player=players.find(p=>p.id===editPlayerId);
+  if(!player)return;
+  if(!confirm('Αντιγραφή του '+player.name+' στο τμήμα "'+targetLabel+'";\nΟ παίκτης θα παραμείνει και στο τρέχον τμήμα.'))return;
+  sync('loading','Αντιγραφή...');
+  try{
+    await setDoc(doc(db,targetCol,uid()),{
+      name:player.name,num:player.num||'',pos:player.pos||'',
+      st:player.st||'active',birth:player.birth||'',
+      phone:player.phone||'',notes:player.notes||''
+    });
+    sync('ok','Αντιγραφή ολοκληρώθηκε!');
+    alert('✓ Ο παίκτης αντιγράφηκε στο τμήμα "'+targetLabel+'" επιτυχώς!\nΠαραμένει και στο τρέχον τμήμα.');
+  }catch(e){
+    sync('err','Σφάλμα αντιγραφής');
     alert('Σφάλμα: '+e.message);
   }
 };
