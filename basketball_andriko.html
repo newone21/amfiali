@@ -124,11 +124,12 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <div class="mb"><div class="lbl">Σημειώσεις</div><input id="epnotes" placeholder="π.χ. Αδερφός του Παπαδόπουλου"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="cancelEditPlayer()">Ακύρωση</button><button class="btn btn-blue" onclick="saveEditPlayer()">💾 Αποθήκευση</button></div>
     <hr style="margin:14px 0;border:none;border-top:1px solid #f0d080">
-    <div style="margin-bottom:8px"><div class="lbl">↔️ Μεταφορά σε άλλο τμήμα</div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <select id="transferTarget" style="flex:1;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px"><option value="">Φόρτωση τμημάτων...</option></select>
-        <button class="btn" style="background:#fff3cd;color:#856404;border-color:#ffc107;font-weight:600;white-space:nowrap" onclick="transferPlayer()">↔️ Μεταφορά</button>
-        <button class="btn" style="background:#e8f4fd;color:#1a6fa8;border-color:#1a6fa8;font-weight:600;white-space:nowrap" onclick="copyPlayer()">📋 Αντιγραφή</button>
+    <div style="margin-bottom:8px">
+      <div class="lbl">↔️ Μεταφορά / Αντιγραφή σε άλλο τμήμα</div>
+      <select id="transferTarget" style="width:100%;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px;margin-top:6px;margin-bottom:8px"><option value="">— Επίλεξε τμήμα —</option></select>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1;background:#fff3cd;color:#856404;border-color:#ffc107;font-weight:600" onclick="transferPlayer()">↔️ Μεταφορά</button>
+        <button class="btn" style="flex:1;background:#e8f4fd;color:#1a6fa8;border-color:#1a6fa8;font-weight:600" onclick="copyPlayer()">📋 Αντιγραφή</button>
       </div>
     </div>
   </div>
