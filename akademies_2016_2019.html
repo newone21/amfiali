@@ -83,14 +83,14 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
 </div>
 <div class="sync-bar"><div class="dot loading" id="sdot"></div><span id="stxt">Σύνδεση...</span></div>
 <nav>
-  <button class="tab active" onclick="go(0)">👥 Ρόστερ</button>
-  <button class="tab" onclick="go(1)">📅 Πρόγραμμα</button>
-  <button class="tab" onclick="go(2)">✅ Παρουσιολόγιο<br><small>Προπονήσεων</small></button>
+  <button class="tab active" onclick="go(2)">✅ Παρουσιολόγιο<br><small>Προπονήσεων</small></button>
   <button class="tab" onclick="go(4)">🏆 Παρουσιολόγιο<br><small>Αγώνων</small></button>
+  <button class="tab" onclick="go(0)">👥 Ρόστερ</button>
+  <button class="tab" onclick="go(1)">📅 Πρόγραμμα</button>
   <button class="tab" onclick="go(3)">📊 Στατιστικά</button>
 </nav>
 
-<div class="sec active" id="sec0">
+<div class="sec" id="sec0">
   <div class="g4">
     <div class="met"><div class="met-n" id="rm0">0</div><div class="met-l">Παίκτες</div></div>
     <div class="met"><div class="met-n" id="rm1">0</div><div class="met-l">Ενεργοί</div></div>
@@ -175,7 +175,10 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
   <div id="slist"><p class="empty">Δεν έχεις καταχωρήσεις ακόμα.</p></div>
 </div>
 
-<div class="sec" id="sec2">
+<div class="sec active" id="sec2">
+  <div id="lastTrainingBanner" style="background:#fdf0e0;border:1px solid #f0d0a0;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#1a6fa8;display:none">
+    📅 Τελευταία προπόνηση: <strong id="lastTrainingDate">—</strong>
+  </div>
   <div class="card">
     <p class="sec-title">✅ Παρουσιολόγιο Προπονήσεων</p>
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="adate" type="date"></div><div><div class="lbl">Θέμα</div><input id="atopic" placeholder="π.χ. Στίβος"></div></div>
@@ -309,7 +312,7 @@ function populateTransferDropdown(){
   if(!sel)return;
   sel.innerHTML='<option value="">— Επίλεξε τμήμα —</option>';
   ALL_TEAM_COLLECTIONS.forEach(function(t){
-    if(t.col===CP)return;
+    if(t.col===CP)return; // skip current team
     const o=document.createElement('option');
     o.value=t.col;
     o.textContent=t.label;
@@ -327,11 +330,13 @@ window.transferPlayer=async function(){
   if(!confirm('Μεταφορά του '+player.name+' στο τμήμα "'+targetLabel+'";\nΟι παρουσίες του στο τρέχον τμήμα παραμένουν στο ιστορικό.'))return;
   sync('loading','Μεταφορά...');
   try{
+    // Add to new team
     await setDoc(doc(db,targetCol,uid()),{
       name:player.name,num:player.num||'',pos:player.pos||'',
       st:player.st||'active',birth:player.birth||'',
       phone:player.phone||'',notes:player.notes||''
     });
+    // Delete from current team
     await deleteDoc(doc(db,CP,editPlayerId));
     editPlayerId=null;
     document.getElementById('pedit').style.display='none';
@@ -387,6 +392,17 @@ onSnapshot(collection(db,CS),snap=>{
 
 onSnapshot(collection(db,CA),snap=>{
   attSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(attSessions.length){
+    const last=attSessions[0];
+    const d=last.date?new Date(last.date+'T00:00:00'):null;
+    const label=d?d.toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+    const banner=document.getElementById('lastTrainingBanner');
+    const dateEl=document.getElementById('lastTrainingDate');
+    if(banner&&dateEl){
+      dateEl.textContent=label+(last.topic?' · '+last.topic:'');
+      banner.style.display='block';
+    }
+  }
 });
 
 onSnapshot(collection(db,CM),snap=>{
@@ -722,6 +738,7 @@ window.importRoster=async function(event){const file=event.target.files[0];if(!f
 window.importAtt=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχουσες παρουσίες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CA));for(const d of snap.docs)await deleteDoc(doc(db,CA,d.id));const labMap={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};const groups={};rows.forEach(r=>{const k=r['Ημερομηνία']+'||'+r['Θέμα'];if(!groups[k])groups[k]={date:String(r['Ημερομηνία']),topic:String(r['Θέμα']),entries:[]};groups[k].entries.push({name:String(r['Παίκτης']),status:labMap[r['Κατάσταση']]||'a'});});for(const g of Object.values(groups)){const att=players.map(p=>{const e=g.entries.find(x=>x.name===p.name);return e?e.status:'a';});await setDoc(doc(db,CA,uid()),{date:g.date,topic:g.topic,att});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};
 
 document.getElementById('adate').value=today();document.getElementById('mdate').value=today();document.getElementById('sdate').value=today();fillYearSelect('pbirth','');
+setTimeout(()=>renderAttForm(),500);
 </script>
 </body>
 </html>
