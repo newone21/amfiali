@@ -569,11 +569,10 @@ window.saveAtt=async function(){
     if(sn)sn.value='';
     sync('ok','');
     renderAttForm();
-    var t=document.getElementById('toast');
-    t.textContent='✅ Αποθηκεύτηκε!';
-    t.style.display='block';
-    clearTimeout(window._toastTimer);
-    window._toastTimer=setTimeout(function(){t.style.display='none';},3000);
+    var ok=document.getElementById('attok');
+    ok.style.display='inline';
+    clearTimeout(window._attTimer);
+    window._attTimer=setTimeout(function(){ok.style.display='none';},3000);
   }catch(e){sync('err','Σφάλμα');alert('Σφάλμα: '+e.message);}
 };
 window.startEditAtt=function(i){

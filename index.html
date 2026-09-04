@@ -91,8 +91,11 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div id="attResults"></div>
   </div>
 
-  <div class="io-wrap" id="alertsSection" style="display:none">
-    <div class="io-title">⚠️ Ειδοποιήσεις</div>
+  <div class="io-wrap" id="alertsSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="io-title" style="margin-bottom:0">⚠️ Ειδοποιήσεις</div>
+      <button onclick="checkAlerts()" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">🔄 Ανανέωση</button>
+    </div>
     <div id="alertsList"><p style="font-size:13px;color:#999">Φόρτωση...</p></div>
   </div>
 
@@ -468,8 +471,8 @@ async function checkAlerts(){
   }
   var sec=document.getElementById('alertsSection');
   var el=document.getElementById('alertsList');
-  if(!alerts.length){sec.style.display='none';return;}
   sec.style.display='block';
+  if(!alerts.length){el.innerHTML='<p style="font-size:13px;color:#1a7a3f">✅ Δεν υπάρχουν παίκτες με 5+ συνεχόμενες απουσίες.</p>';return;}
   el.innerHTML=alerts.map(function(a){
     var ini=(a.name||'??').slice(0,2).toUpperCase();
     return '<div class="alert-row"><div class="alert-av">'+ini+'</div><div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:12px;color:#721c24">'+a.team+' · '+a.consec+' συνεχόμενες απουσίες</div></div></div>';
