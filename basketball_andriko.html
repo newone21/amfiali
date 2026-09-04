@@ -411,9 +411,12 @@ window.copyPlayer=async function(){
 
 window.setAttSort=function(mode){
   attSortMode=mode;
-  document.getElementById('sortAlpha').className='btn '+(mode==='alpha'?'btn-blue':'');
-  document.getElementById('sortAgeAsc').className='btn '+(mode==='age_asc'?'btn-blue':'');
-  document.getElementById('sortAgeDesc').className='btn '+(mode==='age_desc'?'btn-blue':'');
+  var sa=document.getElementById('sortAlpha');
+  var sb=document.getElementById('sortAgeAsc');
+  var sc=document.getElementById('sortAgeDesc');
+  if(sa)sa.className='btn '+(mode==='alpha'?'btn-blue':'');
+  if(sb)sb.className='btn '+(mode==='age_asc'?'btn-blue':'');
+  if(sc)sc.className='btn '+(mode==='age_desc'?'btn-blue':'');
   renderAttForm();
 };
 
