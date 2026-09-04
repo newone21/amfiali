@@ -410,6 +410,15 @@ onSnapshot(collection(db,CM),snap=>{
   if(document.getElementById('sec4').classList.contains('active'))renderMatchHistory();
 });
 
+onSnapshot(collection(db,CP_EF),snap=>{
+  efPlayers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+  renderAttForm();
+});
+
+onSnapshot(collection(db,CA_EF),snap=>{
+  efAttSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+});
+
 function renderPlayers(){
   document.getElementById('rm0').textContent=players.length;
   document.getElementById('rm1').textContent=players.filter(p=>p.st==='active').length;
@@ -484,6 +493,18 @@ function makeSegment(opts,curArr,idx){
   return seg;
 }
 
+function makeSegmentById(opts,curObj,pid){
+  const seg=document.createElement('div');seg.style.cssText='display:flex;border-radius:6px;overflow:hidden;border:1px solid #ccc;margin-left:auto';
+  opts.forEach((opt,oi)=>{
+    const btn=document.createElement('button');btn.textContent=opt.l;
+    btn.style.cssText=`padding:0 10px;height:34px;font-size:12px;cursor:pointer;border:none;${oi<opts.length-1?'border-right:1px solid #ccc;':''}`;
+    applyBtn(btn,opt,(curObj[pid]||'p')===opt.k);
+    btn.addEventListener('click',()=>{curObj[pid]=opt.k;seg.querySelectorAll('button').forEach((b,bi)=>applyBtn(b,opts[bi],bi===oi));});
+    seg.appendChild(btn);
+  });
+  return seg;
+}
+
 function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
@@ -500,18 +521,45 @@ function renderAttForm(){
     row.appendChild(av);row.appendChild(info);row.appendChild(makeSegment(OPTS,curAtt,idx));wrap.appendChild(row);
   });
   el.innerHTML='';el.appendChild(wrap);
+
+  // Add Efiviko players section
+  if(efPlayers.length){
+    if(editAttIdx<0) curEfAtt=efPlayers.map(()=>'p');
+    const efWrap=document.createElement('div');efWrap.className='card';efWrap.style.marginTop='12px';
+    const efTitle=document.createElement('div');
+    efTitle.style.cssText='font-size:13px;font-weight:700;color:#8a3a0a;padding:8px 0;border-bottom:2px solid #8a3a0a;margin-bottom:8px';
+    efTitle.textContent='🏀 Εφηβικό';
+    efWrap.appendChild(efTitle);
+    efPlayers.forEach((p,idx)=>{
+      const row=document.createElement('div');row.className='prow';
+      const av=document.createElement('div');av.className='av';av.style.cssText='width:36px;height:36px;border-radius:50%;background:#fdf5f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#8a3a0a;flex-shrink:0';av.textContent=ini(p.name);
+      const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
+      info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.birth?p.birth:''}</div>`;
+      row.appendChild(av);row.appendChild(info);row.appendChild(makeSegment(OPTS,curEfAtt,idx));efWrap.appendChild(row);
+    });
+    el.appendChild(efWrap);
+  }
 }
-window.markAll=function(v){curAtt=players.map(()=>v);renderAttForm();};
+window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
   sync('loading','Αποθήκευση...');
-  if(editAttIdx>=0){await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,att:[...curAtt]});editAttIdx=-1;}
-  else{await setDoc(doc(db,CA,uid()),{date,topic,att:[...curAtt]});}
+  if(editAttIdx>=0){await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,att:{...curAtt}});editAttIdx=-1;}
+  else{await setDoc(doc(db,CA,uid()),{date,topic,att:{...curAtt}});}
+  if(efPlayers.length&&Object.keys(curEfAtt).length){
+    const existingEf=efAttSessions.find(s=>s.date===date&&s.topic===topic);
+    if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,att:{...curEfAtt}});}
+    else{await setDoc(doc(db,CA_EF,uid()),{date,topic,att:{...curEfAtt}});}
+  }
   const ok=document.getElementById('attok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
   editAttIdx=-1;renderAttForm();
 };
 window.startEditAtt=function(i){
-  const s=attSessions[i];editAttIdx=i;curAtt=[...s.att];
+  const s=attSessions[i];editAttIdx=i;
+  curAtt={};
+  if(typeof s.att==='object'&&!Array.isArray(s.att)){curAtt={...s.att};}
+  else if(Array.isArray(s.att)){players.forEach((p,idx)=>curAtt[p.id]=s.att[idx]||'p');}
+  else{players.forEach(p=>curAtt[p.id]='p');}
   window.go(2);setTimeout(()=>{document.getElementById('adate').value=s.date;document.getElementById('atopic').value=s.topic;renderAttForm();},100);
 };
 window.delAtt=async function(id){if(!confirm('Διαγραφή;'))return;await deleteDoc(doc(db,CA,id));renderStats();};
@@ -520,31 +568,31 @@ function renderMatchAttForm(){
   const el=document.getElementById('mattlist'),act=document.getElementById('mattact');
   if(editMatchIdx<0){document.getElementById('mdate').value=today();document.getElementById('mopponent').value='';document.getElementById('mresult').value='';}
   if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτες στο Ρόστερ.</p>';act.style.display='none';return;}
-  if(editMatchIdx<0)curMatchAtt=players.map(()=>'p');
+  if(editMatchIdx<0){curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]='p');}
   act.style.display='flex';
   document.getElementById('msavebtn').textContent=editMatchIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
-  players.forEach((p,idx)=>{
+  players.forEach((p)=>{
     const row=document.createElement('div');row.className='prow';
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
     info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div>`;
-    row.appendChild(av);row.appendChild(info);row.appendChild(makeSegment(MOPTS,curMatchAtt,idx));wrap.appendChild(row);
+    row.appendChild(av);row.appendChild(info);row.appendChild(makeSegmentById(MOPTS,curMatchAtt,p.id));wrap.appendChild(row);
   });
   el.innerHTML='';el.appendChild(wrap);renderMatchHistory();
 }
-window.markAllMatch=function(v){curMatchAtt=players.map(()=>v);renderMatchAttForm();};
+window.markAllMatch=function(v){curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]=v);renderMatchAttForm();};
 window.saveMatchAtt=async function(){
   const date=document.getElementById('mdate').value||today();const opponent=document.getElementById('mopponent').value.trim()||'Αγώνας';const result=document.getElementById('mresult').value.trim();const location=document.getElementById('mlocation').value;const mkind=document.getElementById('mkind').value;
   sync('loading','Αποθήκευση...');
-  if(editMatchIdx>=0){await setDoc(doc(db,CM,matchSessions[editMatchIdx].id),{date,opponent,result,location,mkind,att:[...curMatchAtt]});editMatchIdx=-1;}
-  else{await setDoc(doc(db,CM,uid()),{date,opponent,result,location,mkind,att:[...curMatchAtt]});}
+  if(editMatchIdx>=0){await setDoc(doc(db,CM,matchSessions[editMatchIdx].id),{date,opponent,result,location,mkind,att:{...curMatchAtt}});editMatchIdx=-1;}
+  else{await setDoc(doc(db,CM,uid()),{date,opponent,result,location,mkind,att:{...curMatchAtt}});}
   const ok=document.getElementById('mattok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
   editMatchIdx=-1;renderMatchAttForm();
 };
 function renderMatchHistory(){
   const el=document.getElementById('mhistory');if(!matchSessions.length){el.innerHTML='';return;}
-  el.innerHTML='<div class="card" style="margin-top:14px"><p class="sec-title">Ιστορικό Αγώνων</p>'+matchSessions.map((s,i)=>{const cnt=(s.att||[]).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag tg">${cnt}/${players.length}</span><button class="editbtn" onclick="window.editMatchAtt(${i})">✏️</button><button class="delbtn" onclick="window.delMatchAtt('${s.id}')">🗑️</button></div></div>`;}).join('')+'</div>';
+  el.innerHTML='<div class="card" style="margin-top:14px"><p class="sec-title">Ιστορικό Αγώνων</p>'+matchSessions.map((s,i)=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag tg">${cnt}/${players.length}</span><button class="editbtn" onclick="window.editMatchAtt(${i})">✏️</button><button class="delbtn" onclick="window.delMatchAtt('${s.id}')">🗑️</button></div></div>`;}).join('')+'</div>';
 }
 window.editMatchAtt=function(i){const s=matchSessions[i];editMatchIdx=i;curMatchAtt=[...s.att];document.getElementById('mdate').value=s.date;document.getElementById('mopponent').value=s.opponent;document.getElementById('mresult').value=s.result||'';document.getElementById('mlocation').value=s.location||'home';renderMatchAttForm();};
 window.delMatchAtt=async function(id){if(!confirm('Διαγραφή αγώνα;'))return;await deleteDoc(doc(db,CM,id));renderMatchHistory();};
@@ -562,14 +610,20 @@ function renderStats(){
   if(!filtered.length){el.innerHTML='<p class="empty">Δεν υπάρχουν προπονήσεις για το επιλεγμένο διάστημα.</p>';return;}
   const total=filtered.length;
   const pIdx=document.getElementById('fplayer').value;const filterP=(pIdx&&pIdx!=='all')?parseInt(pIdx):null;
-  const allStats=players.map((p,idx)=>({...p,idx,present:filtered.filter(s=>(s.att||[])[idx]==='p').length,injured:filtered.filter(s=>(s.att||[])[idx]==='i').length,justified:filtered.filter(s=>(s.att||[])[idx]==='j').length,absent:filtered.filter(s=>(s.att||[])[idx]==='a').length,pct:Math.round(filtered.filter(s=>(s.att||[])[idx]==='p').length/total*100)})).sort((a,b)=>b.pct-a.pct);
+  const allStats=players.map((p,idx)=>({...p,idx,
+    present:filtered.filter(s=>(s.att||{})[p.id]==='p').length,
+    injured:filtered.filter(s=>(s.att||{})[p.id]==='i').length,
+    justified:filtered.filter(s=>(s.att||{})[p.id]==='j').length,
+    absent:filtered.filter(s=>(s.att||{})[p.id]==='a').length,
+    pct:Math.round(filtered.filter(s=>(s.att||{})[p.id]==='p').length/total*100)
+  })).sort((a,b)=>b.pct-a.pct);
   const pstats=filterP!==null?allStats.filter(p=>p.idx===filterP):allStats;
   const avg=Math.round(allStats.reduce((s,p)=>s+p.pct,0)/allStats.length)||0;
-  const presAvg=Math.round(filtered.reduce((s,sess)=>s+(sess.att||[]).filter(v=>v==='p').length,0)/total);
+  const presAvg=Math.round(filtered.reduce((s,sess)=>s+Object.values(sess.att||{}).filter(v=>v==='p').length,0)/total);
 
   el.innerHTML=`<div class="g3" style="margin-bottom:16px"><div class="met"><div class="met-n">${total}</div><div class="met-l">Προπονήσεις</div></div><div class="met"><div class="met-n">${avg}%</div><div class="met-l">Μέση παρουσία</div></div><div class="met"><div class="met-n">${presAvg}/${players.length}</div><div class="met-l">Παίκτες/προπόνηση</div></div></div>`
   +`<div class="card"><p class="sec-title">Παρουσίες ανά παίκτη</p>${pstats.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:14px;font-weight:600">${p.name}</span><span class="ml" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"><span class="tag tg">${p.present}/${total}</span>${p.injured?'<span class="tag ta">'+p.injured+' τραυμ.</span>':''}${p.justified?'<span class="tag tb">'+p.justified+' δικαιολ.</span>':''}${p.absent?'<span class="tag tr">'+p.absent+' απών</span>':''}<span style="font-size:14px;font-weight:700;color:#c47000">${p.pct}%</span></span></div><div class="pbar"><div class="pfill" style="width:${p.pct}%"></div></div></div></div>`).join('')}</div>`
-  +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${s.date}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
+  +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${s.date}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
 }
 window.renderStats=renderStats;
 
@@ -581,8 +635,8 @@ function renderTotalStats(){
   const totalAll=totalTrain+totalMatch;
   if(!totalAll){el.innerHTML='<p class="empty">Δεν υπάρχουν δεδομένα.</p>';return;}
   const pstats=players.map((p,idx)=>{
-    const trainPresent=attSessions.filter(s=>(s.att||[])[idx]==='p').length;
-    const matchPresent=matchSessions.filter(s=>(s.att||[])[idx]==='p').length;
+    const trainPresent=attSessions.filter(s=>(s.att||{})[p.id]==='p').length;
+    const matchPresent=matchSessions.filter(s=>(s.att||{})[p.id]==='p').length;
     const total=trainPresent+matchPresent;
     const pct=Math.round(total/totalAll*100);
     return{name:p.name,trainPresent,matchPresent,total,pct};
@@ -668,7 +722,7 @@ function renderMatchStats(){
   </div>
   <div class="card">
     <p class="sec-title">Ιστορικό αγώνων</p>
-    ${filtered.map(s=>{const cnt=(s.att||[]).filter(v=>v==='p').length;const mi=matchSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:6px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.editMatchAtt(${mi})">✏️</button><button class="delbtn" onclick="window.delMatchAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}
+    ${filtered.map(s=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;const mi=matchSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${s.date}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:6px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.editMatchAtt(${mi})">✏️</button><button class="delbtn" onclick="window.delMatchAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}
   </div>`;
 }
 
