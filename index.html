@@ -114,6 +114,7 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="io-btns">
       <button class="io-btn io-exp" onclick="exportAttAll()">📥 Εξαγωγή παρουσιών</button>
       <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAttAll(event)"></label>
+      <button class="io-btn" style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb" onclick="deleteAllAttendance()">🗑️ Διαγραφή όλων των παρουσιών</button>
     </div>
     <div class="prog" id="prog2"><div class="prog-fill" id="progFill2" style="width:0%"></div></div>
     <div class="io-status" id="iostatus2"></div>
@@ -479,6 +480,28 @@ async function checkAlerts(){
   }).join('');
 }
 checkAlerts();
+
+// Delete all attendance data
+async function deleteAllAttendance(){
+  if(!confirm('⚠️ ΠΡΟΣΟΧΗ!\nΘα διαγραφούν ΟΛΕΣοι παρουσίες από όλες τις ομάδες.\nΤα ρόστερ ΔΕΝ επηρεάζονται.\n\nΣυνέχεια;'))return;
+  if(!confirm('Είσαι σίγουρος; Η ενέργεια δεν αναιρείται!'))return;
+  
+  setStatus2('Διαγραφή παρουσιών...');setProgress2(0);
+  var done=0;
+  for(var i=0;i<ALL_TEAMS.length;i++){
+    var t=ALL_TEAMS[i];
+    setStatus2('Διαγραφή: '+t.team+'...');
+    try{
+      var snap=await db.collection(t.attendance).get();
+      for(var d of snap.docs){
+        await db.collection(t.attendance).doc(d.id).delete();
+      }
+    }catch(e){}
+    done++;setProgress2(done/ALL_TEAMS.length*100);
+  }
+  setStatus2('✓ Όλες οι παρουσίες διαγράφηκαν!');
+  setProgress2(100);
+}
 
 // Count total players across all teams
 async function countAllPlayers(){
