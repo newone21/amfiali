@@ -132,6 +132,11 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
         <button class="btn" style="flex:1;background:#e8f4fd;color:#1a6fa8;border-color:#1a6fa8;font-weight:600" onclick="copyPlayer()">📋 Αντιγραφή</button>
       </div>
     </div>
+    <hr style="margin:14px 0;border:none;border-top:1px solid #e0e0e0">
+    <div id="playerStatsPanel" style="font-size:13px;color:#666">
+      <div style="font-weight:600;color:#444;margin-bottom:6px">📊 Στατιστικά παίκτη (τρέχον τμήμα)</div>
+      <div id="playerStatsContent" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
   </div>
   <div id="plist"></div>
 </div>
@@ -183,6 +188,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <p class="sec-title">✅ Παρουσιολόγιο Προπονήσεων</p>
     <div class="g2 mb"><div><div class="lbl">Ημερομηνία</div><input id="adate" type="date"></div><div><div class="lbl">Θέμα</div><input id="atopic" placeholder="π.χ. Στίβος"></div></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:12px;color:#999">Υπόμνημα:</span><span class="tag tg">Παρών</span><span class="tag tr">Απών</span><span class="tag ta">Τραυματίας</span><span class="tag tb">Δικαιολογημένος</span></div>
+    <div style="margin-top:10px"><div class="lbl">Σημειώσεις προπόνησης (προαιρετικό)</div><input id="asessionnotes" placeholder="π.χ. Δουλέψαμε επίθεση zone" style="margin-top:4px"></div>
   </div>
   <div id="attlist"></div>
   <div id="attact" style="display:none;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
@@ -215,6 +221,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
     <button class="btn btn-green" onclick="exportStats()">📥 Εξαγωγή στατιστικών</button>
     <label class="btn btn-yellow" style="cursor:pointer">📤 Εισαγωγή ρόστερ<input type="file" accept=".xlsx" style="display:none" onchange="importRoster(event)"></label>
     <label class="btn btn-yellow" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAtt(event)"></label>
+    <button class="btn" style="background:#f8d7da;color:#721c24;border-color:#f5c6cb;font-weight:600" onclick="archiveSeason()">🗄️ Αρχειοθέτηση σεζόν</button>
   </div>
   <div id="statsWrap"><p class="empty">Καταγράψτε τουλάχιστον μία προπόνηση.</p></div>
   </div>
@@ -306,6 +313,24 @@ var ALL_TEAM_COLLECTIONS=[
   {label:'Κορίτσια Α', col:'ak_koritsia_a_players'},
   {label:'Κορίτσια Β', col:'ak_koritsia_b_players'},
 ];
+
+function loadPlayerStats(pid){
+  const el=document.getElementById('playerStatsContent');
+  if(!el)return;
+  if(!attSessions.length){el.innerHTML='<span style="color:#aaa">Δεν υπάρχουν παρουσίες ακόμα.</span>';return;}
+  const present=attSessions.filter(s=>(s.att||{})[pid]==='p').length;
+  const absent=attSessions.filter(s=>(s.att||{})[pid]==='a').length;
+  const injured=attSessions.filter(s=>(s.att||{})[pid]==='i').length;
+  const justified=attSessions.filter(s=>(s.att||{})[pid]==='j').length;
+  const total=attSessions.length;
+  const pct=total?Math.round(present/total*100):0;
+  el.innerHTML=`
+    <span class="tag tg">✅ ${present} Παρών</span>
+    <span class="tag tr">❌ ${absent} Απών</span>
+    ${injured?`<span class="tag ta">🤕 ${injured} Τραυμ.</span>`:''}
+    ${justified?`<span class="tag tb">📝 ${justified} Δικαιολ.</span>`:''}
+    <span style="font-size:13px;font-weight:700;color:#8a3a0a">${pct}% (${total} προπ.)</span>`;
+}
 
 function populateTransferDropdown(){
   const sel=document.getElementById('transferTarget');
@@ -544,8 +569,9 @@ window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(efPla
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
   sync('loading','Αποθήκευση...');
-  if(editAttIdx>=0){await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,att:{...curAtt}});editAttIdx=-1;}
-  else{await setDoc(doc(db,CA,uid()),{date,topic,att:{...curAtt}});}
+  const snotes=document.getElementById('asessionnotes').value.trim();
+  if(editAttIdx>=0){await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,snotes,att:{...curAtt}});editAttIdx=-1;}
+  else{await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});}
   if(efPlayers.length&&Object.keys(curEfAtt).length){
     const existingEf=efAttSessions.find(s=>s.date===date&&s.topic===topic);
     if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,att:{...curEfAtt}});}
@@ -560,7 +586,7 @@ window.startEditAtt=function(i){
   if(typeof s.att==='object'&&!Array.isArray(s.att)){curAtt={...s.att};}
   else if(Array.isArray(s.att)){players.forEach((p,idx)=>curAtt[p.id]=s.att[idx]||'p');}
   else{players.forEach(p=>curAtt[p.id]='p');}
-  window.go(2);setTimeout(()=>{document.getElementById('adate').value=s.date;document.getElementById('atopic').value=s.topic;renderAttForm();},100);
+  window.go(2);setTimeout(()=>{document.getElementById('adate').value=s.date;document.getElementById('atopic').value=s.topic;document.getElementById('asessionnotes').value=s.snotes||'';renderAttForm();},100);
 };
 window.delAtt=async function(id){if(!confirm('Διαγραφή;'))return;await deleteDoc(doc(db,CA,id));renderStats();};
 
@@ -598,12 +624,41 @@ window.editMatchAtt=function(i){const s=matchSessions[i];editMatchIdx=i;curMatch
 window.delMatchAtt=async function(id){if(!confirm('Διαγραφή αγώνα;'))return;await deleteDoc(doc(db,CM,id));renderMatchHistory();};
 
 window.onFilterChange=function(){const t=document.getElementById('ftype').value;document.getElementById('fmonth').style.display=t==='month'?'block':'none';document.getElementById('frange').style.display=t==='range'?'block':'none';};
-window.clearFilter=function(){document.getElementById('ftype').value='all';document.getElementById('fmonth').style.display='none';document.getElementById('frange').style.display='none';document.getElementById('fmonthval').value='';document.getElementById('ffrom').value='';document.getElementById('fto').value='';document.getElementById('fplayer').value='all';renderStats();};
+window.clearFilter=function(){document.getElementById('fseason').value='all';document.getElementById('ftype').value='all';document.getElementById('fmonth').style.display='none';document.getElementById('frange').style.display='none';document.getElementById('fmonthval').value='';document.getElementById('ffrom').value='';document.getElementById('fto').value='';document.getElementById('fplayer').value='all';renderStats();};
+window.onSeasonChange=function(){renderStats();};
+
+function getSeasonDates(season){
+  if(!season||season==='all')return null;
+  const parts=season.split('-');
+  return {from:parts[0]+'-09-01',to:parts[1]+'-06-30'};
+}
+
+function populateSeasonFilter(){
+  const sel=document.getElementById('fseason');
+  if(!sel)return;
+  const cur=sel.value;
+  // Get unique seasons from sessions (Sept-June)
+  const seasons=new Set();
+  attSessions.forEach(s=>{
+    if(!s.date)return;
+    const d=new Date(s.date+'T00:00:00');
+    const y=d.getFullYear();
+    const m=d.getMonth()+1;
+    const season=m>=9?`${y}-${y+1}`:`${y-1}-${y}`;
+    seasons.add(season);
+  });
+  sel.innerHTML='<option value="all">Όλες οι σεζόν</option>';
+  [...seasons].sort().reverse().forEach(s=>{
+    const o=document.createElement('option');o.value=s;o.textContent='Σεζόν '+s;sel.appendChild(o);
+  });
+  sel.value=seasons.has(cur)?cur:'all';
+}
+
 function updatePlayerFilter(){const sel=document.getElementById('fplayer');const cur=sel.value;sel.innerHTML='<option value="all">Όλοι</option>';players.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;sel.appendChild(o);});sel.value=cur;}
 function getFiltered(){const t=document.getElementById('ftype').value;let r=[...attSessions];if(t==='month'){const m=document.getElementById('fmonthval').value;if(m)r=r.filter(s=>(s.date||'').startsWith(m));}else if(t==='range'){const f=document.getElementById('ffrom').value,to=document.getElementById('fto').value;if(f)r=r.filter(s=>s.date>=f);if(to)r=r.filter(s=>s.date<=to);}return r;}
 
 function renderStats(){
-  updatePlayerFilter();
+  populateSeasonFilter();updatePlayerFilter();
   const el=document.getElementById('statsWrap');
   if(!attSessions.length){el.innerHTML='<p class="empty">Καταγράψτε τουλάχιστον μία προπόνηση.</p>';return;}
   const filtered=getFiltered();
@@ -623,9 +678,33 @@ function renderStats(){
 
   el.innerHTML=`<div class="g3" style="margin-bottom:16px"><div class="met"><div class="met-n">${total}</div><div class="met-l">Προπονήσεις</div></div><div class="met"><div class="met-n">${avg}%</div><div class="met-l">Μέση παρουσία</div></div><div class="met"><div class="met-n">${presAvg}/${players.length}</div><div class="met-l">Παίκτες/προπόνηση</div></div></div>`
   +`<div class="card"><p class="sec-title">Παρουσίες ανά παίκτη</p>${pstats.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:14px;font-weight:600">${p.name}</span><span class="ml" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"><span class="tag tg">${p.present}/${total}</span>${p.injured?'<span class="tag ta">'+p.injured+' τραυμ.</span>':''}${p.justified?'<span class="tag tb">'+p.justified+' δικαιολ.</span>':''}${p.absent?'<span class="tag tr">'+p.absent+' απών</span>':''}<span style="font-size:14px;font-weight:700;color:#8a3a0a">${p.pct}%</span></span></div><div class="pbar"><div class="pfill" style="width:${p.pct}%"></div></div></div></div>`).join('')}</div>`
-  +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${s.date}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
+  +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${s.date}${s.snotes?' · 📝 '+s.snotes:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
 }
 window.renderStats=renderStats;
+
+window.archiveSeason=async function(){
+  const season=document.getElementById('fseason').value;
+  if(!season||season==='all'){alert('Επίλεξε πρώτα μια σεζόν από το φίλτρο.');return;}
+  if(!confirm('Αρχειοθέτηση σεζόν '+season+';\nΟι παρουσίες θα εξαχθούν σε Excel και θα διαγραφούν από τη βάση.'))return;
+  // Export first
+  const XLSX=window.XLSX;
+  const sd=getSeasonDates(season);
+  const filtered=attSessions.filter(s=>s.date>=sd.from&&s.date<=sd.to);
+  if(!filtered.length){alert('Δεν υπάρχουν παρουσίες για αυτή τη σεζόν.');return;}
+  const rows=[['Ημερομηνία','Θέμα','Σημειώσεις','Παίκτης','Κατάσταση']];
+  filtered.forEach(s=>players.forEach(p=>{
+    const d=s.date?new Date(s.date+'T00:00:00'):null;
+    rows.push([d,s.topic,s.snotes||'',p.name,(LABEL[(s.att||{})[p.id]]||LABEL['a'])]);
+  }));
+  const ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});
+  ws['!autofilter']={ref:ws['!ref']};
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Σεζόν '+season);
+  XLSX.writeFile(wb,'arxeio_'+season+'.xlsx',{cellDates:true});
+  // Delete from Firebase
+  for(const s of filtered){await deleteDoc(doc(db,CA,s.id));}
+  alert('✓ Σεζόν '+season+' αρχειοθετήθηκε επιτυχώς!');
+};
 
 function renderTotalStats(){
   const el=document.getElementById('totalStatsWrap');

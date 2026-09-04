@@ -43,6 +43,8 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
 .io-status{font-size:12px;color:#666;margin-top:8px;text-align:left;min-height:18px}
 .prog{height:4px;background:#eee;border-radius:2px;margin-top:6px;display:none}
 .prog-fill{height:100%;background:#1a6fa8;border-radius:2px;transition:width .3s}
+.alert-row{background:#fff;border:1px solid #f5c6cb;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.alert-av{width:36px;height:36px;border-radius:50%;background:#f8d7da;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#721c24;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -87,6 +89,11 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     </div>
     <div id="searchResults"></div>
     <div id="attResults"></div>
+  </div>
+
+  <div class="io-wrap" id="alertsSection" style="display:none">
+    <div class="io-title">⚠️ Ειδοποιήσεις</div>
+    <div id="alertsList"><p style="font-size:13px;color:#999">Φόρτωση...</p></div>
   </div>
 
   <div class="io-wrap">
@@ -437,6 +444,38 @@ window.loadPlayerAttendance=async function(){
       +teamDetails.map(function(d){return '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #f0f0f0"><span style="color:#444">'+d.team+'</span><span style="color:#1a6fa8;font-weight:600">'+d.present+'/'+d.total+' παρουσίες</span></div>';}).join(''):'')
     +'</div>';
 };
+
+// Check for 5+ consecutive absences
+async function checkAlerts(){
+  var alerts=[];
+  for(var i=0;i<ALL_TEAMS.length;i++){
+    var t=ALL_TEAMS[i];
+    try{
+      var pSnap=await db.collection(t.players).get();
+      var players=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
+      var aSnap=await db.collection(t.attendance).get();
+      var sessions=aSnap.docs.map(function(d){return d.data();}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+      players.forEach(function(p){
+        var consec=0;
+        for(var j=0;j<sessions.length;j++){
+          var v=(sessions[j].att||{})[p.id];
+          if(v==='a')consec++;
+          else break;
+        }
+        if(consec>=5)alerts.push({name:p.name,team:t.team,consec:consec});
+      });
+    }catch(e){}
+  }
+  var sec=document.getElementById('alertsSection');
+  var el=document.getElementById('alertsList');
+  if(!alerts.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  el.innerHTML=alerts.map(function(a){
+    var ini=(a.name||'??').slice(0,2).toUpperCase();
+    return '<div class="alert-row"><div class="alert-av">'+ini+'</div><div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:12px;color:#721c24">'+a.team+' · '+a.consec+' συνεχόμενες απουσίες</div></div></div>';
+  }).join('');
+}
+checkAlerts();
 
 // Count total players across all teams
 async function countAllPlayers(){
