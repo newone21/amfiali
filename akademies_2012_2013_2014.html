@@ -546,27 +546,29 @@ function renderAttForm(){
   });
   el.innerHTML='';el.appendChild(wrap);
 
+  
 }
 window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);renderAttForm();};
 window.saveAtt=async function(){
-  const date=document.getElementById('adate').value||today();const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
+  const date=document.getElementById('adate').value||today();
+  const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
+  const snotes=document.getElementById('asessionnotes')?document.getElementById('asessionnotes').value.trim():'';
   sync('loading','Αποθήκευση...');
-  const snotes=document.getElementById('asessionnotes').value.trim();
-  if(editAttIdx>=0){await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,snotes,att:{...curAtt}});editAttIdx=-1;}
-  else{await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});}
-  if(efPlayers.length&&Object.keys(curEfAtt).length){
-    const existingEf=efAttSessions.find(s=>s.date===date&&s.topic===topic);
-    if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,att:{...curEfAtt}});}
-    else{await setDoc(doc(db,CA_EF,uid()),{date,topic,att:{...curEfAtt}});}
-  }
-  showToast('✅ Αποθηκεύτηκε!');
-  editAttIdx=-1;
-  curAtt={};players.forEach(p=>curAtt[p.id]='p');
-  document.getElementById('adate').value=today();
-  document.getElementById('atopic').value='';
-  if(document.getElementById('asessionnotes'))document.getElementById('asessionnotes').value='';
-  renderAttForm();
-  showToast('✅ Αποθηκεύτηκε!');
+  try{
+    if(editAttIdx>=0){
+      await setDoc(doc(db,CA,attSessions[editAttIdx].id),{date,topic,snotes,att:{...curAtt}});
+      editAttIdx=-1;
+    }else{
+      await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});
+    }
+    curAtt={};players.forEach(p=>curAtt[p.id]='p');
+    document.getElementById('adate').value=today();
+    document.getElementById('atopic').value='';
+    if(document.getElementById('asessionnotes'))document.getElementById('asessionnotes').value='';
+    sync('ok','');
+    showToast('✅ Αποθηκεύτηκε!');
+    renderAttForm();
+  }catch(e){sync('err','Σφάλμα αποθήκευσης');alert('Σφάλμα: '+e.message);}
 };
 window.startEditAtt=function(i){
   const s=attSessions[i];editAttIdx=i;
