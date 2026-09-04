@@ -541,7 +541,7 @@ function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
   if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτες στο Ρόστερ.</p>';act.style.display='none';return;}
-  if(editAttIdx<0)curAtt=players.map(()=>'p');
+  if(editAttIdx<0){curAtt={};players.forEach(p=>curAtt[p.id]='p');}
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
@@ -550,7 +550,7 @@ function renderAttForm(){
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
     info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div>`;
-    row.appendChild(av);row.appendChild(info);row.appendChild(makeSegment(OPTS,curAtt,idx));wrap.appendChild(row);
+    row.appendChild(av);row.appendChild(info);row.appendChild(makeSegmentById(OPTS,curAtt,p.id));wrap.appendChild(row);
   });
   el.innerHTML='';el.appendChild(wrap);
 
@@ -572,7 +572,7 @@ function renderAttForm(){
     el.appendChild(efWrap);
   }
 }
-window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
+window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(typeof efPlayers!=='undefined'&&efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();
   const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
