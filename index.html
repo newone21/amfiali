@@ -463,7 +463,7 @@ async function checkAlerts(){
         var consec=0;
         for(var j=0;j<sessions.length;j++){
           var v=(sessions[j].att||{})[p.id];
-          if(v==='a')consec++;
+          if(v&&v!=='p')consec++;
           else break;
         }
         if(consec>=5)alerts.push({name:p.name,team:t.team,consec:consec});
