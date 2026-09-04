@@ -585,7 +585,13 @@ window.saveAtt=async function(){
     else{await setDoc(doc(db,CA_EF,uid()),{date,topic,att:{...curEfAtt}});}
   }
   showToast('✅ Αποθηκεύτηκε!');
-  editAttIdx=-1;renderAttForm();
+  editAttIdx=-1;
+  curAtt={};players.forEach(p=>curAtt[p.id]='p');
+  document.getElementById('adate').value=today();
+  document.getElementById('atopic').value='';
+  if(document.getElementById('asessionnotes'))document.getElementById('asessionnotes').value='';
+  renderAttForm();
+  showToast('✅ Αποθηκεύτηκε!');
 };
 window.startEditAtt=function(i){
   const s=attSessions[i];editAttIdx=i;
