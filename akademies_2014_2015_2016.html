@@ -285,7 +285,7 @@ function ini(n){return(n||'??').slice(0,2).toUpperCase()}
 function sync(s,m){document.getElementById('sdot').className='dot '+s;document.getElementById('stxt').textContent=m;}
 function stLbl(s){return s==='active'?'Ενεργός':s==='injured'?'Τραυματίας':'Ανενεργός'}
 function stCls(s){return s==='active'?'tg':s==='injured'?'ta':'tr'}
-function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return new Date(+y,+m-1,+day)}
+function fmtDate(d){if(!d)return'';const p=d.split('-');return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:d;}
 function applyBtn(btn,opt,sel){btn.style.background=sel?opt.bg:'#f5f5f5';btn.style.color=sel?opt.c:'#666';btn.style.border=sel?opt.b:'1px solid #ccc';btn.style.fontWeight=sel?'700':'400';}
 function fillYearSelect(id,val){const sel=document.getElementById(id);if(!sel)return;const cur=new Date().getFullYear();sel.innerHTML='<option value="">— Επίλεξε —</option>';for(let y=cur;y>=1990;y--){const o=document.createElement('option');o.value=y;o.textContent=y;if(val&&+val===y)o.selected=true;sel.appendChild(o);}}
 
@@ -408,6 +408,7 @@ window.go=function(i){
 onSnapshot(collection(db,CP),snap=>{
   players=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
   renderPlayers();sync('ok','Συνδεδεμένο · συγχρονίζεται αυτόματα');
+  if(document.getElementById('sec2').classList.contains('active'))renderAttForm();
 },()=>sync('err','Σφάλμα σύνδεσης'));
 
 onSnapshot(collection(db,CS),snap=>{
