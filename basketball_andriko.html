@@ -563,7 +563,11 @@ function renderAttForm(){
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
-  players.forEach((p,idx)=>{
+  let sortedPlayers=[...players];
+  if(attSortMode==='age_asc')sortedPlayers.sort((a,b)=>parseInt(a.birth||9999)-parseInt(b.birth||9999));
+  else if(attSortMode==='age_desc')sortedPlayers.sort((a,b)=>parseInt(b.birth||0)-parseInt(a.birth||0));
+  else sortedPlayers.sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+  sortedPlayers.forEach((p)=>{
     const row=document.createElement('div');row.className='prow';
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
