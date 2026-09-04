@@ -739,6 +739,34 @@ window.importAtt=async function(event){const file=event.target.files[0];if(!file
 
 document.getElementById('adate').value=today();document.getElementById('mdate').value=today();document.getElementById('sdate').value=today();fillYearSelect('pbirth','');
 setTimeout(()=>renderAttForm(),500);
+// Auto-seed players
+setTimeout(async()=>{
+  try{
+    const snap=await getDocs(collection(db,CP));
+    if(snap.empty){
+    await setDoc(doc(db,CP,uid()),{name:"Κώστας Ελευθέριος",num:"",pos:"",st:"active",birth:"2008",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μεθενίτης Νικόλαος",num:"",pos:"",st:"active",birth:"2008",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Παπαδημητρόπουλος Δημοσθένης",num:"",pos:"",st:"active",birth:"2008",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τσακιρτζής Θεόδωρος",num:"",pos:"",st:"active",birth:"2008",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Αθανασίου Σπυρίδων",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Βούρος Τριαντάφυλλος",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Καβαλιεράκης-Φωκάς Αναστάσιος",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κούβας Αλκιβιάδης-Χρυσοβαλάντης",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μπακάλης Δημοσθένης",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Παπαδημητρίου Ιωάννης",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Σταθόπουλος Γεώργιος",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Φίνες Ιωάννης",num:"",pos:"",st:"active",birth:"2009",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Γιακουμάτος Σταύρος",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Διονυσόπουλος Κυριάκος",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κανελλόπουλος Νικόλαος",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κουλάου Μάριο",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τζανακάκης Απόστολος",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τριανταφύλλου Αναστάσιος",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τσόρβας Λεωνίδας",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Φρικάσες Ανδρέας",num:"",pos:"",st:"active",birth:"2010",phone:"",notes:""});
+    }
+  }catch(e){console.log('Seed error:',e);}
+},1500);
 </script>
 </body>
 </html>

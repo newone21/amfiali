@@ -739,6 +739,24 @@ window.importAtt=async function(event){const file=event.target.files[0];if(!file
 
 document.getElementById('adate').value=today();document.getElementById('mdate').value=today();document.getElementById('sdate').value=today();fillYearSelect('pbirth','');
 setTimeout(()=>renderAttForm(),500);
+// Auto-seed players
+setTimeout(async()=>{
+  try{
+    const snap=await getDocs(collection(db,CP));
+    if(snap.empty){
+    await setDoc(doc(db,CP,uid()),{name:"Δαμίγου Νεφέλη",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Δουρμπείογλου Αγγελική",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Κορκοτσέλου Ανθή-Χαρά",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Μπουρέκα Μαρία-Χριστίνα",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Παππά Ευτυχία",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Σαρρή Αδαμαντία",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Τσαρτσαμπαλίδου Αναστασία",num:"",pos:"",st:"active",birth:"2011",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Πλουμίδη Κυριακή",num:"",pos:"",st:"active",birth:"2012",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Ρόδη Ευρυδίκη",num:"",pos:"",st:"active",birth:"2013",phone:"",notes:""});
+    await setDoc(doc(db,CP,uid()),{name:"Λιακόγγονα Ελένη",num:"",pos:"",st:"active",birth:"2014",phone:"",notes:""});
+    }
+  }catch(e){console.log('Seed error:',e);}
+},1500);
 </script>
 </body>
 </html>
