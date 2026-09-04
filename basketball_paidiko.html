@@ -185,6 +185,12 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
 </div>
 
 <div class="sec active" id="sec2">
+  <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+    <span style="font-size:12px;color:#999;align-self:center">Ταξινόμηση:</span>
+    <button id="sortAlpha" class="btn btn-blue" onclick="setAttSort('alpha')" style="font-size:12px;padding:4px 10px;height:auto">Α→Ω</button>
+    <button id="sortAgeAsc" class="btn" onclick="setAttSort('age_asc')" style="font-size:12px;padding:4px 10px;height:auto">Ηλικία ↑</button>
+    <button id="sortAgeDesc" class="btn" onclick="setAttSort('age_desc')" style="font-size:12px;padding:4px 10px;height:auto">Ηλικία ↓</button>
+  </div>
   <div id="lastTrainingBanner" style="background:#e0f5f8;border:1px solid #b0e0e8;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#1a6fa8;display:none">
     📅 Τελευταία προπόνηση: <strong id="lastTrainingDate">—</strong>
   </div>
@@ -281,7 +287,8 @@ const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
-let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let players=[],sessions=[]
+let attSortMode='alpha';,attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function today(){return new Date().toISOString().split('T')[0]}
@@ -399,6 +406,14 @@ window.copyPlayer=async function(){
     sync('err','Σφάλμα αντιγραφής');
     alert('Σφάλμα: '+e.message);
   }
+};
+
+window.setAttSort=function(mode){
+  attSortMode=mode;
+  document.getElementById('sortAlpha').className='btn '+(mode==='alpha'?'btn-blue':'');
+  document.getElementById('sortAgeAsc').className='btn '+(mode==='age_asc'?'btn-blue':'');
+  document.getElementById('sortAgeDesc').className='btn '+(mode==='age_desc'?'btn-blue':'');
+  renderAttForm();
 };
 
 window.go=function(i){
@@ -593,7 +608,11 @@ function renderMatchAttForm(){
   act.style.display='flex';
   document.getElementById('msavebtn').textContent=editMatchIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
-  players.forEach((p)=>{
+  let sortedPlayers=[...players];
+  if(attSortMode==='age_asc')sortedPlayers.sort((a,b)=>parseInt(a.birth||9999)-parseInt(b.birth||9999));
+  else if(attSortMode==='age_desc')sortedPlayers.sort((a,b)=>parseInt(b.birth||0)-parseInt(a.birth||0));
+  else sortedPlayers.sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+  sortedPlayers.forEach((p)=>{
     const row=document.createElement('div');row.className='prow';
     const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
     const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
