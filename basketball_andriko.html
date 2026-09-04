@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏀 Ανδρικό Μπάσκετ</title> 
+<title>🏀 Ανδρικό Μπάσκετ</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -288,8 +288,8 @@ const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
-let players=[],sessions=[]
-let attSortMode='alpha';,attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let attSortMode='alpha';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function today(){return new Date().toISOString().split('T')[0]}
