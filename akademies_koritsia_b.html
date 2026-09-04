@@ -720,6 +720,19 @@ function renderStats(){
   el.innerHTML=`<div class="g3" style="margin-bottom:16px"><div class="met"><div class="met-n">${total}</div><div class="met-l">Προπονήσεις</div></div><div class="met"><div class="met-n">${avg}%</div><div class="met-l">Μέση παρουσία</div></div><div class="met"><div class="met-n">${presAvg}/${players.length}</div><div class="met-l">Παίκτες/προπόνηση</div></div></div>`
   +`<div class="card"><p class="sec-title">Παρουσίες ανά παίκτη</p>${pstats.map(p=>`<div class="prow"><div class="av">${ini(p.name)}</div><div style="flex:1;min-width:0"><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:14px;font-weight:600">${p.name}</span><span class="ml" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"><span class="tag tg">${p.present}/${total}</span>${p.injured?'<span class="tag ta">'+p.injured+' τραυμ.</span>':''}${p.justified?'<span class="tag tb">'+p.justified+' δικαιολ.</span>':''}${p.absent?'<span class="tag tr">'+p.absent+' απών</span>':''}<span style="font-size:14px;font-weight:700;color:#d4006a">${p.pct}%</span></span></div><div class="pbar"><div class="pfill" style="width:${p.pct}%"></div></div></div></div>`).join('')}</div>`
   +`<div class="card"><p class="sec-title">Ιστορικό προπονήσεων</p>${filtered.map(s=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;const ri=attSessions.findIndex(x=>x.id===s.id);return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${fmtDate(s.date)}${s.snotes?' · 📝 '+s.snotes:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="window.startEditAtt(${ri})">✏️</button><button class="delbtn" onclick="window.delAtt('${s.id}')">🗑️</button></div></div>`;}).join('')}</div>`;
+
+  // Player detail view when specific player selected
+  if(filterP!==null&&pstats.length>0){
+    const selPlayer=pstats[0];
+    const pid=selPlayer.id;
+    const detailRows=filtered.map(s=>{
+      const v=(s.att||{})[pid]||'a';
+      const lbl=LABEL[v]||v;
+      const cls=v==='p'?'tg':v==='i'?'ta':v==='j'?'tb':'tr';
+      return '<div class="prow"><div><div style="font-size:14px;font-weight:600">'+s.topic+'</div><div style="font-size:12px;color:#999">'+fmtDate(s.date)+(s.snotes?' · '+s.snotes:'')+'</div></div><span class="tag '+cls+'">'+lbl+'</span></div>';
+    }).join('');
+    el.innerHTML+=`<div class="card" style="margin-top:14px"><p class="sec-title">📋 Αναλυτικές παρουσίες: ${selPlayer.name}</p>${detailRows}</div>`;
+  }
 }
 window.renderStats=renderStats;
 
