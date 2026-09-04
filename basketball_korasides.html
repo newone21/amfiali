@@ -615,8 +615,28 @@ function renderMatchHistory(){
   const el=document.getElementById('mhistory');if(!matchSessions.length){el.innerHTML='';return;}
   el.innerHTML='<div class="card" style="margin-top:14px"><p class="sec-title">Ιστορικό Αγώνων</p>'+matchSessions.map((s,i)=>{const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;return`<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.location==='home'?'🏠':'✈️'} ${s.opponent}</div><div style="font-size:12px;color:#999">${fmtDate(s.date)}${s.mkind?' · '+s.mkind:''}${s.result?' · '+s.result:''}</div></div><div class="ml" style="display:flex;align-items:center;gap:8px"><span class="tag tg">${cnt}/${players.length}</span><button class="editbtn" onclick="window.editMatchAtt(${i})">✏️</button><button class="delbtn" onclick="window.delMatchAtt('${s.id}')">🗑️</button></div></div>`;}).join('')+'</div>';
 }
-window.editMatchAtt=function(i){const s=matchSessions[i];editMatchIdx=i;curMatchAtt=[...s.att];document.getElementById('mdate').value=s.date;document.getElementById('mopponent').value=s.opponent;document.getElementById('mresult').value=s.result||'';document.getElementById('mlocation').value=s.location||'home';renderMatchAttForm();};
-window.delMatchAtt=async function(id){if(!confirm('Διαγραφή αγώνα;'))return;await deleteDoc(doc(db,CM,id));renderMatchHistory();};
+window.editMatchAtt=function(i){
+  const s=matchSessions[i];editMatchIdx=i;
+  curMatchAtt={};
+  if(typeof s.att==='object'&&!Array.isArray(s.att)){curMatchAtt={...s.att};}
+  else if(Array.isArray(s.att)){players.forEach((p,idx)=>curMatchAtt[p.id]=s.att[idx]||'p');}
+  else{players.forEach(p=>curMatchAtt[p.id]='p');}
+  document.getElementById('mdate').value=s.date;
+  document.getElementById('mopponent').value=s.opponent;
+  document.getElementById('mresult').value=s.result||'';
+  document.getElementById('mlocation').value=s.location||'home';
+  if(document.getElementById('mkind'))document.getElementById('mkind').value=s.mkind||'';
+  window.go(4);
+  setTimeout(()=>renderMatchAttForm(),100);
+};
+window.delMatchAtt=async function(id){
+  if(!confirm('Διαγραφή αγώνα;'))return;
+  try{
+    await deleteDoc(doc(db,CM,id));
+    renderMatchHistory();
+    if(document.getElementById('stats-matches').style.display==='block')renderMatchStats();
+  }catch(e){alert('Σφάλμα διαγραφής: '+e.message);}
+};
 
 window.onFilterChange=function(){const t=document.getElementById('ftype').value;document.getElementById('fmonth').style.display=t==='month'?'block':'none';document.getElementById('frange').style.display=t==='range'?'block':'none';};
 window.clearFilter=function(){document.getElementById('fseason').value='all';document.getElementById('ftype').value='all';document.getElementById('fmonth').style.display='none';document.getElementById('frange').style.display='none';document.getElementById('fmonthval').value='';document.getElementById('ffrom').value='';document.getElementById('fto').value='';document.getElementById('fplayer').value='all';renderStats();};
