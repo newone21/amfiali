@@ -372,7 +372,7 @@ window.copyPlayer=async function(){
 };
 
 window.go=function(i){
-  const order=[0,1,2,4,3];
+  const order=[2,4,0,1,3];
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',order[j]===i));
   document.querySelectorAll('.sec').forEach((s,j)=>s.classList.toggle('active',j===i));
   if(i===2)renderAttForm();
