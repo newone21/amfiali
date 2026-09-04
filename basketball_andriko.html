@@ -579,7 +579,7 @@ window.saveAtt=async function(){
     if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,att:{...curEfAtt}});}
     else{await setDoc(doc(db,CA_EF,uid()),{date,topic,att:{...curEfAtt}});}
   }
-  const ok=document.getElementById('attok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
+  const ok=document.getElementById('attok');ok.textContent='✅ Αποθηκεύτηκε!';ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
   editAttIdx=-1;renderAttForm();
 };
 window.startEditAtt=function(i){

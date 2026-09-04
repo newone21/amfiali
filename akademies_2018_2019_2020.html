@@ -436,14 +436,7 @@ onSnapshot(collection(db,CM),snap=>{
   if(document.getElementById('sec4').classList.contains('active'))renderMatchHistory();
 });
 
-onSnapshot(collection(db,CP_EF),snap=>{
-  efPlayers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
-  renderAttForm();
-});
 
-onSnapshot(collection(db,CA_EF),snap=>{
-  efAttSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-});
 
 function renderPlayers(){
   document.getElementById('rm0').textContent=players.length;
@@ -548,25 +541,8 @@ function renderAttForm(){
   });
   el.innerHTML='';el.appendChild(wrap);
 
-  // Add Efiviko players section
-  if(efPlayers.length){
-    if(editAttIdx<0) curEfAtt=efPlayers.map(()=>'p');
-    const efWrap=document.createElement('div');efWrap.className='card';efWrap.style.marginTop='12px';
-    const efTitle=document.createElement('div');
-    efTitle.style.cssText='font-size:13px;font-weight:700;color:#8a3a0a;padding:8px 0;border-bottom:2px solid #8a3a0a;margin-bottom:8px';
-    efTitle.textContent='🏀 Εφηβικό';
-    efWrap.appendChild(efTitle);
-    efPlayers.forEach((p,idx)=>{
-      const row=document.createElement('div');row.className='prow';
-      const av=document.createElement('div');av.className='av';av.style.cssText='width:36px;height:36px;border-radius:50%;background:#fdf5f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#8a3a0a;flex-shrink:0';av.textContent=ini(p.name);
-      const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
-      info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.birth?p.birth:''}</div>`;
-      row.appendChild(av);row.appendChild(info);row.appendChild(makeSegment(OPTS,curEfAtt,idx));efWrap.appendChild(row);
-    });
-    el.appendChild(efWrap);
-  }
 }
-window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
+window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);renderAttForm();};
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
   sync('loading','Αποθήκευση...');
@@ -578,7 +554,7 @@ window.saveAtt=async function(){
     if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,att:{...curEfAtt}});}
     else{await setDoc(doc(db,CA_EF,uid()),{date,topic,att:{...curEfAtt}});}
   }
-  const ok=document.getElementById('attok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
+  const ok=document.getElementById('attok');ok.textContent='✅ Αποθηκεύτηκε!';ok.style.display='block';setTimeout(()=>ok.style.display='none',2500);
   editAttIdx=-1;renderAttForm();
 };
 window.startEditAtt=function(i){
