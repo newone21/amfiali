@@ -552,7 +552,8 @@ window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);renderAt
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();
   const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
-  const snotes=document.getElementById('asessionnotes')?document.getElementById('asessionnotes').value.trim():'';
+  const sn=document.getElementById('asessionnotes');
+  const snotes=sn?sn.value.trim():'';
   sync('loading','Αποθήκευση...');
   try{
     if(editAttIdx>=0){
@@ -561,14 +562,19 @@ window.saveAtt=async function(){
     }else{
       await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});
     }
-    curAtt={};players.forEach(p=>curAtt[p.id]='p');
+    curAtt={};
+    players.forEach(function(p){curAtt[p.id]='p';});
     document.getElementById('adate').value=today();
     document.getElementById('atopic').value='';
-    if(document.getElementById('asessionnotes'))document.getElementById('asessionnotes').value='';
+    if(sn)sn.value='';
     sync('ok','');
-    showToast('✅ Αποθηκεύτηκε!');
     renderAttForm();
-  }catch(e){sync('err','Σφάλμα αποθήκευσης');alert('Σφάλμα: '+e.message);}
+    var t=document.getElementById('toast');
+    t.textContent='✅ Αποθηκεύτηκε!';
+    t.style.display='block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer=setTimeout(function(){t.style.display='none';},3000);
+  }catch(e){sync('err','Σφάλμα');alert('Σφάλμα: '+e.message);}
 };
 window.startEditAtt=function(i){
   const s=attSessions[i];editAttIdx=i;
