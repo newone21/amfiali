@@ -17,7 +17,18 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
 .section{font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;text-align:left}
 .btn{display:flex;width:100%;padding:13px 16px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:10px;transition:transform .1s,opacity .1s;align-items:center;gap:10px}
 .btn:hover{opacity:.9;transform:translateY(-1px)}
-.search-wrap{margin-top:24px;border-top:2px solid #e0e0e0;padding-top:20px}
+.io-wrap{margin-top:16px;border-top:2px solid #e0e0e0;padding-top:16px;text-align:left}
+.io-title{font-size:14px;font-weight:700;color:#444;margin-bottom:10px}
+.io-btns{display:flex;gap:8px;flex-wrap:wrap}
+.io-btn{flex:1;min-width:140px;padding:12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.io-exp{background:#EAF3DE;color:#3B6D11;border:1px solid #3B6D11}
+.io-imp{background:#fff8e1;color:#856404;border:1px solid #ffc107}
+.io-status{font-size:12px;color:#666;margin-top:8px;min-height:18px}
+.prog{height:4px;background:#eee;border-radius:2px;margin-top:6px;display:none}
+.prog-fill{height:100%;background:#1a6fa8;border-radius:2px;transition:width .3s}
+.alert-row{background:#fff;border:1px solid #f5c6cb;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.alert-av{width:36px;height:36px;border-radius:50%;background:#f8d7da;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#721c24;flex-shrink:0}
+.search-wrap{margin-top:20px;border-top:2px solid #e0e0e0;padding-top:20px}
 .search-title{font-size:14px;font-weight:700;color:#444;margin-bottom:10px;text-align:left}
 .search-box{display:flex;gap:8px;margin-bottom:8px}
 .search-box input{flex:1;height:44px;border:1px solid #ccc;border-radius:8px;padding:0 14px;font-size:15px}
@@ -31,21 +42,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
 .result-info{font-size:12px;color:#666;margin-top:2px}
 .result-team{font-size:11px;padding:3px 8px;border-radius:4px;background:#e8f4fd;color:#1a6fa8;font-weight:600;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .av{width:36px;height:36px;border-radius:50%;background:#e8f4fd;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1a6fa8;flex-shrink:0}
-.empty{text-align:center;padding:1.5rem;color:#999;font-size:14px}
-#searchResults{margin-top:8px}
-#attResults{margin-top:8px}
-.io-wrap{margin-top:16px;border-top:2px solid #e0e0e0;padding-top:16px;text-align:left}
-.io-title{font-size:14px;font-weight:700;color:#444;margin-bottom:10px}
-.io-btns{display:flex;gap:8px;flex-wrap:wrap}
-.io-btn{flex:1;min-width:140px;padding:12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px}
-.io-exp{background:#EAF3DE;color:#3B6D11;border:1px solid #3B6D11}
-.io-imp{background:#fff8e1;color:#856404;border:1px solid #ffc107}
-.io-status{font-size:12px;color:#666;margin-top:8px;text-align:left;min-height:18px}
-.prog{height:4px;background:#eee;border-radius:2px;margin-top:6px;display:none}
-.prog-fill{height:100%;background:#1a6fa8;border-radius:2px;transition:width .3s}
-.alert-row{background:#fff;border:1px solid #f5c6cb;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.alert-av{width:36px;height:36px;border-radius:50%;background:#f8d7da;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#721c24;flex-shrink:0}
-#monthFilterWrap{display:none;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -71,7 +67,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
   <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α</a>
   <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β</a>
 
-  <!-- Ειδοποιήσεις -->
   <div class="io-wrap" id="alertsSection">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div class="io-title" style="margin-bottom:0">⚠️ Ειδοποιήσεις</div>
@@ -80,7 +75,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div id="alertsList"><p style="font-size:13px;color:#999">Φόρτωση...</p></div>
   </div>
 
-  <!-- Εξαγωγή/Εισαγωγή όλων -->
   <div class="io-wrap">
     <div class="io-title">📦 Εξαγωγή / Εισαγωγή Δεδομένων</div>
     <div class="io-btns">
@@ -91,9 +85,8 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="io-status" id="iostatus"></div>
   </div>
 
-  <!-- Εξαγωγή/Εισαγωγή παρουσιών -->
   <div class="io-wrap">
-    <div class="io-title">✅ Εξαγωγή / Εισαγωγή Παρουσιών Προπονήσεων</div>
+    <div class="io-title">✅ Εξαγωγή / Εισαγωγή Παρουσιών</div>
     <div class="io-btns">
       <button class="io-btn io-exp" onclick="exportAttAll()">📥 Εξαγωγή παρουσιών</button>
       <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAttAll(event)"></label>
@@ -102,7 +95,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="io-status" id="iostatus2"></div>
   </div>
 
-  <!-- Αναζήτηση -->
   <div class="search-wrap">
     <div class="search-title">🔍 Αναζήτηση παίκτη</div>
     <div class="search-type">
@@ -113,25 +105,23 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
       <input id="searchInput" type="text" placeholder="π.χ. Παπαδόπουλος ή 2012" onkeydown="if(event.key==='Enter')doSearch()">
       <button onclick="doSearch()">Αναζήτηση</button>
     </div>
-    <div id="monthFilterWrap">
-      <div style="font-size:12px;color:#666;margin-bottom:4px;font-weight:500">Φίλτρο παρουσιών ανά μήνα (προαιρετικό)</div>
-      <div style="display:flex;gap:8px;align-items:center">
+    <div id="monthFilterWrap" style="display:none;margin-bottom:10px">
+      <div style="font-size:12px;color:#666;margin-bottom:4px">Φίλτρο παρουσιών ανά μήνα</div>
+      <div style="display:flex;gap:8px">
         <input type="month" id="attMonth" style="flex:1;height:38px;border:1px solid #ccc;border-radius:6px;padding:0 10px;font-size:14px">
-        <button class="btn" style="background:#1a6fa8;color:#fff;border-color:#1a6fa8;font-size:13px;padding:0 12px;height:38px;width:auto" onclick="loadPlayerAttendance()">📊 Παρουσίες</button>
+        <button onclick="loadPlayerAttendance()" style="height:38px;padding:0 14px;background:#1a6fa8;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📊 Παρουσίες</button>
       </div>
     </div>
     <div id="searchResults"></div>
     <div id="attResults"></div>
   </div>
 
-  <!-- Αρχείο διεγραμμένων -->
   <div class="io-wrap">
     <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
-    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
+    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px;cursor:pointer">📋 Εμφάνιση αρχείου</button>
     <div id="deletedList"></div>
   </div>
 
-  <!-- Σύνολο αθλητών -->
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
     <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
     <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
@@ -143,9 +133,9 @@ var firebaseConfig={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:
 firebase.initializeApp(firebaseConfig);
 var db=firebase.firestore();
 
-var COLLECTIONS=[{col:"players",team:"Ανδρικό",players:"players",sessions:"andriko_sessions",attendance:"andriko_attendance",matches:"andriko_matches"},{col:"neanides_players",team:"Νεανίδες",players:"neanides_players",sessions:"neanides_sessions",attendance:"neanides_attendance",matches:"neanides_matches"},{col:"korasides_players",team:"Κορασίδες",players:"korasides_players",sessions:"korasides_sessions",attendance:"korasides_attendance",matches:"korasides_matches"},{col:"paidiko_players",team:"Παιδικό",players:"paidiko_players",sessions:"paidiko_sessions",attendance:"paidiko_attendance",matches:"paidiko_matches"},{col:"efiviko_players",team:"Εφηβικό",players:"efiviko_players",sessions:"efiviko_sessions",attendance:"efiviko_attendance",matches:"efiviko_matches"},{col:"akademies_players",team:"2016-2019",players:"akademies_players",sessions:"akademies_sessions",attendance:"akademies_attendance",matches:"akademies_matches"},{col:"ak_2010_2011_players",team:"2010-2011 Β",players:"ak_2010_2011_players",sessions:"ak_2010_2011_sessions",attendance:"ak_2010_2011_attendance",matches:"ak_2010_2011_matches"},{col:"ak_2012_2013_a_players",team:"2012-2013 Α",players:"ak_2012_2013_a_players",sessions:"ak_2012_2013_a_sessions",attendance:"ak_2012_2013_a_attendance",matches:"ak_2012_2013_a_matches"},{col:"ak_2012_2013_2014_players",team:"2012-2013-2014",players:"ak_2012_2013_2014_players",sessions:"ak_2012_2013_2014_sessions",attendance:"ak_2012_2013_2014_attendance",matches:"ak_2012_2013_2014_matches"},{col:"ak_2014_2015_2016_players",team:"2014-2015-2016",players:"ak_2014_2015_2016_players",sessions:"ak_2014_2015_2016_sessions",attendance:"ak_2014_2015_2016_attendance",matches:"ak_2014_2015_2016_matches"},{col:"ak_2018_2019_2020_players",team:"2018-2019-2020",players:"ak_2018_2019_2020_players",sessions:"ak_2018_2019_2020_sessions",attendance:"ak_2018_2019_2020_attendance",matches:"ak_2018_2019_2020_matches"},{col:"ak_koritsia_a_players",team:"Κορίτσια Α",players:"ak_koritsia_a_players",sessions:"ak_koritsia_a_sessions",attendance:"ak_koritsia_a_attendance",matches:"ak_koritsia_a_matches"},{col:"ak_koritsia_b_players",team:"Κορίτσια Β",players:"ak_koritsia_b_players",sessions:"ak_koritsia_b_sessions",attendance:"ak_koritsia_b_attendance",matches:"ak_koritsia_b_matches"}];
+var COLLECTIONS=[{col:"players",team:"Ανδρικό"},{col:"neanides_players",team:"Νεανίδες"},{col:"korasides_players",team:"Κορασίδες"},{col:"paidiko_players",team:"Παιδικό"},{col:"efiviko_players",team:"Εφηβικό"},{col:"akademies_players",team:"2016-2019"},{col:"ak_2010_2011_players",team:"2010-2011 Β"},{col:"ak_2012_2013_a_players",team:"2012-2013 Α"},{col:"ak_2012_2013_2014_players",team:"2012-2013-2014"},{col:"ak_2014_2015_2016_players",team:"2014-2015-2016"},{col:"ak_2018_2019_2020_players",team:"2018-2019-2020"},{col:"ak_koritsia_a_players",team:"Κορίτσια Α"},{col:"ak_koritsia_b_players",team:"Κορίτσια Β"}];
 var ALL_TEAMS=[{players:"players",team:"Ανδρικό",sessions:"andriko_sessions",attendance:"andriko_attendance",matches:"andriko_matches"},{players:"neanides_players",team:"Νεανίδες",sessions:"neanides_sessions",attendance:"neanides_attendance",matches:"neanides_matches"},{players:"korasides_players",team:"Κορασίδες",sessions:"korasides_sessions",attendance:"korasides_attendance",matches:"korasides_matches"},{players:"paidiko_players",team:"Παιδικό",sessions:"paidiko_sessions",attendance:"paidiko_attendance",matches:"paidiko_matches"},{players:"efiviko_players",team:"Εφηβικό",sessions:"efiviko_sessions",attendance:"efiviko_attendance",matches:"efiviko_matches"},{players:"akademies_players",team:"2016-2019",sessions:"akademies_sessions",attendance:"akademies_attendance",matches:"akademies_matches"},{players:"ak_2010_2011_players",team:"2010-2011 Β",sessions:"ak_2010_2011_sessions",attendance:"ak_2010_2011_attendance",matches:"ak_2010_2011_matches"},{players:"ak_2012_2013_a_players",team:"2012-2013 Α",sessions:"ak_2012_2013_a_sessions",attendance:"ak_2012_2013_a_attendance",matches:"ak_2012_2013_a_matches"},{players:"ak_2012_2013_2014_players",team:"2012-2013-2014",sessions:"ak_2012_2013_2014_sessions",attendance:"ak_2012_2013_2014_attendance",matches:"ak_2012_2013_2014_matches"},{players:"ak_2014_2015_2016_players",team:"2014-2015-2016",sessions:"ak_2014_2015_2016_sessions",attendance:"ak_2014_2015_2016_attendance",matches:"ak_2014_2015_2016_matches"},{players:"ak_2018_2019_2020_players",team:"2018-2019-2020",sessions:"ak_2018_2019_2020_sessions",attendance:"ak_2018_2019_2020_attendance",matches:"ak_2018_2019_2020_matches"},{players:"ak_koritsia_a_players",team:"Κορίτσια Α",sessions:"ak_koritsia_a_sessions",attendance:"ak_koritsia_a_attendance",matches:"ak_koritsia_a_matches"},{players:"ak_koritsia_b_players",team:"Κορίτσια Β",sessions:"ak_koritsia_b_sessions",attendance:"ak_koritsia_b_attendance",matches:"ak_koritsia_b_matches"}];
-var LABEL_MAP={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
+var LABEL_MAP={'p':'Παρών','a':'Απών','i':'Τραυματίας','j':'Δικαιολογημένος'};
 var LABEL_REV={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};
 var searchType='name';
 var _lastSearchResults=[];
@@ -164,7 +154,7 @@ async function doSearch(){
   var q=document.getElementById('searchInput').value.trim().toLowerCase();
   var el=document.getElementById('searchResults');
   if(!q){el.innerHTML='';return;}
-  el.innerHTML='<p class="empty">Αναζήτηση...</p>';
+  el.innerHTML='<p style="color:#999;font-size:13px">Αναζήτηση...</p>';
   var results=[];
   for(var i=0;i<COLLECTIONS.length;i++){
     var col=COLLECTIONS[i];
@@ -172,85 +162,71 @@ async function doSearch(){
       var snap=await db.collection(col.col).get();
       snap.docs.forEach(function(d){
         var p=d.data();
-        var match=false;
-        if(searchType==='name') match=(p.name||'').toLowerCase().includes(q);
-        else match=(p.birth||'').toString()===q;
-        if(match) results.push({name:p.name,birth:p.birth||'',pos:p.pos||'',team:col.team,phone:p.phone||''});
+        var match=searchType==='name'?(p.name||'').toLowerCase().includes(q):(p.birth||'').toString()===q;
+        if(match)results.push({name:p.name,birth:p.birth||'',pos:p.pos||'',team:col.team,phone:p.phone||''});
       });
     }catch(e){}
   }
-  if(!results.length){el.innerHTML='<p class="empty">Δεν βρέθηκαν αποτελέσματα.</p>';document.getElementById('monthFilterWrap').style.display='none';return;}
-  var countHtml=searchType==='birth'?'<div style="font-size:13px;font-weight:600;color:#1a6fa8;margin-bottom:8px;text-align:left">Βρέθηκαν <strong>'+results.length+'</strong> παίκτες με χρονολογία γέννησης '+q+'</div>':'';
+  if(!results.length){el.innerHTML='<p style="color:#999;font-size:13px">Δεν βρέθηκαν αποτελέσματα.</p>';document.getElementById('monthFilterWrap').style.display='none';return;}
+  var countHtml=searchType==='birth'?'<div style="font-size:13px;font-weight:600;color:#1a6fa8;margin-bottom:8px">Βρέθηκαν <strong>'+results.length+'</strong> παίκτες με χρονολογία '+q+'</div>':'';
   el.innerHTML=countHtml+results.map(function(r){
     var ini=(r.name||'??').slice(0,2).toUpperCase();
     var info=[r.pos,r.birth,r.phone?'📞 '+r.phone:''].filter(Boolean).join(' · ');
     return '<div class="result"><div class="av">'+ini+'</div><div style="flex:1;min-width:0"><div class="result-name">'+r.name+'</div>'+(info?'<div class="result-info">'+info+'</div>':'')+'</div><span class="result-team">'+r.team+'</span></div>';
   }).join('');
   if(searchType==='name'){document.getElementById('monthFilterWrap').style.display='block';_lastSearchResults=results;}
-  else{document.getElementById('monthFilterWrap').style.display='none';}
+  else document.getElementById('monthFilterWrap').style.display='none';
 }
 
 async function loadPlayerAttendance(){
-  var results=_lastSearchResults||[];
-  if(!results.length){alert('Κάνε πρώτα αναζήτηση παίκτη.');return;}
+  var results=_lastSearchResults;
+  if(!results.length){alert('Κάνε πρώτα αναζήτηση.');return;}
   var month=document.getElementById('attMonth').value;
   var el=document.getElementById('attResults');
-  el.innerHTML='<p class="empty">Φόρτωση παρουσιών...</p>';
-  var totalPresent=0,totalAbsent=0,totalInjured=0,totalJustified=0,totalSessions=0;
-  var teamDetails=[];
+  el.innerHTML='<p style="color:#999;font-size:13px">Φόρτωση...</p>';
+  var totP=0,totA=0,totI=0,totJ=0,totS=0;
+  var details=[];
   for(var i=0;i<results.length;i++){
     var r=results[i];
-    var teamCol=ALL_TEAMS.find(function(t){return t.team===r.team;});
-    if(!teamCol)continue;
+    var t=ALL_TEAMS.find(function(x){return x.team===r.team;});
+    if(!t)continue;
     try{
-      var pSnap=await db.collection(teamCol.players).get();
-      var playersList=pSnap.docs.map(function(d){return {id:d.id,name:d.data().name||''};});
-      var pObj=playersList.find(function(x){return x.name===r.name;});
+      var pSnap=await db.collection(t.players).get();
+      var pObj=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};}).find(function(x){return x.name===r.name;});
       if(!pObj)continue;
-      var aSnap=await db.collection(teamCol.attendance).get();
-      var sessions=aSnap.docs.map(function(d){return d.data();});
-      if(month)sessions=sessions.filter(function(s){return (s.date||'').startsWith(month);});
-      var present=0,absent=0,injured=0,justified=0;
-      sessions.forEach(function(s){
-        var v=(s.att||{})[pObj.id];
-        if(v==='p')present++;
-        else if(v==='a')absent++;
-        else if(v==='i')injured++;
-        else if(v==='j')justified++;
-      });
-      if(sessions.length>0){
-        teamDetails.push({team:r.team,total:sessions.length,present,absent,injured,justified});
-        totalPresent+=present;totalAbsent+=absent;totalInjured+=injured;totalJustified+=justified;totalSessions+=sessions.length;
-      }
+      var aSnap=await db.collection(t.attendance).get();
+      var sess=aSnap.docs.map(function(d){return d.data();});
+      if(month)sess=sess.filter(function(s){return(s.date||'').startsWith(month);});
+      var p=0,a=0,ii=0,j=0;
+      sess.forEach(function(s){var v=(s.att||{})[pObj.id];if(v==='p')p++;else if(v==='a')a++;else if(v==='i')ii++;else if(v==='j')j++;});
+      if(sess.length){details.push({team:r.team,total:sess.length,p,a,i:ii,j});totP+=p;totA+=a;totI+=ii;totJ+=j;totS+=sess.length;}
     }catch(e){}
   }
-  if(!teamDetails.length){el.innerHTML='<p class="empty">Δεν βρέθηκαν παρουσίες.</p>';return;}
-  var pct=totalSessions>0?Math.round(totalPresent/totalSessions*100):0;
-  var monthLabel=month?(' — '+new Date(month+'-01').toLocaleDateString('el-GR',{month:'long',year:'numeric'})):'';
-  el.innerHTML='<div class="result" style="flex-direction:column;align-items:flex-start"><p style="font-weight:700;margin-bottom:8px">📊 Παρουσίες'+monthLabel+'</p>'
-    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin-bottom:8px">'
-    +'<div style="background:#EAF3DE;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#3B6D11">'+totalPresent+'</div><div style="font-size:11px;color:#3B6D11">Παρών</div></div>'
-    +'<div style="background:#FCEBEB;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#A32D2D">'+totalAbsent+'</div><div style="font-size:11px;color:#A32D2D">Απών</div></div>'
-    +'<div style="background:#FAEEDA;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#854F0B">'+totalInjured+'</div><div style="font-size:11px;color:#854F0B">Τραυμ.</div></div>'
-    +'<div style="background:#E6F1FB;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#185FA5">'+totalJustified+'</div><div style="font-size:11px;color:#185FA5">Δικαιολ.</div></div>'
+  if(!totS){el.innerHTML='<p style="color:#999;font-size:13px">Δεν βρέθηκαν παρουσίες.</p>';return;}
+  var pct=Math.round(totP/totS*100);
+  el.innerHTML='<div class="result" style="flex-direction:column;align-items:flex-start">'
+    +'<p style="font-weight:700;margin-bottom:8px">📊 Συνολικές παρουσίες</p>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;margin-bottom:8px">'
+    +'<div style="background:#EAF3DE;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#3B6D11">'+totP+'</div><div style="font-size:11px">Παρών</div></div>'
+    +'<div style="background:#FCEBEB;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#A32D2D">'+totA+'</div><div style="font-size:11px">Απών</div></div>'
+    +'<div style="background:#FAEEDA;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#854F0B">'+totI+'</div><div style="font-size:11px">Τραυμ.</div></div>'
+    +'<div style="background:#E6F1FB;border-radius:6px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:#185FA5">'+totJ+'</div><div style="font-size:11px">Δικαιολ.</div></div>'
     +'</div>'
-    +'<div style="font-size:13px;color:#666">Σύνολο: <strong>'+totalSessions+'</strong> · Παρουσία: <strong>'+pct+'%</strong></div>'
-    +(teamDetails.length>1?'<div style="margin-top:8px;width:100%">'+teamDetails.map(function(d){return '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #f0f0f0"><span>'+d.team+'</span><span style="color:#1a6fa8;font-weight:600">'+d.present+'/'+d.total+'</span></div>';}).join('')+'</div>':'')
+    +'<div style="font-size:13px;color:#666">Σύνολο: <strong>'+totS+'</strong> · Παρουσία: <strong>'+pct+'%</strong></div>'
+    +(details.length>1?'<div style="margin-top:8px;width:100%">'+details.map(function(d){return'<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid #f0f0f0"><span>'+d.team+'</span><span style="color:#1a6fa8;font-weight:600">'+d.p+'/'+d.total+'</span></div>';}).join('')+'</div>':'')
     +'</div>';
 }
 
-function setStatus(msg){document.getElementById('iostatus').textContent=msg;}
-function setProgress(pct){var p=document.getElementById('prog');var f=document.getElementById('progFill');p.style.display='block';f.style.width=pct+'%';if(pct>=100)setTimeout(function(){p.style.display='none';},1000);}
-function setStatus2(msg){document.getElementById('iostatus2').textContent=msg;}
-function setProgress2(pct){var p=document.getElementById('prog2');var f=document.getElementById('progFill2');p.style.display='block';f.style.width=pct+'%';if(pct>=100)setTimeout(function(){p.style.display='none';},1000);}
+function setStatus(m){document.getElementById('iostatus').textContent=m;}
+function setProgress(p){var el=document.getElementById('prog');var f=document.getElementById('progFill');el.style.display='block';f.style.width=p+'%';if(p>=100)setTimeout(function(){el.style.display='none';},1000);}
+function setStatus2(m){document.getElementById('iostatus2').textContent=m;}
+function setProgress2(p){var el=document.getElementById('prog2');var f=document.getElementById('progFill2');el.style.display='block';f.style.width=p+'%';if(p>=100)setTimeout(function(){el.style.display='none';},1000);}
 
 async function exportAll(){
-  setStatus('Εξαγωγή δεδομένων...');setProgress(0);
-  var wb=XLSX.utils.book_new();
-  var total=ALL_TEAMS.length*4;var done=0;
+  setStatus('Εξαγωγή...');setProgress(0);
+  var wb=XLSX.utils.book_new();var done=0;var total=ALL_TEAMS.length*2;
   for(var i=0;i<ALL_TEAMS.length;i++){
     var t=ALL_TEAMS[i];
-    setStatus('Εξαγωγή: '+t.team+'...');
     try{
       var snap=await db.collection(t.players).get();
       var rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία','Τηλέφωνο','Σημειώσεις']];
@@ -260,71 +236,39 @@ async function exportAll(){
     done++;setProgress(done/total*100);
     try{
       var pSnap=await db.collection(t.players).get();
-      var players=pSnap.docs.map(function(d){return {id:d.id,name:d.data().name||''};});
+      var pls=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
       var aSnap=await db.collection(t.attendance).get();
       var rows2=[['Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
-      aSnap.docs.forEach(function(d){
-        var s=d.data();
-        players.forEach(function(p){
-          var v=(s.att||{})[p.id];
-          if(v)rows2.push([s.date||'',s.topic||'',p.name,LABEL_MAP[v]||v]);
-        });
-      });
+      aSnap.docs.forEach(function(d){var s=d.data();pls.forEach(function(p){var v=(s.att||{})[p.id];if(v)rows2.push([s.date||'',s.topic||'',p.name,LABEL_MAP[v]||v]);});});
       XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows2),t.team+' Παρουσίες');
     }catch(e){}
     done++;setProgress(done/total*100);
-    try{
-      var snap3=await db.collection(t.matches).get();
-      var pSnap2=await db.collection(t.players).get();
-      var players2=pSnap2.docs.map(function(d){return {id:d.id,name:d.data().name||''};});
-      var rows3=[['Ημερομηνία','Αντίπαλος','Αποτέλεσμα','Έδρα','Είδος','Παίκτης','Παρουσία']];
-      snap3.docs.forEach(function(d){
-        var s=d.data();
-        players2.forEach(function(p){
-          var v=(s.att||{})[p.id];
-          if(v)rows3.push([s.date||'',s.opponent||'',s.result||'',s.location||'',s.mkind||'',p.name,LABEL_MAP[v]||v]);
-        });
-      });
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows3),t.team+' Αγώνες');
-    }catch(e){}
-    done++;setProgress(done/total*100);
-    try{
-      var snap4=await db.collection(t.sessions).get();
-      var rows4=[['Ημερομηνία','Τύπος','Θέμα','Ώρα','Σημειώσεις']];
-      snap4.docs.forEach(function(d){var s=d.data();rows4.push([s.date||'',s.type||'',s.title||'',s.time||'',s.notes||'']);});
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows4),t.team+' Πρόγραμμα');
-    }catch(e){}
-    done++;setProgress(done/total*100);
   }
-  XLSX.writeFile(wb,'amfialis_backup_'+new Date().toISOString().slice(0,10)+'.xlsx');
-  setStatus('✓ Εξαγωγή ολοκληρώθηκε!');setProgress(100);
+  XLSX.writeFile(wb,'amfialis_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  setStatus('✓ Ολοκληρώθηκε!');setProgress(100);
 }
 
 async function importAll(event){
   var file=event.target.files[0];if(!file)return;
-  if(!confirm('Προσοχή! Θα αντικατασταθούν τα υπάρχοντα δεδομένα. Συνέχεια;')){event.target.value='';return;}
+  if(!confirm('Θα αντικατασταθούν τα δεδομένα. Συνέχεια;')){event.target.value='';return;}
   var reader=new FileReader();
   reader.onload=async function(e){
     try{
       var wb=XLSX.read(e.target.result,{type:'array'});
-      setStatus('Εισαγωγή δεδομένων...');setProgress(0);
-      var done=0;
+      setStatus('Εισαγωγή...');setProgress(0);var done=0;
       for(var i=0;i<ALL_TEAMS.length;i++){
         var t=ALL_TEAMS[i];
-        var sheetP=t.team+' Ρόστερ';
-        if(wb.SheetNames.indexOf(sheetP)>=0){
-          var rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetP]);
+        var sn=t.team+' Ρόστερ';
+        if(wb.SheetNames.indexOf(sn)>=0){
+          var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn]);
           var snap=await db.collection(t.players).get();
           for(var d of snap.docs)await db.collection(t.players).doc(d.id).delete();
-          for(var r of rows){
-            if(!r['Όνομα'])continue;
-            await db.collection(t.players).add({name:String(r['Όνομα']),num:String(r['Αριθμός']||''),pos:String(r['Θέση']||''),st:String(r['Κατάσταση']||'active'),birth:String(r['Χρονολογία']||''),phone:String(r['Τηλέφωνο']||''),notes:String(r['Σημειώσεις']||'')});
-          }
+          for(var r of rows){if(!r['Όνομα'])continue;await db.collection(t.players).add({name:String(r['Όνομα']),num:String(r['Αριθμός']||''),pos:String(r['Θέση']||''),st:String(r['Κατάσταση']||'active'),birth:String(r['Χρονολογία']||''),phone:String(r['Τηλέφωνο']||''),notes:String(r['Σημειώσεις']||'')});}
         }
         done++;setProgress(done/ALL_TEAMS.length*100);
         setStatus('Εισαγωγή: '+t.team+'...');
       }
-      setStatus('✓ Εισαγωγή ολοκληρώθηκε!');setProgress(100);
+      setStatus('✓ Ολοκληρώθηκε!');setProgress(100);
     }catch(err){setStatus('Σφάλμα: '+err.message);}
     event.target.value='';
   };
@@ -333,34 +277,22 @@ async function importAll(event){
 
 async function exportAttAll(){
   setStatus2('Εξαγωγή παρουσιών...');setProgress2(0);
-  var wb=XLSX.utils.book_new();
-  var done=0;
+  var wb=XLSX.utils.book_new();var done=0;
   for(var i=0;i<ALL_TEAMS.length;i++){
     var t=ALL_TEAMS[i];
-    setStatus2('Εξαγωγή: '+t.team+'...');
     try{
       var pSnap=await db.collection(t.players).get();
-      var players=pSnap.docs.map(function(d){return {id:d.id,name:d.data().name||''};});
-      var snap=await db.collection(t.attendance).get();
-      var sessions=snap.docs.map(function(d){return d.data();}).sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+      var pls=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
+      var aSnap=await db.collection(t.attendance).get();
+      var sess=aSnap.docs.map(function(d){return d.data();}).sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
       var rows=[['Ομάδα','Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
-      sessions.forEach(function(s){
-        players.forEach(function(p){
-          var v=(s.att||{})[p.id];
-          if(v){var dateObj=s.date?new Date(s.date+'T00:00:00'):null;rows.push([t.team,dateObj,s.topic||'',p.name,LABEL_MAP[v]||v]);}
-        });
-      });
-      if(rows.length>1){
-        var ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});
-        ws['!autofilter']={ref:ws['!ref']};
-        ws['!cols']=[{wch:14},{wch:14},{wch:20},{wch:22},{wch:16}];
-        XLSX.utils.book_append_sheet(wb,ws,(t.team).substring(0,31));
-      }
+      sess.forEach(function(s){pls.forEach(function(p){var v=(s.att||{})[p.id];if(v){var dt=s.date?new Date(s.date+'T00:00:00'):null;rows.push([t.team,dt,s.topic||'',p.name,LABEL_MAP[v]||v]);}});});
+      if(rows.length>1){var ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});ws['!autofilter']={ref:ws['!ref']};XLSX.utils.book_append_sheet(wb,ws,t.team.substring(0,31));}
     }catch(e){}
     done++;setProgress2(done/ALL_TEAMS.length*100);
   }
   XLSX.writeFile(wb,'parousies_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellDates:true});
-  setStatus2('✓ Εξαγωγή παρουσιών ολοκληρώθηκε!');setProgress2(100);
+  setStatus2('✓ Ολοκληρώθηκε!');setProgress2(100);
 }
 
 async function importAttAll(event){
@@ -370,33 +302,22 @@ async function importAttAll(event){
   reader.onload=async function(e){
     try{
       var wb=XLSX.read(e.target.result,{type:'array'});
-      setStatus2('Εισαγωγή παρουσιών...');setProgress2(0);
-      var done=0;
+      setStatus2('Εισαγωγή...');setProgress2(0);var done=0;
       for(var i=0;i<ALL_TEAMS.length;i++){
-        var t=ALL_TEAMS[i];
-        var sheetName=(t.team).substring(0,31);
-        if(wb.SheetNames.indexOf(sheetName)<0){done++;continue;}
-        var rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
+        var t=ALL_TEAMS[i];var sn=t.team.substring(0,31);
+        if(wb.SheetNames.indexOf(sn)<0){done++;continue;}
+        var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn]);
         var snap=await db.collection(t.attendance).get();
         for(var d of snap.docs)await db.collection(t.attendance).doc(d.id).delete();
         var pSnap=await db.collection(t.players).get();
-        var players=pSnap.docs.map(function(d){return {id:d.id,name:d.data().name||''};});
+        var pls=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
         var groups={};
-        rows.forEach(function(r){
-          var key=(r['Ημερομηνία']||'')+'||'+(r['Θέμα']||'');
-          if(!groups[key])groups[key]={date:String(r['Ημερομηνία']||''),topic:String(r['Θέμα']||''),entries:[]};
-          groups[key].entries.push({name:String(r['Παίκτης']||''),status:LABEL_REV[r['Κατάσταση']]||'a'});
-        });
-        for(var key in groups){
-          var g=groups[key];
-          var att={};
-          players.forEach(function(p){var e=g.entries.find(function(x){return x.name===p.name;});if(e)att[p.id]=e.status;});
-          if(Object.keys(att).length>0)await db.collection(t.attendance).add({date:g.date,topic:g.topic,snotes:'',att:att});
-        }
+        rows.forEach(function(r){var k=(r['Ημερομηνία']||'')+'||'+(r['Θέμα']||'');if(!groups[k])groups[k]={date:String(r['Ημερομηνία']||''),topic:String(r['Θέμα']||''),entries:[]};groups[k].entries.push({name:String(r['Παίκτης']||''),status:LABEL_REV[r['Κατάσταση']]||'a'});});
+        for(var k in groups){var g=groups[k];var att={};pls.forEach(function(p){var en=g.entries.find(function(x){return x.name===p.name;});if(en)att[p.id]=en.status;});if(Object.keys(att).length)await db.collection(t.attendance).add({date:g.date,topic:g.topic,snotes:'',att:att});}
         done++;setProgress2(done/ALL_TEAMS.length*100);
         setStatus2('Εισαγωγή: '+t.team+'...');
       }
-      setStatus2('✓ Εισαγωγή παρουσιών ολοκληρώθηκε!');setProgress2(100);
+      setStatus2('✓ Ολοκληρώθηκε!');setProgress2(100);
     }catch(err){setStatus2('Σφάλμα: '+err.message);}
     event.target.value='';
   };
@@ -404,34 +325,31 @@ async function importAttAll(event){
 }
 
 async function checkAlerts(){
+  var el=document.getElementById('alertsList');
+  el.innerHTML='<p style="font-size:13px;color:#999">Φόρτωση...</p>';
   var alerts=[];
   for(var i=0;i<ALL_TEAMS.length;i++){
     var t=ALL_TEAMS[i];
     try{
       var pSnap=await db.collection(t.players).get();
-      var players=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
+      var pls=pSnap.docs.map(function(d){return{id:d.id,name:d.data().name||''};});
       var aSnap=await db.collection(t.attendance).get();
-      var sessions=aSnap.docs.map(function(d){return d.data();}).sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
-      players.forEach(function(p){
-        var consec=0;
-        for(var j=0;j<sessions.length;j++){
-          var v=(sessions[j].att||{})[p.id];
-          if(v&&v!=='p')consec++;
-          else break;
-        }
-        if(consec>=5)alerts.push({name:p.name,team:t.team,consec:consec});
+      var sess=aSnap.docs.map(function(d){return d.data();}).sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
+      pls.forEach(function(p){
+        var c=0;
+        for(var j=0;j<sess.length;j++){var v=(sess[j].att||{})[p.id];if(v&&v!=='p')c++;else break;}
+        if(c>=5)alerts.push({name:p.name,team:t.team,c:c});
       });
     }catch(e){}
   }
-  var el=document.getElementById('alertsList');
-  if(!alerts.length){el.innerHTML='<p style="font-size:13px;color:#1a7a3f">✅ Δεν υπάρχουν παίκτες με 5+ συνεχόμενες απουσίες.</p>';return;}
+  if(!alerts.length){el.innerHTML='<p style="font-size:13px;color:#1a7a3f">✅ Δεν υπάρχουν 5+ συνεχόμενες απουσίες.</p>';return;}
   el.innerHTML=alerts.map(function(a){
     var ini=(a.name||'??').slice(0,2).toUpperCase();
-    return '<div class="alert-row"><div class="alert-av">'+ini+'</div><div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:12px;color:#721c24">'+a.team+' · '+a.consec+' συνεχόμενες απουσίες</div></div></div>';
+    return '<div class="alert-row"><div class="alert-av">'+ini+'</div><div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:12px;color:#721c24">'+a.team+' · '+a.c+' συνεχόμενες απουσίες</div></div></div>';
   }).join('');
 }
 
-window.loadDeletedPlayers=async function(){
+async function loadDeletedPlayers(){
   var el=document.getElementById('deletedList');
   el.innerHTML='<p style="font-size:13px;color:#999">Φόρτωση...</p>';
   try{
@@ -439,22 +357,23 @@ window.loadDeletedPlayers=async function(){
     var docs=snap.docs.sort(function(a,b){return(b.data().deletedAt||'').localeCompare(a.data().deletedAt||'');});
     if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#999">Δεν υπάρχουν διεγραμμένοι αθλητές.</p>';return;}
     el.innerHTML=docs.map(function(d){
-      var p=d.data();
-      var ini=(p.name||'??').slice(0,2).toUpperCase();
+      var p=d.data();var ini=(p.name||'??').slice(0,2).toUpperCase();var did=d.id;
       return '<div class="result" style="border-color:#f5c6cb"><div class="av" style="background:#f8d7da;color:#721c24">'+ini+'</div>'
         +'<div style="flex:1;min-width:0"><div class="result-name">'+p.name+'</div>'
-        +'<div class="result-info">'+(p.birth?p.birth+' · ':'')+(p.pos?p.pos+' · ':'')+'📅 '+p.deletedAt+'</div></div>'
-        +'<span class="result-team" style="background:#f8d7da;color:#721c24;margin-right:6px">'+p.team+'</span>'
-        +'<button onclick="window.permanentDelete(''+d.id+'')" style="background:#c00;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;flex-shrink:0">🗑️</button></div>';
+        +'<div class="result-info">'+(p.birth||'')+(p.birth?' · ':'')+'📅 '+p.deletedAt+'</div></div>'
+        +'<span style="font-size:11px;padding:3px 8px;border-radius:4px;background:#f8d7da;color:#721c24;font-weight:600;margin-right:6px">'+p.team+'</span>'
+        +'<button onclick="permDelete('+idx+')" style="background:#c00;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">🗑️</button></div>';
     }).join('');
   }catch(e){el.innerHTML='<p style="font-size:13px;color:#c00">Σφάλμα: '+e.message+'</p>';}
-};
+}
 
-window.permanentDelete=async function(id){
-  if(!confirm('Οριστική διαγραφή από το αρχείο;'))return;
-  try{await db.collection('deleted_players').doc(id).delete();window.loadDeletedPlayers();}
+async function permDelete(idx){
+  var id=_deletedIds[idx];
+  if(!id)return;
+  if(!confirm('Οριστική διαγραφή;'))return;
+  try{await db.collection('deleted_players').doc(id).delete();loadDeletedPlayers();}
   catch(e){alert('Σφάλμα: '+e.message);}
-};
+}
 
 async function countAllPlayers(){
   var total=0;
@@ -464,13 +383,7 @@ async function countAllPlayers(){
   document.getElementById('totalCount').textContent=total;
 }
 
-// Wait for Firebase to be ready then run
-document.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){
-    checkAlerts();
-    countAllPlayers();
-  }, 1500);
-});
+setTimeout(function(){checkAlerts();countAllPlayers();},2000);
 </script>
 </body>
 </html>
