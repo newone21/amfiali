@@ -118,12 +118,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="prog" id="prog2"><div class="prog-fill" id="progFill2" style="width:0%"></div></div>
     <div class="io-status" id="iostatus2"></div>
   </div>
-  <div class="io-wrap">
-    <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
-    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
-    <div id="deletedList"></div>
-  </div>
-
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
     <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
     <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
@@ -509,7 +503,7 @@ async function deleteAllAttendance(){
 }
 
 // Load deleted players archive
-async function loadDeletedPlayers(){
+window.loadDeletedPlayers=async function(){
   var el=document.getElementById('deletedList');
   el.innerHTML='<p style="font-size:13px;color:#999">Φόρτωση...</p>';
   try{
@@ -529,7 +523,7 @@ async function loadDeletedPlayers(){
 }
 
 // Permanently delete from archive
-async function permanentDelete(id){
+window.permanentDelete=async function(id){
   if(!confirm('Οριστική διαγραφή από το αρχείο; Δεν αναιρείται!'))return;
   try{
     await db.collection('deleted_players').doc(id).delete();
@@ -556,5 +550,14 @@ async function countAllPlayers(){
 }
 countAllPlayers();
 </script>
+
+<div style="max-width:460px;margin:0 auto;padding:0 20px 20px">
+<div class="io-wrap">
+    <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
+    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
+    <div id="deletedList"></div>
+  </div>
+</div>
+
 </body>
 </html>
