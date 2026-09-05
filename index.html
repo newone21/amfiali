@@ -70,12 +70,6 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
   <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α</a>
   <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β</a>
 
-  <div class="io-wrap">
-    <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
-    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
-    <div id="deletedList"></div>
-  </div>
-
   <div class="search-wrap">
     <div class="search-title">🔍 Αναζήτηση παίκτη</div>
     <div class="search-type">
@@ -124,6 +118,12 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="prog" id="prog2"><div class="prog-fill" id="progFill2" style="width:0%"></div></div>
     <div class="io-status" id="iostatus2"></div>
   </div>
+  <div class="io-wrap">
+    <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
+    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
+    <div id="deletedList"></div>
+  </div>
+
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
     <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
     <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
@@ -521,9 +521,19 @@ async function loadDeletedPlayers(){
       return '<div class="result" style="border-color:#f5c6cb"><div class="av" style="background:#f8d7da;color:#721c24">'+ini+'</div>'
         +'<div style="flex:1;min-width:0"><div class="result-name">'+p.name+'</div>'
         +'<div class="result-info">'+(p.birth?p.birth+' · ':'')+(p.pos?p.pos+' · ':'')+'📅 Διαγράφηκε: '+p.deletedAt+'</div></div>'
-        +'<span class="result-team" style="background:#f8d7da;color:#721c24">'+p.team+'</span></div>';
+        +'<span class="result-team" style="background:#f8d7da;color:#721c24;margin-right:6px">'+p.team+'</span>'
+        +'<button onclick="permanentDelete(''+d.id+'')" style="background:#c00;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;flex-shrink:0">🗑️</button></div>';
     }).join('');
   }catch(e){el.innerHTML='<p style="font-size:13px;color:#c00">Σφάλμα: '+e.message+'</p>';}
+}
+
+// Permanently delete from archive
+async function permanentDelete(id){
+  if(!confirm('Οριστική διαγραφή από το αρχείο; Δεν αναιρείται!'))return;
+  try{
+    await db.collection('deleted_players').doc(id).delete();
+    loadDeletedPlayers();
+  }catch(e){alert('Σφάλμα: '+e.message);}
 }
 
 // Count total players across all teams
