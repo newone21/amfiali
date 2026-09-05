@@ -356,8 +356,9 @@ async function loadDeletedPlayers(){
     var snap=await db.collection('deleted_players').get();
     var docs=snap.docs.sort(function(a,b){return(b.data().deletedAt||'').localeCompare(a.data().deletedAt||'');});
     if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#999">Δεν υπάρχουν διεγραμμένοι αθλητές.</p>';return;}
-    el.innerHTML=docs.map(function(d){
-      var p=d.data();var ini=(p.name||'??').slice(0,2).toUpperCase();var did=d.id;
+    _deletedIds=[];docs.forEach(function(d){_deletedIds.push(d.id);});
+    el.innerHTML=docs.map(function(d,idx){
+      var p=d.data();var ini=(p.name||'??').slice(0,2).toUpperCase();
       return '<div class="result" style="border-color:#f5c6cb"><div class="av" style="background:#f8d7da;color:#721c24">'+ini+'</div>'
         +'<div style="flex:1;min-width:0"><div class="result-name">'+p.name+'</div>'
         +'<div class="result-info">'+(p.birth||'')+(p.birth?' · ':'')+'📅 '+p.deletedAt+'</div></div>'
