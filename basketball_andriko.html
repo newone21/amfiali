@@ -289,6 +289,7 @@ const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαι�
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
 let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let efPlayers=[],efAttSessions=[],curEfAtt={},curMatchEfAtt={};
 let attSortMode='alpha';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
@@ -462,7 +463,11 @@ onSnapshot(collection(db,CM),snap=>{
 
 onSnapshot(collection(db,CP_EF),snap=>{
   efPlayers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
-  renderAttForm();
+  if(document.getElementById('sec2').classList.contains('active'))renderAttForm();
+});
+
+onSnapshot(collection(db,CA_EF),snap=>{
+  efAttSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
 });
 
 onSnapshot(collection(db,CA_EF),snap=>{
@@ -608,7 +613,7 @@ function renderAttForm(){
     el.appendChild(efWrap);
   }
 }
-window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(typeof efPlayers!=='undefined'&&efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
+window.markAll=function(v){curAtt={};players.forEach(p=>curAtt[p.id]=v);if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]=v);}renderAttForm();};
 window.saveAtt=async function(){
   const date=document.getElementById('adate').value||today();
   const topic=document.getElementById('atopic').value.trim()||'Προπόνηση';
@@ -622,8 +627,15 @@ window.saveAtt=async function(){
     }else{
       await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});
     }
+    // Save efiviko attendance if present
+    if(efPlayers.length&&Object.keys(curEfAtt).length){
+      const existingEf=efAttSessions.find(s=>s.date===date&&s.topic===topic);
+      if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,snotes,att:{...curEfAtt}});}
+      else{await setDoc(doc(db,CA_EF,uid()),{date,topic,snotes,att:{...curEfAtt}});}
+    }
     curAtt={};
     players.forEach(function(p){curAtt[p.id]='p';});
+    if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]='p');}
     document.getElementById('adate').value=today();
     document.getElementById('atopic').value='';
     if(sn)sn.value='';
@@ -664,7 +676,26 @@ function renderMatchAttForm(){
     info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div>`;
     row.appendChild(av);row.appendChild(info);row.appendChild(makeSegmentById(MOPTS,curMatchAtt,p.id));wrap.appendChild(row);
   });
-  el.innerHTML='';el.appendChild(wrap);renderMatchHistory();
+  el.innerHTML='';el.appendChild(wrap);
+
+  // Add Efiviko players to match attendance
+  if(efPlayers.length){
+    if(editMatchIdx<0){curMatchEfAtt={};efPlayers.forEach(p=>curMatchEfAtt[p.id]='p');}
+    const efWrap=document.createElement('div');efWrap.className='card';efWrap.style.marginTop='12px';
+    const efTitle=document.createElement('div');
+    efTitle.style.cssText='font-size:13px;font-weight:700;color:#8a3a0a;padding:8px 0;border-bottom:2px solid #8a3a0a;margin-bottom:8px';
+    efTitle.textContent='🏀 Εφηβικό';
+    efWrap.appendChild(efTitle);
+    efPlayers.forEach((p)=>{
+      const row=document.createElement('div');row.className='prow';
+      const av=document.createElement('div');av.className='av';av.style.cssText='width:36px;height:36px;border-radius:50%;background:#fdf5f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#8a3a0a;flex-shrink:0';av.textContent=ini(p.name);
+      const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
+      info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.birth||''}</div>`;
+      row.appendChild(av);row.appendChild(info);row.appendChild(makeSegmentById(MOPTS,curMatchEfAtt,p.id));efWrap.appendChild(row);
+    });
+    el.appendChild(efWrap);
+  }
+  renderMatchHistory();
 }
 window.markAllMatch=function(v){curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]=v);renderMatchAttForm();};
 window.saveMatchAtt=async function(){
