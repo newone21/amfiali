@@ -361,7 +361,7 @@ async function loadDeletedPlayers(){
       var p=d.data();var ini=(p.name||'??').slice(0,2).toUpperCase();
       return '<div class="result" style="border-color:#f5c6cb"><div class="av" style="background:#f8d7da;color:#721c24">'+ini+'</div>'
         +'<div style="flex:1;min-width:0"><div class="result-name">'+p.name+'</div>'
-        +'<div class="result-info">'+(p.birth||'')+(p.birth?' · ':'')+'📅 '+p.deletedAt+'</div></div>'
+        +'<div class="result-info">'+(p.birth||'')+(p.birth?' · ':'')+'📅 '+(p.deletedAt?p.deletedAt.split('-').reverse().join('-'):'-')+'</div></div>'
         +'<span style="font-size:11px;padding:3px 8px;border-radius:4px;background:#f8d7da;color:#721c24;font-weight:600;margin-right:6px">'+p.team+'</span>'
         +'<button onclick="permDelete('+idx+')" style="background:#c00;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">🗑️</button></div>';
     }).join('');
