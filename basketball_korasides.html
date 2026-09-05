@@ -551,7 +551,7 @@ function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
   if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
-  if(editAttIdx<0){curAtt={};players.forEach(p=>curAtt[p.id]='p');}
+  if(editAttIdx<0&&Object.keys(curAtt).length===0){curAtt={};players.forEach(p=>curAtt[p.id]='p');}
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
