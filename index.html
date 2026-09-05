@@ -464,8 +464,13 @@ async function countAllPlayers(){
   document.getElementById('totalCount').textContent=total;
 }
 
-checkAlerts();
-countAllPlayers();
+// Wait for Firebase to be ready then run
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    checkAlerts();
+    countAllPlayers();
+  }, 1500);
+});
 </script>
 </body>
 </html>
