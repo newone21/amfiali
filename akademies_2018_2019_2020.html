@@ -478,7 +478,21 @@ window.addPlayer=async function(){
   await setDoc(doc(db,CP,uid()),{name,num:document.getElementById('pnum').value||'',pos:document.getElementById('ppos').value||'',st:document.getElementById('pst').value,birth:document.getElementById('pbirth').value||'',phone:document.getElementById('pphone').value.trim()||'',notes:document.getElementById('pnotes').value.trim()||''});
   document.getElementById('pn').value='';document.getElementById('pnum').value='';document.getElementById('ppos').value='';document.getElementById('pbirth').value='';document.getElementById('pphone').value='';document.getElementById('pnotes').value='';
 };
-window.delPlayer=async function(id){if(!confirm('Διαγραφή παίκτη;'))return;await deleteDoc(doc(db,CP,id));};
+window.delPlayer=async function(id){
+  if(!confirm('Διαγραφή παίκτη;'))return;
+  try{
+    const p=players.find(x=>x.id===id);
+    if(p){
+      await setDoc(doc(db,'deleted_players',uid()),{
+        name:p.name||'',num:p.num||'',pos:p.pos||'',birth:p.birth||'',
+        phone:p.phone||'',notes:p.notes||'',
+        team:'2018-2019-2020',
+        deletedAt:new Date().toISOString().slice(0,10)
+      });
+    }
+    await deleteDoc(doc(db,CP,id));
+  }catch(e){alert('Σφάλμα: '+e.message);}
+};
 window.editPlayer=function(id){
   const p=players.find(x=>x.id===id);if(!p)return;editPlayerId=id;
   document.getElementById('epn').value=p.name||'';document.getElementById('epnum').value=p.num||'';document.getElementById('eppos').value=p.pos||'';document.getElementById('epst').value=p.st||'active';

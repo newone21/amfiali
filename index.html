@@ -70,6 +70,12 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
   <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α</a>
   <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β</a>
 
+  <div class="io-wrap">
+    <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
+    <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px">📋 Εμφάνιση αρχείου</button>
+    <div id="deletedList"></div>
+  </div>
+
   <div class="search-wrap">
     <div class="search-title">🔍 Αναζήτηση παίκτη</div>
     <div class="search-type">
@@ -500,6 +506,24 @@ async function deleteAllAttendance(){
   }
   setStatus2('✓ Όλες οι παρουσίες διαγράφηκαν!');
   setProgress2(100);
+}
+
+// Load deleted players archive
+async function loadDeletedPlayers(){
+  var el=document.getElementById('deletedList');
+  el.innerHTML='<p style="font-size:13px;color:#999">Φόρτωση...</p>';
+  try{
+    var snap=await db.collection('deleted_players').orderBy('deletedAt','desc').get();
+    if(snap.empty){el.innerHTML='<p style="font-size:13px;color:#999">Δεν υπάρχουν διεγραμμένοι αθλητές.</p>';return;}
+    el.innerHTML=snap.docs.map(function(d){
+      var p=d.data();
+      var ini=(p.name||'??').slice(0,2).toUpperCase();
+      return '<div class="result" style="border-color:#f5c6cb"><div class="av" style="background:#f8d7da;color:#721c24">'+ini+'</div>'
+        +'<div style="flex:1;min-width:0"><div class="result-name">'+p.name+'</div>'
+        +'<div class="result-info">'+(p.birth?p.birth+' · ':'')+(p.pos?p.pos+' · ':'')+'📅 Διαγράφηκε: '+p.deletedAt+'</div></div>'
+        +'<span class="result-team" style="background:#f8d7da;color:#721c24">'+p.team+'</span></div>';
+    }).join('');
+  }catch(e){el.innerHTML='<p style="font-size:13px;color:#c00">Σφάλμα: '+e.message+'</p>';}
 }
 
 // Count total players across all teams
