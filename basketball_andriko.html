@@ -595,15 +595,8 @@ window.saveAtt=async function(){
     }else{
       await setDoc(doc(db,CA,uid()),{date,topic,snotes,att:{...curAtt}});
     }
-    // Save efiviko attendance if present
-    if(efPlayers.length&&Object.keys(curEfAtt).length){
-      const existingEf=efAttSessions.find(s=>s.date===date&&s.topic===topic);
-      if(existingEf){await setDoc(doc(db,CA_EF,existingEf.id),{date,topic,snotes,att:{...curEfAtt}});}
-      else{await setDoc(doc(db,CA_EF,uid()),{date,topic,snotes,att:{...curEfAtt}});}
-    }
     curAtt={};
     players.forEach(function(p){curAtt[p.id]='p';});
-    if(efPlayers.length){curEfAtt={};efPlayers.forEach(p=>curEfAtt[p.id]='p');}
     document.getElementById('adate').value=today();
     document.getElementById('atopic').value='';
     if(sn)sn.value='';
@@ -858,10 +851,10 @@ function renderMatchStats(){
   const pIdx=document.getElementById('mfplayer').value;
   const filterP=(pIdx&&pIdx!=='all')?parseInt(pIdx):null;
   const pstats=players.map((p,idx)=>({
-    name:p.name,pos:p.pos||'',
-    present:matchSessions.filter(s=>(s.att||[])[idx]==='p').length,
-    absent:matchSessions.filter(s=>(s.att||[])[idx]==='a').length,
-    pct:Math.round(matchSessions.filter(s=>(s.att||[])[idx]==='p').length/total*100)
+    name:p.name,pos:p.pos||'',idx,
+    present:filtered.filter(s=>(s.att||{})[p.id]==='p').length,
+    absent:filtered.filter(s=>(s.att||{})[p.id]==='a').length,
+    pct:Math.round(filtered.filter(s=>(s.att||{})[p.id]==='p').length/total*100)
   })).sort((a,b)=>b.pct-a.pct);
   const avg=Math.round(pstats.reduce((s,p)=>s+p.pct,0)/pstats.length)||0;
   el.innerHTML=`<div class="g3" style="margin-bottom:16px">
@@ -902,8 +895,8 @@ window.exportAtt=function(){
   const cellStyles=[null]; // null for header row
 
   filtered.forEach(s=>{
-    players.forEach((p,idx)=>{
-      const status=LABEL[(s.att||[])[idx]]||LABEL['a'];
+    players.forEach((p)=>{
+      const status=LABEL[(s.att||{})[p.id]]||LABEL['a'];
       wsData.push([fmtDate(s.date),s.topic,p.name,p.pos||'',status]);
       cellStyles.push({date:s.date,status});
     });
@@ -940,7 +933,7 @@ window.exportAtt=function(){
   XLSX.utils.book_append_sheet(wb,ws,'Παρουσίες');
   XLSX.writeFile(wb,'parousies.xlsx',{cellDates:true,bookType:'xlsx'});
 };
-window.exportStats=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const total=filtered.length;const rows=[['Παίκτης','Θέση','Χρονολογία','Παρών','Τραυματίας','Δικαιολογημένος','Απών','Σύνολο','Ποσοστό %']];players.map((p,idx)=>({name:p.name,pos:p.pos||'',birth:p.birth||'',present:filtered.filter(s=>(s.att||[])[idx]==='p').length,injured:filtered.filter(s=>(s.att||[])[idx]==='i').length,justified:filtered.filter(s=>(s.att||[])[idx]==='j').length,absent:filtered.filter(s=>(s.att||[])[idx]==='a').length})).sort((a,b)=>b.present-a.present).forEach(p=>rows.push([p.name,p.pos,p.birth,p.present,p.injured,p.justified,p.absent,total,Math.round(p.present/total*100)]));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Στατιστικά');XLSX.writeFile(wb,'statistika.xlsx',{cellDates:true});};
+window.exportStats=function(){if(!attSessions.length){alert('Δεν υπάρχουν παρουσίες.');return;}const filtered=getFiltered();const total=filtered.length;const rows=[['Παίκτης','Θέση','Χρονολογία','Παρών','Τραυματίας','Δικαιολογημένος','Απών','Σύνολο','Ποσοστό %']];players.map((p)=>({name:p.name,pos:p.pos||'',birth:p.birth||'',present:filtered.filter(s=>(s.att||{})[p.id]==='p').length,injured:filtered.filter(s=>(s.att||{})[p.id]==='i').length,justified:filtered.filter(s=>(s.att||{})[p.id]==='j').length,absent:filtered.filter(s=>(s.att||{})[p.id]==='a').length})).sort((a,b)=>b.present-a.present).forEach(p=>rows.push([p.name,p.pos,p.birth,p.present,p.injured,p.justified,p.absent,total,Math.round(p.present/total*100)]));const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Στατιστικά');XLSX.writeFile(wb,'statistika.xlsx',{cellDates:true});};
 window.importRoster=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχοντες παίκτες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CP));for(const d of snap.docs)await deleteDoc(doc(db,CP,d.id));const stMap={'Ενεργός':'active','Τραυματίας':'injured','Ανενεργός':'inactive'};for(const r of rows){if(!r['Όνομα'])continue;await setDoc(doc(db,CP,uid()),{name:String(r['Όνομα']),num:String(r['Αριθμός']||''),pos:String(r['Θέση']||''),st:stMap[r['Κατάσταση']]||'active',birth:String(r['Χρονολογία Γέννησης']||'')});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};
 window.importAtt=async function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const rows=XLSX.utils.sheet_to_json(XLSX.read(e.target.result,{type:'array'}).Sheets[XLSX.read(e.target.result,{type:'array'}).SheetNames[0]]);if(!rows.length){alert('Κενό αρχείο.');return;}if(!confirm('Θα διαγραφούν οι τρέχουσες παρουσίες. Συνέχεια;'))return;sync('loading','Εισαγωγή...');const snap=await getDocs(collection(db,CA));for(const d of snap.docs)await deleteDoc(doc(db,CA,d.id));const labMap={'Παρών':'p','Απών':'a','Τραυματίας':'i','Δικαιολογημένος':'j'};const groups={};rows.forEach(r=>{const k=r['Ημερομηνία']+'||'+r['Θέμα'];if(!groups[k])groups[k]={date:String(r['Ημερομηνία']),topic:String(r['Θέμα']),entries:[]};groups[k].entries.push({name:String(r['Παίκτης']),status:labMap[r['Κατάσταση']]||'a'});});for(const g of Object.values(groups)){const att=players.map(p=>{const e=g.entries.find(x=>x.name===p.name);return e?e.status:'a';});await setDoc(doc(db,CA,uid()),{date:g.date,topic:g.topic,att});}alert('Εισαγωγή ολοκληρώθηκε!');}catch(err){alert('Σφάλμα: '+err.message);}event.target.value='';};reader.readAsArrayBuffer(file);};
 
