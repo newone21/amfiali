@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
 <div class="sync-bar"><div class="dot loading" id="sdot"></div><span id="stxt">Σύνδεση...</span></div>
 <nav>
   <button class="tab active" onclick="go(2)">✅ Παρουσιολόγιο<br><small>Προπονήσεων</small></button>
+  <button class="tab" onclick="go(5)">🏀 Παρουσίες<br><small>Νεανίδων</small></button>
   <button class="tab" onclick="go(4)">🏆 Παρουσιολόγιο<br><small>Αγώνων</small></button>
   <button class="tab" onclick="go(0)">👥 Ρόστερ</button>
   <button class="tab" onclick="go(1)">📅 Πρόγραμμα</button>
@@ -271,6 +272,37 @@ document.addEventListener('DOMContentLoaded',function(){var inp=document.getElem
   <p class="ok" id="mattok">✓ Αποθηκεύτηκε!</p>
   <div id="mhistory"></div>
 </div>
+
+<div class="sec" id="sec5">
+  <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+    <span style="font-size:12px;color:#999;align-self:center">Ταξινόμηση:</span>
+    <button id="sortAlphaNea" class="btn btn-blue" onclick="setNeaSort('alpha')" style="font-size:12px;padding:4px 10px;height:auto">Α→Ω</button>
+    <button id="sortAgeAscNea" class="btn" onclick="setNeaSort('age_asc')" style="font-size:12px;padding:4px 10px;height:auto">Ηλικία ↑</button>
+    <button id="sortAgeDescNea" class="btn" onclick="setNeaSort('age_desc')" style="font-size:12px;padding:4px 10px;height:auto">Ηλικία ↓</button>
+  </div>
+  <div id="neaBanner" style="background:#fdf0f8;border:1px solid #f0c0e0;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#a81a6f;display:none">
+    📅 Τελευταία προπόνηση Νεανίδων: <strong id="neaBannerDate">—</strong>
+  </div>
+  <div class="card">
+    <p class="sec-title">🏀 Παρουσίες Νεανίδων</p>
+    <div class="g2 mb">
+      <div><div class="lbl">Ημερομηνία</div><input id="neaDate" type="date"></div>
+      <div><div class="lbl">Θέμα</div><input id="neaTopic" placeholder="π.χ. Προπόνηση"></div>
+    </div>
+    <div style="margin-bottom:10px"><div class="lbl">Σημειώσεις (προαιρετικό)</div><input id="neaNotes" placeholder="π.χ. Φιλικό παιχνίδι" style="margin-top:4px"></div>
+  </div>
+  <div id="neaList"></div>
+  <div id="neaAct" style="display:none;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">
+    <button onclick="window.markAllNea('p')" class="btn btn-green">✅ Όλες Παρούσες</button>
+    <button onclick="window.markAllNea('a')" class="btn" style="background:#f8d7da;color:#721c24;border-color:#f5c6cb">❌ Όλες Απούσες</button>
+    <button class="btn btn-blue" id="neaSaveBtn" onclick="saveNeaAtt()">💾 Αποθήκευση</button>
+    <span id="neaOk" style="display:none;color:#1a7a3f;font-weight:700;font-size:14px">✅ Αποθηκεύτηκε!</span>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <p class="sec-title">📋 Ιστορικό παρουσιών Νεανίδων</p>
+    <div id="neaHistory"><p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p></div>
+  </div>
+</div>
 </div>
 
 <script type="module">
@@ -282,12 +314,14 @@ const app=initializeApp(cfg);
 const db=getFirestore(app);
 
 const CP='korasides_players',CS='korasides_sessions',CA='korasides_attendance',CM='korasides_matches';
+const CA_NEA='korasides_neanides_attendance';
 const OPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'},{k:'i',l:'Τραυματίας',bg:'#FAEEDA',c:'#854F0B',b:'2px solid #854F0B'},{k:'j',l:'Δικαιολ.',bg:'#E6F1FB',c:'#185FA5',b:'2px solid #185FA5'}];
 const MOPTS=[{k:'p',l:'Παρών',bg:'#EAF3DE',c:'#3B6D11',b:'2px solid #3B6D11'},{k:'a',l:'Απών',bg:'#FCEBEB',c:'#A32D2D',b:'2px solid #A32D2D'}];
 const LABEL={p:'Παρών',a:'Απών',i:'Τραυματίας',j:'Δικαιολογημένος'};
 const INTLBL={low:'🟢 Χαμηλή',medium:'🟡 Μέτρια',high:'🔴 Υψηλή'};
 
 let players=[],sessions=[],attSessions=[],matchSessions=[],curAtt=[],curMatchAtt=[],editAttIdx=-1,editMatchIdx=-1,editSessId=null,editPlayerId=null;
+let neaAttSessions=[],curNeaAtt={},editNeaAttIdx=-1;
 let attSortMode='alpha';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
@@ -419,11 +453,118 @@ window.setAttSort=function(mode){
   renderAttForm();
 };
 
+let neaSortMode='alpha';
+
+window.setNeaSort=function(mode){
+  neaSortMode=mode;
+  const sa=document.getElementById('sortAlphaNea');
+  const sb=document.getElementById('sortAgeAscNea');
+  const sc=document.getElementById('sortAgeDescNea');
+  if(sa)sa.className='btn '+(mode==='alpha'?'btn-blue':'');
+  if(sb)sb.className='btn '+(mode==='age_asc'?'btn-blue':'');
+  if(sc)sc.className='btn '+(mode==='age_desc'?'btn-blue':'');
+  renderNeaAttForm();
+};
+
+function renderNeaAttForm(){
+  const el=document.getElementById('neaList');
+  const act=document.getElementById('neaAct');
+  if(editNeaAttIdx<0){
+    document.getElementById('neaDate').value=today();
+    document.getElementById('neaTopic').value='';
+  }
+  if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
+  if(editNeaAttIdx<0&&Object.keys(curNeaAtt).length===0){
+    curNeaAtt={};players.forEach(p=>curNeaAtt[p.id]='p');
+  }
+  act.style.display='flex';
+  document.getElementById('neaSaveBtn').textContent=editNeaAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
+  let sorted=[...players];
+  if(neaSortMode==='age_asc')sorted.sort((a,b)=>parseInt(a.birth||9999)-parseInt(b.birth||9999));
+  else if(neaSortMode==='age_desc')sorted.sort((a,b)=>parseInt(b.birth||0)-parseInt(a.birth||0));
+  else sorted.sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
+  const wrap=document.createElement('div');wrap.className='card';
+  sorted.forEach(p=>{
+    const row=document.createElement('div');row.className='prow';
+    const av=document.createElement('div');av.className='av';av.textContent=ini(p.name);
+    const info=document.createElement('div');info.style.cssText='flex:1;min-width:100px';
+    info.innerHTML=`<div style="font-size:14px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#999">${p.pos||''}${p.birth?' · '+p.birth:''}</div>`;
+    row.appendChild(av);row.appendChild(info);row.appendChild(makeSegmentById(OPTS,curNeaAtt,p.id));wrap.appendChild(row);
+  });
+  el.innerHTML='';el.appendChild(wrap);
+  renderNeaHistory();
+  if(neaAttSessions.length){
+    const last=neaAttSessions[0];
+    const d=last.date?new Date(last.date+'T00:00:00'):null;
+    const lbl=d?d.toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+    document.getElementById('neaBannerDate').textContent=lbl+(last.topic?' · '+last.topic:'');
+    document.getElementById('neaBanner').style.display='block';
+  }
+}
+
+function renderNeaHistory(){
+  const el=document.getElementById('neaHistory');
+  if(!neaAttSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p>';return;}
+  el.innerHTML=neaAttSessions.map((s,i)=>{
+    const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;
+    return `<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${fmtDate(s.date)}</div></div><div class="ml" style="display:flex;align-items:center;gap:6px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="startEditNeaAtt(${i})">✏️</button><button class="delbtn" onclick="delNeaAtt('${s.id}')">🗑️</button></div></div>`;
+  }).join('');
+}
+
+window.startEditNeaAtt=function(i){
+  const s=neaAttSessions[i];editNeaAttIdx=i;
+  curNeaAtt={};
+  if(typeof s.att==='object'&&!Array.isArray(s.att)){curNeaAtt={...s.att};}
+  else{players.forEach(p=>curNeaAtt[p.id]='p');}
+  window.go(5);
+  setTimeout(()=>{
+    document.getElementById('neaDate').value=s.date;
+    document.getElementById('neaTopic').value=s.topic||'';
+    document.getElementById('neaNotes').value=s.snotes||'';
+    renderNeaAttForm();
+  },100);
+};
+
+window.delNeaAtt=async function(id){
+  if(!confirm('Διαγραφή παρουσίας;'))return;
+  try{await deleteDoc(doc(db,CA_NEA,id));renderNeaHistory();}
+  catch(e){alert('Σφάλμα: '+e.message);}
+};
+
+window.markAllNea=function(v){
+  curNeaAtt={};players.forEach(p=>curNeaAtt[p.id]=v);renderNeaAttForm();
+};
+
+async function saveNeaAtt(){
+  const date=document.getElementById('neaDate').value||today();
+  const topic=document.getElementById('neaTopic').value.trim()||'Προπόνηση';
+  const snotes=document.getElementById('neaNotes').value.trim();
+  sync('loading','Αποθήκευση...');
+  try{
+    if(editNeaAttIdx>=0){
+      await setDoc(doc(db,CA_NEA,neaAttSessions[editNeaAttIdx].id),{date,topic,snotes,att:{...curNeaAtt}});
+      editNeaAttIdx=-1;
+    }else{
+      await setDoc(doc(db,CA_NEA,uid()),{date,topic,snotes,att:{...curNeaAtt}});
+    }
+    curNeaAtt={};players.forEach(p=>curNeaAtt[p.id]='p');
+    document.getElementById('neaDate').value=today();
+    document.getElementById('neaTopic').value='';
+    document.getElementById('neaNotes').value='';
+    sync('ok','');
+    const ok=document.getElementById('neaOk');
+    ok.style.display='inline';clearTimeout(window._neaTimer);
+    window._neaTimer=setTimeout(()=>ok.style.display='none',3000);
+    renderNeaAttForm();
+  }catch(e){sync('err','Σφάλμα');alert('Σφάλμα: '+e.message);}
+}
+
 window.go=function(i){
-  const order=[2,4,0,1,3];
+  const order=[2,5,4,0,1,3];
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',order[j]===i));
   document.querySelectorAll('.sec').forEach((s,j)=>s.classList.toggle('active',j===i));
   if(i===2)renderAttForm();
+  if(i===5)renderNeaAttForm();
   if(i===4)renderMatchAttForm();
   if(i===3){updatePlayerFilter();renderStats();}
 };
@@ -457,6 +598,11 @@ onSnapshot(collection(db,CA),snap=>{
 onSnapshot(collection(db,CM),snap=>{
   matchSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(document.getElementById('sec4').classList.contains('active'))renderMatchHistory();
+});
+
+onSnapshot(collection(db,CA_NEA),snap=>{
+  neaAttSessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(document.getElementById('sec5')&&document.getElementById('sec5').classList.contains('active'))renderNeaAttForm();
 });
 
 
