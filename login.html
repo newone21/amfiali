@@ -49,9 +49,18 @@ var firebaseConfig={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:
 firebase.initializeApp(firebaseConfig);
 var auth=firebase.auth();
 
-// Check if already logged in
+// Check if already logged in today
 auth.onAuthStateChanged(function(user){
-  if(user){window.location.replace('index.html');}
+  if(user){
+    var today=new Date().toDateString();
+    var lastLogin=localStorage.getItem('amfiali_last_login');
+    if(lastLogin===today){
+      window.location.replace('index.html');
+    }else{
+      // New day - sign out and ask for login again
+      auth.signOut();
+    }
+  }
 });
 
 async function login(){
@@ -70,6 +79,7 @@ async function login(){
   
   try{
     await auth.signInWithEmailAndPassword(email,password);
+    localStorage.setItem('amfiali_last_login',new Date().toDateString());
     window.location.replace('index.html');
   }catch(e){
     var msg='Σφάλμα σύνδεσης.';
