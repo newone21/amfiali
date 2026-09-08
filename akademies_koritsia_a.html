@@ -60,24 +60,8 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 </style>
 </head>
 <body>
-<div id="lockscreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;z-index:9999">
-  <div style="background:#fff;border-radius:16px;padding:32px 28px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1);max-width:320px;width:90%">
-    <div style="font-size:48px;margin-bottom:12px">🔒</div>
-    <h2 style="font-size:18px;font-weight:700;margin-bottom:6px">Κορίτσια Α</h2>
-    <p style="font-size:13px;color:#666;margin-bottom:20px">Α.Π.Σ.Ε. Αμφιάλης 1967</p>
-    <input id="pinInput" type="password" placeholder="Εισάγετε κωδικό" style="width:100%;height:44px;border:1px solid #ccc;border-radius:8px;padding:0 14px;font-size:16px;text-align:center;letter-spacing:6px;margin-bottom:12px" onkeydown="if(event.key==='Enter')checkPin()">
-    <button onclick="checkPin()" style="width:100%;height:44px;background:#a81a6f;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer">Είσοδος</button>
-    <p id="pinErr" style="color:#c00;font-size:13px;margin-top:10px;display:none">Λάθος κωδικός. Δοκίμασε ξανά.</p>
-  </div>
-</div>
 <script>
-function checkPin(){
-  var val=document.getElementById('pinInput').value;
-  if(val==='5555'){document.getElementById('lockscreen').style.display='none';sessionStorage.setItem('unlocked_ak_koritsia_a','1');}
-  else{document.getElementById('pinErr').style.display='block';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus();}
-}
-if(sessionStorage.getItem('unlocked_ak_koritsia_a')==='1'){document.addEventListener('DOMContentLoaded',function(){var ls=document.getElementById('lockscreen');if(ls)ls.style.display='none';});}
-document.addEventListener('DOMContentLoaded',function(){var inp=document.getElementById('pinInput');if(inp)inp.focus();});
+if(sessionStorage.getItem('amfiali_auth')!=='1'){window.location.href='login.html';}
 </script>
 <div id="toast"></div>
 <div class="app">
