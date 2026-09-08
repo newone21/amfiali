@@ -58,11 +58,17 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a7a3f;color:#fff;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:9998;display:none;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  var cfg={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-d773b.firebaseapp.com",projectId:"amfiali-d773b"};
+  if(!firebase.apps.length)firebase.initializeApp(cfg);
+  firebase.auth().onAuthStateChanged(function(u){if(!u)window.location.replace('login.html');});
+})();
+</script>
 </head>
 <body>
-<script>
-if(sessionStorage.getItem('amfiali_auth')!=='1'){window.location.href='login.html';}
-</script>
 <div id="toast"></div>
 <div class="app">
 <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
