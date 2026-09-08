@@ -55,21 +55,21 @@ firebase.auth().onAuthStateChanged(function(u){if(!u)window.location.replace('lo
   <h2>Διαχείριση ομάδων μπάσκετ</h2>
 
   <div class="section">Τμήματα</div>
-  <a href="basketball_andriko.html" class="btn" style="background:#1a6fa8;color:#fff">🏀 Ανδρικό</a>
-  <a href="basketball_efiviko.html" class="btn" style="background:#8a3a0a;color:#fff">🏀 Εφηβικό</a>
-  <a href="basketball_korasides.html" class="btn" style="background:#1a7a3f;color:#fff">🏀 Κορασίδες</a>
-  <a href="basketball_neanides.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Νεανίδες</a>
-  <a href="basketball_paidiko.html" class="btn" style="background:#0a7a8a;color:#fff">🏀 Παιδικό</a>
+  <a href="basketball_andriko.html" class="btn" style="background:#1a6fa8;color:#fff">🏀 Ανδρικό <span id="count_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="basketball_efiviko.html" class="btn" style="background:#8a3a0a;color:#fff">🏀 Εφηβικό <span id="count_efiviko_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="basketball_korasides.html" class="btn" style="background:#1a7a3f;color:#fff">🏀 Κορασίδες <span id="count_korasides_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="basketball_neanides.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Νεανίδες <span id="count_neanides_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="basketball_paidiko.html" class="btn" style="background:#0a7a8a;color:#fff">🏀 Παιδικό <span id="count_paidiko_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
 
   <div class="section">Ακαδημίες</div>
-  <a href="akademies_2010_2011.html" class="btn" style="background:#1a7a3f;color:#fff">🏀 2010 - 2011 Β</a>
-  <a href="akademies_2012_2013_a.html" class="btn" style="background:#8b4513;color:#fff">🏀 2012 - 2013 Α</a>
-  <a href="akademies_2012_2013_2014.html" class="btn" style="background:#1a6fa8;color:#fff">🏀 2012 - 2013 - 2014</a>
-  <a href="akademies_2014_2015_2016.html" class="btn" style="background:#7b2fa8;color:#fff">🏀 2014 - 2015 - 2016</a>
-  <a href="akademies_2016_2019.html" class="btn" style="background:#c47000;color:#fff">🏀 2016 - 2019</a>
-  <a href="akademies_2018_2019_2020.html" class="btn" style="background:#c47000;color:#fff">🏀 2018 - 2019 - 2020</a>
-  <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α</a>
-  <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β</a>
+  <a href="akademies_2010_2011.html" class="btn" style="background:#1a7a3f;color:#fff">🏀 2010 - 2011 Β <span id="count_ak_2010_2011_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_2012_2013_a.html" class="btn" style="background:#8b4513;color:#fff">🏀 2012 - 2013 Α <span id="count_ak_2012_2013_a_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_2012_2013_2014.html" class="btn" style="background:#1a6fa8;color:#fff">🏀 2012 - 2013 - 2014 <span id="count_ak_2012_2013_2014_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_2014_2015_2016.html" class="btn" style="background:#7b2fa8;color:#fff">🏀 2014 - 2015 - 2016 <span id="count_ak_2014_2015_2016_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_2016_2019.html" class="btn" style="background:#c0392b;color:#fff">🏀 2016 - 2019 <span id="count_akademies_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_2018_2019_2020.html" class="btn" style="background:#c47000;color:#fff">🏀 2018 - 2019 - 2020 <span id="count_ak_2018_2019_2020_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α <span id="count_ak_koritsia_a_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
+  <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β <span id="count_ak_koritsia_b_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
 
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
     <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
@@ -370,6 +370,31 @@ async function permDelete(idx){
   catch(e){alert('Σφάλμα: '+e.message);}
 }
 
+async function loadTeamCounts(){
+  var teams=[
+    {col:'players',id:'count_players'},
+    {col:'efiviko_players',id:'count_efiviko_players'},
+    {col:'korasides_players',id:'count_korasides_players'},
+    {col:'neanides_players',id:'count_neanides_players'},
+    {col:'paidiko_players',id:'count_paidiko_players'},
+    {col:'ak_2010_2011_players',id:'count_ak_2010_2011_players'},
+    {col:'ak_2012_2013_a_players',id:'count_ak_2012_2013_a_players'},
+    {col:'ak_2012_2013_2014_players',id:'count_ak_2012_2013_2014_players'},
+    {col:'ak_2014_2015_2016_players',id:'count_ak_2014_2015_2016_players'},
+    {col:'akademies_players',id:'count_akademies_players'},
+    {col:'ak_2018_2019_2020_players',id:'count_ak_2018_2019_2020_players'},
+    {col:'ak_koritsia_a_players',id:'count_ak_koritsia_a_players'},
+    {col:'ak_koritsia_b_players',id:'count_ak_koritsia_b_players'},
+  ];
+  for(var i=0;i<teams.length;i++){
+    try{
+      var snap=await db.collection(teams[i].col).get();
+      var el=document.getElementById(teams[i].id);
+      if(el)el.textContent='('+snap.docs.length+')';
+    }catch(e){}
+  }
+}
+
 async function countAllPlayers(){
   var total=0;
   for(var i=0;i<ALL_TEAMS.length;i++){
@@ -378,7 +403,7 @@ async function countAllPlayers(){
   document.getElementById('totalCount').textContent=total;
 }
 
-setTimeout(function(){checkAlerts();countAllPlayers();},2000);
+setTimeout(function(){checkAlerts();countAllPlayers();loadTeamCounts();},2000);
 </script>
 </body>
 </html>
