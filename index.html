@@ -71,32 +71,9 @@ firebase.auth().onAuthStateChanged(function(u){if(!u)window.location.replace('lo
   <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α</a>
   <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β</a>
 
-  <div class="io-wrap" id="alertsSection">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="io-title" style="margin-bottom:0">⚠️ Ειδοποιήσεις</div>
-      <button onclick="checkAlerts()" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">🔄 Ανανέωση</button>
-    </div>
-    <div id="alertsList"><p style="font-size:13px;color:#999">Φόρτωση...</p></div>
-  </div>
-
-  <div class="io-wrap">
-    <div class="io-title">📦 Εξαγωγή / Εισαγωγή Δεδομένων</div>
-    <div class="io-btns">
-      <button class="io-btn io-exp" onclick="exportAll()">📥 Εξαγωγή όλων</button>
-      <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή δεδομένων<input type="file" accept=".xlsx" style="display:none" onchange="importAll(event)"></label>
-    </div>
-    <div class="prog" id="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
-    <div class="io-status" id="iostatus"></div>
-  </div>
-
-  <div class="io-wrap">
-    <div class="io-title">✅ Εξαγωγή / Εισαγωγή Παρουσιών</div>
-    <div class="io-btns">
-      <button class="io-btn io-exp" onclick="exportAttAll()">📥 Εξαγωγή παρουσιών</button>
-      <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAttAll(event)"></label>
-    </div>
-    <div class="prog" id="prog2"><div class="prog-fill" id="progFill2" style="width:0%"></div></div>
-    <div class="io-status" id="iostatus2"></div>
+  <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
+    <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
+    <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
   </div>
 
   <div class="search-wrap">
@@ -120,15 +97,28 @@ firebase.auth().onAuthStateChanged(function(u){if(!u)window.location.replace('lo
     <div id="attResults"></div>
   </div>
 
+  <div class="io-wrap" id="alertsSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="io-title" style="margin-bottom:0">⚠️ Ειδοποιήσεις</div>
+      <button onclick="checkAlerts()" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">🔄 Ανανέωση</button>
+    </div>
+    <div id="alertsList"><p style="font-size:13px;color:#999">Φόρτωση...</p></div>
+  </div>
+
   <div class="io-wrap">
     <div class="io-title">🗃️ Αρχείο Διεγραμμένων Αθλητών/ιων</div>
     <button class="io-btn io-exp" onclick="loadDeletedPlayers()" style="margin-bottom:8px;cursor:pointer">📋 Εμφάνιση αρχείου</button>
     <div id="deletedList"></div>
   </div>
 
-  <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
-    <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
-    <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
+  <div class="io-wrap">
+    <div class="io-title">📦 Εξαγωγή / Εισαγωγή Δεδομένων</div>
+    <div class="io-btns">
+      <button class="io-btn io-exp" onclick="exportAll()">📥 Εξαγωγή όλων</button>
+      <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή δεδομένων<input type="file" accept=".xlsx" style="display:none" onchange="importAll(event)"></label>
+    </div>
+    <div class="prog" id="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="io-status" id="iostatus"></div>
   </div>
 </div>
 
