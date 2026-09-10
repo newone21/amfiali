@@ -82,11 +82,12 @@ async function login(){
   try{
     await auth.signInWithEmailAndPassword(email,password);
     localStorage.setItem('amfiali_last_login',new Date().toDateString());
-    window.location.replace('index.html');
+    window.location.href='index.html';
   }catch(e){
-    var msg='Σφάλμα σύνδεσης.';
-    if(e.code==='auth/wrong-password'||e.code==='auth/user-not-found'||e.code==='auth/invalid-credential')msg='Λάθος email ή κωδικός.';
+    var msg='Σφάλμα: '+e.code;
+    if(e.code==='auth/wrong-password'||e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/invalid-email')msg='Λάθος email ή κωδικός.';
     else if(e.code==='auth/too-many-requests')msg='Πολλές αποτυχημένες προσπάθειες. Δοκίμασε αργότερα.';
+    else if(e.code==='auth/network-request-failed')msg='Πρόβλημα σύνδεσης internet.';
     err.textContent=msg;err.style.display='block';
     btn.disabled=false;btn.textContent='🔓 Είσοδος';
   }

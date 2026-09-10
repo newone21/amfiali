@@ -708,8 +708,12 @@ function renderAttForm(){
   const el=document.getElementById('attlist'),act=document.getElementById('attact');
   if(editAttIdx<0){document.getElementById('adate').value=today();document.getElementById('atopic').value='';}
   if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
-  if(editAttIdx<0&&Object.keys(curAtt).length===0){curAtt={};players.forEach(p=>curAtt[p.id]='p');}
-  else{players.forEach(p=>{if(!(p.id in curAtt))curAtt[p.id]='p';});}
+  // Always ensure all players are in curAtt
+  if(editAttIdx<0&&Object.keys(curAtt).length===0){
+    curAtt={};players.forEach(p=>curAtt[p.id]='p');
+  }else{
+    players.forEach(p=>{if(curAtt[p.id]===undefined)curAtt[p.id]='p';});
+  }
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
@@ -769,8 +773,12 @@ function renderMatchAttForm(){
   const el=document.getElementById('mattlist'),act=document.getElementById('mattact');
   if(editMatchIdx<0){document.getElementById('mdate').value=today();document.getElementById('mopponent').value='';document.getElementById('mresult').value='';}
   if(!players.length){el.innerHTML='<p class="empty">Πρόσθεσε παίκτριες στο Ρόστερ.</p>';act.style.display='none';return;}
-  if(editMatchIdx<0&&Object.keys(curMatchAtt).length===0){curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]='p');}
-  else{players.forEach(p=>{if(!(p.id in curMatchAtt))curMatchAtt[p.id]='p';});}
+  // Always ensure all players are in curMatchAtt
+  if(editMatchIdx<0&&Object.keys(curMatchAtt).length===0){
+    curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]='p');
+  }else{
+    players.forEach(p=>{if(curMatchAtt[p.id]===undefined)curMatchAtt[p.id]='p';});
+  }
   act.style.display='flex';
   document.getElementById('msavebtn').textContent=editMatchIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
   const wrap=document.createElement('div');wrap.className='card';
