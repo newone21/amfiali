@@ -118,7 +118,7 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
     <div class="io-title">📦 Εξαγωγή / Εισαγωγή Δεδομένων</div>
     <div class="io-btns">
       <button class="io-btn io-exp" onclick="exportAll()">📥 Εξαγωγή όλων</button>
-      <label class="io-btn io-imp" style="cursor:pointer">📤 Εισαγωγή δεδομένων<input type="file" accept=".xlsx" style="display:none" onchange="importAll(event)"></label>
+
     </div>
     <div class="prog" id="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
     <div class="io-status" id="iostatus"></div>
@@ -260,87 +260,6 @@ async function exportAll(){
   setStatus('✓ Ολοκληρώθηκε!');setProgress(100);
 }
 
-async function importAll(event){
-  var file=event.target.files[0];if(!file)return;
-  if(!confirm('Θα αντικατασταθούν ΟΛΑ τα δεδομένα (ρόστερ, παρουσίες, αγώνες). Συνέχεια;')){event.target.value='';return;}
-  var reader=new FileReader();
-  reader.onload=async function(e){
-    try{
-      var wb=XLSX.read(e.target.result,{type:'array'});
-      setStatus('Εισαγωγή...');setProgress(0);var done=0;
-      var total=ALL_TEAMS.length*3;
-      for(var i=0;i<ALL_TEAMS.length;i++){
-        var t=ALL_TEAMS[i];
-        setStatus('Εισαγωγή ρόστερ: '+t.team+'...');
-
-        // 1. Import Roster
-        var snRoster=t.team+' Ρόστερ';
-        var playerIdMap={};
-        if(wb.SheetNames.indexOf(snRoster)>=0){
-          var rows=XLSX.utils.sheet_to_json(wb.Sheets[snRoster]);
-          var snap=await db.collection(t.players).get();
-          for(var d of snap.docs)await db.collection(t.players).doc(d.id).delete();
-          for(var r of rows){
-            if(!r['Όνομα'])continue;
-            var ref=await db.collection(t.players).add({
-              name:String(r['Όνομα']),num:String(r['Αριθμός']||''),
-              pos:String(r['Θέση']||''),st:String(r['Κατάσταση']||'active'),
-              birth:String(r['Χρονολογία']||''),phone:String(r['Τηλέφωνο']||''),
-              notes:String(r['Σημειώσεις']||'')
-            });
-            playerIdMap[String(r['Όνομα'])]=ref.id;
-          }
-        }
-        done++;setProgress(done/total*100);
-
-        // 2. Import Training Attendance
-        setStatus('Εισαγωγή παρουσιών: '+t.team+'...');
-        var snAtt=t.team+' Παρουσίες';
-        if(wb.SheetNames.indexOf(snAtt)>=0){
-          var attRows=XLSX.utils.sheet_to_json(wb.Sheets[snAtt]);
-          var aSnap=await db.collection(t.attendance).get();
-          for(var d of aSnap.docs)await db.collection(t.attendance).doc(d.id).delete();
-          var groups={};
-          attRows.forEach(function(r){
-            var k=(r['Ημερομηνία']||'')+'||'+(r['Θέμα']||'');
-            if(!groups[k])groups[k]={date:String(r['Ημερομηνία']||''),topic:String(r['Θέμα']||''),entries:[]};
-            groups[k].entries.push({name:String(r['Παίκτης']||''),status:LABEL_REV[r['Κατάσταση']]||'a'});
-          });
-          for(var k in groups){
-            var g=groups[k];var att={};
-            g.entries.forEach(function(en){var pid=playerIdMap[en.name];if(pid)att[pid]=en.status;});
-            if(Object.keys(att).length)await db.collection(t.attendance).add({date:g.date,topic:g.topic,snotes:'',att:att});
-          }
-        }
-        done++;setProgress(done/total*100);
-
-        // 3. Import Match Attendance
-        setStatus('Εισαγωγή αγώνων: '+t.team+'...');
-        var snMatch=(t.team+' Αγώνες').substring(0,31);
-        if(wb.SheetNames.indexOf(snMatch)>=0){
-          var mRows=XLSX.utils.sheet_to_json(wb.Sheets[snMatch]);
-          var mSnap=await db.collection(t.matches).get();
-          for(var d of mSnap.docs)await db.collection(t.matches).doc(d.id).delete();
-          var mGroups={};
-          mRows.forEach(function(r){
-            var k=(r['Ημερομηνία']||'')+'||'+(r['Αντίπαλος']||'');
-            if(!mGroups[k])mGroups[k]={date:String(r['Ημερομηνία']||''),opponent:String(r['Αντίπαλος']||''),result:String(r['Αποτέλεσμα']||''),location:String(r['Έδρα']||'home'),mkind:String(r['Είδος']||''),entries:[]};
-            mGroups[k].entries.push({name:String(r['Παίκτης']||''),status:LABEL_REV[r['Κατάσταση']]||'a'});
-          });
-          for(var k in mGroups){
-            var mg=mGroups[k];var matt={};
-            mg.entries.forEach(function(en){var pid=playerIdMap[en.name];if(pid)matt[pid]=en.status;});
-            if(Object.keys(matt).length)await db.collection(t.matches).add({date:mg.date,opponent:mg.opponent,result:mg.result,location:mg.location,mkind:mg.mkind,att:matt});
-          }
-        }
-        done++;setProgress(done/total*100);
-      }
-      setStatus('✓ Ολοκληρώθηκε!');setProgress(100);
-    }catch(err){setStatus('Σφάλμα: '+err.message);}
-    event.target.value='';
-  };
-  reader.readAsArrayBuffer(file);
-}
 
 async function exportAttAll(){
   setStatus2('Εξαγωγή παρουσιών...');setProgress2(0);

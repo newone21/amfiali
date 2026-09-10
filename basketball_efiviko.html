@@ -246,10 +246,6 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 </div>
 
 
-  <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0">
-    <button class="btn" style="background:#f8d7da;color:#721c24;border-color:#f5c6cb;font-weight:600;width:100%" onclick="archiveSeason()">🗄️ Αρχειοθέτηση σεζόν</button>
-    <p style="font-size:11px;color:#999;margin-top:6px;text-align:center">Εξάγει Excel και διαγράφει παρουσίες για νέα σεζόν</p>
-  </div>
 
 <div class="sec" id="sec4">
   <div class="card">
@@ -912,22 +908,6 @@ function renderStats(){
 }
 window.renderStats=renderStats;
 
-window.archiveSeason=async function(){
-  const season=document.getElementById('fseason').value;
-  if(!season||season==='all'){alert('Επίλεξε πρώτα μια σεζόν από το φίλτρο.');return;}
-  if(!confirm('Αρχειοθέτηση σεζόν '+season+';\nΟι παρουσίες θα εξαχθούν σε Excel και θα διαγραφούν από τη βάση.'))return;
-  // Export first
-  const XLSX=window.XLSX;
-  const sd=getSeasonDates(season);
-  const filtered=attSessions.filter(s=>s.date>=sd.from&&s.date<=sd.to);
-  if(!filtered.length){alert('Δεν υπάρχουν παρουσίες για αυτή τη σεζόν.');return;}
-  const rows=[['Ημερομηνία','Θέμα','Σημειώσεις','Παίκτης','Κατάσταση']];
-  filtered.forEach(s=>players.forEach(p=>{
-    const d=s.date?new Date(s.date+'T00:00:00'):null;
-    rows.push([d,s.topic,s.snotes||'',p.name,(LABEL[(s.att||{})[p.id]]||LABEL['a'])]);
-  }));
-  const ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});
-  ws['!autofilter']={ref:ws['!ref']};
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Σεζόν '+season);
   XLSX.writeFile(wb,'arxeio_'+season+'.xlsx',{cellDates:true});
