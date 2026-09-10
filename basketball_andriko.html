@@ -760,13 +760,6 @@ function renderStats(){
 }
 window.renderStats=renderStats;
 
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Σεζόν '+season);
-  XLSX.writeFile(wb,'arxeio_'+season+'.xlsx',{cellDates:true});
-  // Delete from Firebase
-  for(const s of filtered){await deleteDoc(doc(db,CA,s.id));}
-  alert('✓ Σεζόν '+season+' αρχειοθετήθηκε επιτυχώς!');
-};
 
 function renderTotalStats(){
   const el=document.getElementById('totalStatsWrap');
