@@ -58,7 +58,9 @@ auth.onAuthStateChanged(function(user){
       window.location.replace('index.html');
     }else{
       // New day - sign out and ask for login again
-      auth.signOut();
+      auth.signOut().then(function(){
+        localStorage.removeItem('amfiali_last_login');
+      });
     }
   }
 });

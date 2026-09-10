@@ -43,9 +43,12 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
 .result-team{font-size:11px;padding:3px 8px;border-radius:4px;background:#e8f4fd;color:#1a6fa8;font-weight:600;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .av{width:36px;height:36px;border-radius:50%;background:#e8f4fd;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1a6fa8;flex-shrink:0}
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-firebase.auth().onAuthStateChanged(function(u){if(!u)window.location.replace('login.html');});
+(function(){
+  var today=new Date().toDateString();
+  var lastLogin=localStorage.getItem('amfiali_last_login');
+  if(lastLogin!==today){window.location.replace('login.html');}
+})();
 </script>
 </head>
 <body>
