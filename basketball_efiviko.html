@@ -792,7 +792,13 @@ window.saveMatchAtt=async function(){
   sync('loading','Αποθήκευση...');
   if(editMatchIdx>=0){await setDoc(doc(db,CM,matchSessions[editMatchIdx].id),{date,opponent,result,location,mkind,att:{...curMatchAtt}});editMatchIdx=-1;}
   else{await setDoc(doc(db,CM,uid()),{date,opponent,result,location,mkind,att:{...curMatchAtt}});}
-  showToast('✅ Αποθηκεύτηκε!');
+  curMatchAtt={};players.forEach(p=>curMatchAtt[p.id]='p');
+  document.getElementById('mdate').value=today();
+  document.getElementById('mopponent').value='';
+  document.getElementById('mresult').value='';
+  const mok=document.getElementById('mattok');
+  mok.style.display='inline';clearTimeout(window._mattTimer);
+  window._mattTimer=setTimeout(()=>mok.style.display='none',3000);
   editMatchIdx=-1;renderMatchAttForm();
 };
 function renderMatchHistory(){
