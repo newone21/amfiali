@@ -13,7 +13,7 @@ body{font-family:system-ui,sans-serif;background:#f5f5f5;color:#222}
 .dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
 .dot.ok{background:#3B6D11}.dot.loading{background:#f0a500;animation:pulse 1s infinite}.dot.err{background:#c00}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-nav{display:flex;gap:2px;border-bottom:2px solid #ddd;margin-bottom:0;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);padding-bottom:2px}
+nav{display:flex;gap:2px;border-bottom:2px solid #ddd;margin-bottom:0;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);padding-bottom:2px;justify-content:center}
 .tab{padding:8px 10px;font-size:13px;font-weight:500;color:#666;cursor:pointer;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;text-align:center;line-height:1.3}
 .tab.active{color:#8b4513;border-bottom-color:#8b4513}
 .sec{display:none}.sec.active{display:block}
@@ -223,12 +223,9 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
     </div>
     <div style="display:flex;gap:8px"><button class="btn btn-blue" onclick="renderStats()">🔍 Εφαρμογή</button><button class="btn" onclick="clearFilter()">✕ Καθαρισμός</button></div>
   </div>
-  <div class="xbar">
-    <button class="btn btn-green" onclick="exportAtt()">📥 Εξαγωγή παρουσιών</button>
-    <button class="btn btn-green" onclick="exportStats()">📥 Εξαγωγή στατιστικών</button>
-    <label class="btn btn-yellow" style="cursor:pointer">📤 Εισαγωγή ρόστερ<input type="file" accept=".xlsx" style="display:none" onchange="importRoster(event)"></label>
-    <label class="btn btn-yellow" style="cursor:pointer">📤 Εισαγωγή παρουσιών<input type="file" accept=".xlsx" style="display:none" onchange="importAtt(event)"></label>
-    <button class="btn" style="background:#f8d7da;color:#721c24;border-color:#f5c6cb;font-weight:600" onclick="archiveSeason()">🗄️ Αρχειοθέτηση σεζόν</button>
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0">
+    <button class="btn" style="background:#f8d7da;color:#721c24;border-color:#f5c6cb;font-weight:600;width:100%" onclick="archiveSeason()">🗄️ Αρχειοθέτηση σεζόν</button>
+    <p style="font-size:11px;color:#999;margin-top:6px;text-align:center">Εξάγει Excel και διαγράφει παρουσίες για νέα σεζόν</p>
   </div>
   <div id="statsWrap"><p class="empty">Καταγράψτε τουλάχιστον μία προπόνηση.</p></div>
   </div>
