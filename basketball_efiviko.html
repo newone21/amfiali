@@ -501,7 +501,7 @@ function renderAndrikoAttForm(){
   }
 }
 
-function renderAndrikoHistory(){
+window.renderAndrikoHistory=function(){
   const el=document.getElementById('andHistory');
   if(!andrikoAttSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p>';return;}
   

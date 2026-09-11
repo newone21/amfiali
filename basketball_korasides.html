@@ -500,7 +500,7 @@ function renderNeaAttForm(){
   }
 }
 
-function renderNeaHistory(){
+window.renderNeaHistory=function(){
   const el=document.getElementById('neaHistory');
   if(!neaAttSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p>';return;}
   
