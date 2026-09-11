@@ -150,17 +150,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
         <button class="filter-btn" onclick="setFilter('type','Τουρνουά',this)">Τουρνουά</button>
       </div>
     </div>
-    <div>
-      <div class="lbl" style="margin-bottom:6px">Κατηγορία</div>
-      <div class="filters" id="catFilters">
-        <button class="filter-btn active" onclick="setFilter('cat','all',this)">Όλες</button>
-        <button class="filter-btn" onclick="setFilter('cat','Ανδρικό',this)">Ανδρικό</button>
-        <button class="filter-btn" onclick="setFilter('cat','Εφηβικό',this)">Εφηβικό</button>
-        <button class="filter-btn" onclick="setFilter('cat','Κορασίδες',this)">Κορασίδες</button>
-        <button class="filter-btn" onclick="setFilter('cat','Νεανίδες',this)">Νεανίδες</button>
-        <button class="filter-btn" onclick="setFilter('cat','Παιδικό',this)">Παιδικό</button>
-      </div>
-    </div>
+
   </div>
 
   <!-- Matches list -->
@@ -184,7 +174,7 @@ if(_role==='admin'){
 }
 
 var matches=[];
-var filters={day:'all',type:'all',cat:'all'};
+var filters={day:'all',type:'all'};
 var editId=null;
 
 var DAY_ORDER=['Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο','Κυριακή'];
@@ -208,7 +198,6 @@ function renderMatches(){
   var filtered=matches.filter(function(m){
     if(filters.day!=='all'&&m.day!==filters.day)return false;
     if(filters.type!=='all'&&m.type!==filters.type)return false;
-    if(filters.cat!=='all'&&m.category!==filters.cat)return false;
     return true;
   });
   filtered.sort(function(a,b){
