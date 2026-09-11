@@ -424,13 +424,15 @@ if(_userRole==='coach'&&_userTeams.length>0){
       btn.style.display='none';
     }
   });
-  // Hide export/import section only
+  // Hide export/import and search sections
   document.querySelectorAll('.io-wrap').forEach(function(el){
     var title=el.querySelector('.io-title');
     if(title&&(title.textContent.indexOf('Εξαγωγή')>=0||title.textContent.indexOf('Εισαγωγή')>=0)){
       el.style.display='none';
     }
   });
+  var sw=document.querySelector('.search-wrap');
+  if(sw)sw.style.display='none';
 }else if(_userRole==='viewer'){
   // Viewer sees everything but no edit buttons (handled per page)
 }
