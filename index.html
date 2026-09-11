@@ -74,7 +74,7 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
   <a href="akademies_koritsia_a.html" class="btn" style="background:#a81a6f;color:#fff">🏀 Κορίτσια Α <span id="count_ak_koritsia_a_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
   <a href="akademies_koritsia_b.html" class="btn" style="background:#d4006a;color:#fff">🏀 Κορίτσια Β <span id="count_ak_koritsia_b_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
 
-  <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0">
+  <div id="totalSection" style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e0e0e0;display:none">
     <span style="font-size:12px;color:#aaa">Σύνολο εγγεγραμμένων αθλητών: </span>
     <span id="totalCount" style="font-size:12px;font-weight:700;color:#888">—</span>
   </div>
@@ -407,10 +407,12 @@ async function countAllPlayers(){
 var _userRole=localStorage.getItem('amfiali_role')||'admin';
 var _userTeams=JSON.parse(localStorage.getItem('amfiali_teams')||'[]');
 
-// Show admin panel button
+// Show admin panel button and total count only for admin
 if(_userRole==='admin'){
   var adminSec=document.getElementById('adminSection');
   if(adminSec)adminSec.style.display='block';
+  var totalSec=document.getElementById('totalSection');
+  if(totalSec)totalSec.style.display='block';
 }
 
 if(_userRole==='coach'&&_userTeams.length>0){
@@ -422,10 +424,13 @@ if(_userRole==='coach'&&_userTeams.length>0){
       btn.style.display='none';
     }
   });
-  // Hide admin sections
-  document.querySelectorAll('.io-wrap').forEach(function(el){el.style.display='none';});
-  var searchWrap=document.querySelector('.search-wrap');
-  if(searchWrap)searchWrap.style.display='none';
+  // Hide export/import section only
+  document.querySelectorAll('.io-wrap').forEach(function(el){
+    var title=el.querySelector('.io-title');
+    if(title&&(title.textContent.indexOf('Εξαγωγή')>=0||title.textContent.indexOf('Εισαγωγή')>=0)){
+      el.style.display='none';
+    }
+  });
 }else if(_userRole==='viewer'){
   // Viewer sees everything but no edit buttons (handled per page)
 }
