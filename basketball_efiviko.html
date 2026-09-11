@@ -292,6 +292,12 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
   </div>
   <div class="card" style="margin-top:16px">
     <p class="sec-title">📋 Ιστορικό παρουσιών Ανδρικού</p>
+    <div style="margin-bottom:10px">
+      <div class="lbl">Φίλτρο παίκτη</div>
+      <select id="andPlayerFilter" onchange="renderAndrikoHistory()" style="width:100%;height:38px;border:1px solid #ccc;border-radius:8px;padding:0 10px;font-size:14px;margin-top:4px">
+        <option value="all">Όλοι</option>
+      </select>
+    </div>
     <div id="andHistory"><p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p></div>
   </div>
 </div>
@@ -498,10 +504,35 @@ function renderAndrikoAttForm(){
 function renderAndrikoHistory(){
   const el=document.getElementById('andHistory');
   if(!andrikoAttSessions.length){el.innerHTML='<p class="empty">Δεν υπάρχουν παρουσίες ακόμα.</p>';return;}
-  el.innerHTML=andrikoAttSessions.map((s,i)=>{
-    const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;
-    return `<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${fmtDate(s.date)}</div></div><div class="ml" style="display:flex;align-items:center;gap:6px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="startEditAndrikoAtt(${i})">✏️</button><button class="delbtn" onclick="delAndrikoAtt('${s.id}')">🗑️</button></div></div>`;
-  }).join('');
+  
+  // Update player filter select
+  const sel=document.getElementById('andPlayerFilter');
+  const curVal=sel.value;
+  sel.innerHTML='<option value="all">Όλοι</option>';
+  players.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.id;o.textContent=p.name;sel.appendChild(o);
+  });
+  sel.value=curVal;
+  
+  const filterPid=sel.value;
+  
+  if(filterPid&&filterPid!=='all'){
+    // Show all sessions for selected player
+    const p=players.find(x=>x.id===filterPid);
+    el.innerHTML='<div class="card" style="margin-top:8px"><p style="font-size:13px;font-weight:700;margin-bottom:8px">📋 '+p.name+'</p>'+
+      andrikoAttSessions.map((s,i)=>{
+        const v=(s.att||{})[filterPid];
+        const lbl=LABEL[v]||v||'-';
+        const cls=v==='p'?'tg':v==='i'?'ta':v==='j'?'tb':'tr';
+        return '<div class="prow"><div><div style="font-size:14px;font-weight:600">'+s.topic+'</div><div style="font-size:12px;color:#999">'+fmtDate(s.date)+'</div></div><span class="tag '+cls+'">'+lbl+'</span></div>';
+      }).join('')+'</div>';
+  }else{
+    el.innerHTML=andrikoAttSessions.map((s,i)=>{
+      const cnt=Object.values(s.att||{}).filter(v=>v==='p').length;
+      return `<div class="prow"><div><div style="font-size:14px;font-weight:600">${s.topic}</div><div style="font-size:12px;color:#999">${fmtDate(s.date)}</div></div><div class="ml" style="display:flex;align-items:center;gap:6px"><span class="tag ${cnt>=players.length*.7?'tg':'tr'}">${cnt}/${players.length}</span><button class="editbtn" onclick="startEditAndrikoAtt(${i})">✏️</button><button class="delbtn" onclick="delAndrikoAtt('${s.id}')">🗑️</button></div></div>`;
+    }).join('');
+  }
 }
 
 window.startEditAndrikoAtt=function(i){
