@@ -424,6 +424,7 @@ if(_userRole==='coach'&&_userTeams.length>0){
   var allBtns=document.querySelectorAll('a.btn[href]');
   allBtns.forEach(function(btn){
     var href=btn.getAttribute('href');
+    if(href==='schedule.html'||href==='admin_users.html')return;
     if(_userTeams.indexOf(href)<0){
       btn.style.display='none';
     }
