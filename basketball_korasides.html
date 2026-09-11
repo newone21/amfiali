@@ -527,7 +527,7 @@ window.markAllNea=function(v){
   curNeaAtt={};players.forEach(p=>curNeaAtt[p.id]=v);renderNeaAttForm();
 };
 
-async function saveNeaAtt(){
+window.saveNeaAtt=async function(){
   const date=document.getElementById('neaDate').value||today();
   const topic=document.getElementById('neaTopic').value.trim()||'Προπόνηση';
   const snotes=document.getElementById('neaNotes').value.trim();

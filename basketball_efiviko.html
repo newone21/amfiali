@@ -528,7 +528,7 @@ window.markAllAnd=function(v){
   curAndrikoAtt={};players.forEach(p=>curAndrikoAtt[p.id]=v);renderAndrikoAttForm();
 };
 
-async function saveAndrikoAtt(){
+window.saveAndrikoAtt=async function(){
   const date=document.getElementById('andDate').value||today();
   const topic=document.getElementById('andTopic').value.trim()||'Προπόνηση';
   const snotes=document.getElementById('andNotes').value.trim();
