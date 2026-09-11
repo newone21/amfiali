@@ -69,6 +69,14 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
     window.location.replace('login.html');
     return;
   }
+  // Check role-based access
+  var _role=localStorage.getItem('amfiali_role')||'admin';
+  var _teams=JSON.parse(localStorage.getItem('amfiali_teams')||'[]');
+  if(_role==='coach'&&_teams.length>0&&_teams.indexOf('akademies_2012_2013_2014.html')<0){
+    window.location.replace('index.html');
+    return;
+  }
+  window._userRole=_role;
   // Also verify Firebase Auth in background
   var cfg={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-d773b.firebaseapp.com",projectId:"amfiali-d773b"};
   if(!firebase.apps.length)firebase.initializeApp(cfg);
@@ -423,8 +431,19 @@ window.go=function(i){
 onSnapshot(collection(db,CP),snap=>{
   players=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','el'));
   // Enable save buttons now that players are loaded
-  const sb=document.getElementById('savebtn');if(sb)sb.disabled=false;
-  const msb=document.getElementById('msavebtn');if(msb)msb.disabled=false;
+  const _role=window._userRole||localStorage.getItem('amfiali_role')||'admin';
+  const sb=document.getElementById('savebtn');
+  const msb=document.getElementById('msavebtn');
+  if(_role==='viewer'){
+    // Hide all edit/save/delete controls for viewer
+    if(sb)sb.style.display='none';
+    if(msb)msb.style.display='none';
+    document.querySelectorAll('.editbtn,.delbtn,#toggleAddBtn').forEach(function(el){el.style.display='none';});
+    document.querySelectorAll('[onclick*="markAll"],[onclick*="markAllMatch"]').forEach(function(el){el.style.display='none';});
+  }else{
+    if(sb)sb.disabled=false;
+    if(msb)msb.disabled=false;
+  }
   renderPlayers();sync('ok','Συνδεδεμένο · συγχρονίζεται αυτόματα');
   if(document.getElementById('sec2').classList.contains('active'))renderAttForm();
 },()=>sync('err','Σφάλμα σύνδεσης'));

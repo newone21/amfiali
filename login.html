@@ -6,6 +6,7 @@
 <title>🏀 Α.Π.Σ.Ε. Αμφιάλης 1967</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#1a3a6a 0%,#0d2244 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
@@ -48,6 +49,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 var firebaseConfig={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:"amfiali-d773b.firebaseapp.com",projectId:"amfiali-d773b",storageBucket:"amfiali-d773b.firebasestorage.app",messagingSenderId:"972320918445",appId:"1:972320918445:web:e4674ddb6b790c07efaf24"};
 firebase.initializeApp(firebaseConfig);
 var auth=firebase.auth();
+var db=firebase.firestore();
 
 // Check if already logged in today
 auth.onAuthStateChanged(function(user){
@@ -80,8 +82,18 @@ async function login(){
   
   try{
     window._loggingIn=true;
-    await auth.signInWithEmailAndPassword(email,password);
+    var cred=await auth.signInWithEmailAndPassword(email,password);
     localStorage.setItem('amfiali_last_login',new Date().toDateString());
+    // Load user role from Firestore
+    var roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
+    if(!roleSnap.empty){
+      var roleData=roleSnap.docs[0].data();
+      localStorage.setItem('amfiali_role',roleData.role||'viewer');
+      localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
+    }else{
+      localStorage.setItem('amfiali_role','admin');
+      localStorage.setItem('amfiali_teams',JSON.stringify([]));
+    }
     window.location.href='index.html';
   }catch(e){
     var msg='Σφάλμα: '+e.code;

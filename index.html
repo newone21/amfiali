@@ -57,6 +57,10 @@ h2{font-size:13px;color:#666;font-weight:400;margin-bottom:20px}
   <h1>Α.Π.Σ.Ε. Αμφιάλης 1967</h1>
   <h2>Διαχείριση ομάδων μπάσκετ</h2>
 
+  <div id="adminSection" style="display:none;margin-bottom:16px">
+    <a href="admin_users.html" class="btn" style="background:#1a3a6a;color:#fff;justify-content:center">👤 Διαχείριση Χρηστών</a>
+  </div>
+
   <div class="section">Τμήματα</div>
   <a href="basketball_andriko.html" class="btn" style="background:#1a6fa8;color:#fff">🏀 Ανδρικό <span id="count_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
   <a href="basketball_efiviko.html" class="btn" style="background:#8a3a0a;color:#fff">🏀 Εφηβικό <span id="count_efiviko_players" style="font-size:11px;opacity:0.5;font-weight:400;margin-left:4px"></span></a>
@@ -393,6 +397,33 @@ async function countAllPlayers(){
     try{var snap=await db.collection(ALL_TEAMS[i].players).get();total+=snap.docs.length;}catch(e){}
   }
   document.getElementById('totalCount').textContent=total;
+}
+
+// Apply role-based access
+var _userRole=localStorage.getItem('amfiali_role')||'admin';
+var _userTeams=JSON.parse(localStorage.getItem('amfiali_teams')||'[]');
+
+// Show admin panel button
+if(_userRole==='admin'){
+  var adminSec=document.getElementById('adminSection');
+  if(adminSec)adminSec.style.display='block';
+}
+
+if(_userRole==='coach'&&_userTeams.length>0){
+  // Hide teams not in coach's list
+  var allBtns=document.querySelectorAll('a.btn[href]');
+  allBtns.forEach(function(btn){
+    var href=btn.getAttribute('href');
+    if(_userTeams.indexOf(href)<0){
+      btn.style.display='none';
+    }
+  });
+  // Hide admin sections
+  document.querySelectorAll('.io-wrap').forEach(function(el){el.style.display='none';});
+  var searchWrap=document.querySelector('.search-wrap');
+  if(searchWrap)searchWrap.style.display='none';
+}else if(_userRole==='viewer'){
+  // Viewer sees everything but no edit buttons (handled per page)
 }
 
 setTimeout(function(){checkAlerts();countAllPlayers();loadTeamCounts();},2000);
