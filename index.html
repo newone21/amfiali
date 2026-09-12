@@ -411,6 +411,11 @@ async function countAllPlayers(){
 var _userRole=localStorage.getItem('amfiali_role')||'admin';
 var _userTeams=JSON.parse(localStorage.getItem('amfiali_teams')||'[]');
 
+// Schedule viewer - redirect to schedule
+if(_userRole==='schedule_viewer'){
+  window.location.replace('schedule.html');
+}
+
 // Show admin panel button and total count only for admin
 if(_userRole==='admin'){
   var adminSec=document.getElementById('adminSection');

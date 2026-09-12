@@ -66,6 +66,7 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
         <option value="coach">Coach</option>
         <option value="admin">Admin</option>
         <option value="viewer">Viewer</option>
+        <option value="schedule_viewer">Schedule Viewer</option>
       </select>
     </div>
     <div class="field" id="teamsField">
@@ -176,8 +177,8 @@ async function loadUsers(){
         +'<div class="user-av">'+ini+'</div>'
         +'<div class="user-info"><div class="user-name">'+u.email+'</div>'
         +'<div class="user-role"><span class="badge '+badgeCls+'">'+u.role+'</span>'+(u.role==='coach'?' · '+teamsStr:'')+'</div></div>'
-        +'<button class="btn btn-green" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="editUser(this.dataset.id)">✏️</button>'
-        +'<button class="btn btn-red" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="deleteUser(this.dataset.id)">🗑️</button>'
+        +'<button class="btn btn-green" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="editUser(this.dataset.id)">Επεξ.</button>'
+        +'<button class="btn btn-red" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="deleteUser(this.dataset.id)">Διαγρ.</button>'
         +'</div>';
     }).join('');
   }catch(e){el.innerHTML='<p class="empty">Σφάλμα: '+e.message+'</p>';}
