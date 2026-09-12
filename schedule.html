@@ -32,8 +32,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
 .match-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:10px}
 .match-day{font-size:11px;font-weight:700;color:#1a3a6a;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .match-title{font-size:14px;font-weight:700;color:#222;margin-bottom:4px}
-.match-info{font-size:12px;color:#666;margin-bottom:3px}
-.match-loc{font-size:12px;color:#888}
+.match-info{font-size:14px;color:#666;margin-bottom:3px;font-weight:500}
+.match-loc{font-size:14px;color:#888;font-weight:500}
 .match-actions{display:flex;gap:6px;margin-top:10px}
 .tag-eskanа{background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
 .tag-fea{background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
@@ -237,8 +237,8 @@ function renderMatches(){
   el.innerHTML=filtered.map(function(m){
     var tagCls=m.type==='ΕΣΚΑΝΑ'?'tag-eskanа':m.type==='ΦΕΑ'?'tag-fea':'tag-filiko';
     var adminBtns=_role==='admin'
-      ?'<button class="btn btn-gray" style="font-size:12px;height:32px;padding:0 10px" data-id="'+m.id+'" onclick="editMatch(this.dataset.id)">✏️ Επεξ.</button>'
-       +'<button class="btn" style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;font-size:12px;height:32px;padding:0 10px" data-id="'+m.id+'" onclick="delMatch(this.dataset.id)">🗑️ Διαγρ.</button>'
+      ?'<button class="btn btn-gray" style="font-size:10px;height:24px;padding:0 8px" data-id="'+m.id+'" onclick="editMatch(this.dataset.id)">✏️ Επεξ.</button>'
+       +'<button class="btn" style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;font-size:10px;height:24px;padding:0 8px" data-id="'+m.id+'" onclick="delMatch(this.dataset.id)">🗑️ Διαγρ.</button>'
       :'';
     return '<div class="match-card">'
       +'<div class="match-day">'+(m.date?new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+' · ':'')+m.day+(m.time?' · '+m.time:'')+'</div>'
