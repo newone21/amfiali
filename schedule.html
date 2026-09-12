@@ -58,6 +58,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
   <div class="card" id="addForm">
     <div class="card-title" id="formTitle">➕ Νέος αγώνας</div>
     <div id="formMsg" class="msg"></div>
+    <div class="field">
+      <div class="lbl">Ημερομηνία</div>
+      <input id="sDate" type="date">
+    </div>
     <div class="g2">
       <div class="field">
         <div class="lbl">Ημέρα</div>
@@ -221,6 +225,10 @@ function renderMatches(){
     return true;
   });
   filtered.sort(function(a,b){
+    if(a.date&&b.date){
+      var dd=(a.date||'').localeCompare(b.date||'');
+      if(dd!==0)return dd;
+    }
     var di=DAY_ORDER.indexOf(a.day)-DAY_ORDER.indexOf(b.day);
     if(di!==0)return di;
     return (a.time||'').localeCompare(b.time||'');
@@ -233,7 +241,7 @@ function renderMatches(){
        +'<button class="btn" style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;font-size:12px;height:32px;padding:0 10px" data-id="'+m.id+'" onclick="delMatch(this.dataset.id)">🗑️ Διαγρ.</button>'
       :'';
     return '<div class="match-card">'
-      +'<div class="match-day">'+m.day+(m.time?' · '+m.time:'')+'</div>'
+      +'<div class="match-day">'+(m.date?new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+' · ':'')+m.day+(m.time?' · '+m.time:'')+'</div>'
       +'<div class="match-title">'+m.category+' <span class="'+tagCls+'">'+m.type+'</span></div>'
       +(m.opponent?'<div class="match-info">⚔️ vs '+m.opponent+'</div>':'')
       +(m.location==='home'
@@ -245,6 +253,19 @@ function renderMatches(){
       +'</div>';
   }).join('');
 }
+
+// Auto fill day from date
+document.addEventListener('DOMContentLoaded',function(){
+  var dateEl=document.getElementById('sDate');
+  if(dateEl){
+    dateEl.addEventListener('change',function(){
+      if(!this.value)return;
+      var days=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+      var d=new Date(this.value+'T00:00:00');
+      document.getElementById('sDay').value=days[d.getDay()];
+    });
+  }
+});
 
 function toggleLocation(){
   var loc=document.getElementById('sLocation').value;
@@ -260,6 +281,7 @@ function toggleForm(){
 
 function clearMatchForm(){
   editId=null;
+  document.getElementById('sDate').value='';
   document.getElementById('sDay').value='Δευτέρα';
   document.getElementById('sTime').value='';
   document.getElementById('sType').value='ΕΣΚΑΝΑ';
@@ -285,6 +307,7 @@ function showFormMsg(txt,ok){
 async function saveMatch(){
   var loc=document.getElementById('sLocation').value;
   var data={
+    date:document.getElementById('sDate').value,
     day:document.getElementById('sDay').value,
     time:document.getElementById('sTime').value,
     type:document.getElementById('sType').value,
@@ -311,6 +334,7 @@ window.editMatch=async function(id){
   var m=matches.find(function(x){return x.id===id;});
   if(!m)return;
   editId=id;
+  document.getElementById('sDate').value=m.date||'';
   document.getElementById('sDay').value=m.day||'Δευτέρα';
   document.getElementById('sTime').value=m.time||'';
   document.getElementById('sType').value=m.type||'ΕΣΚΑΝΑ';
