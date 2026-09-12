@@ -83,7 +83,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
           <option value="ΕΣΚΑΝΑ">ΕΣΚΑΝΑ</option>
           <option value="ΦΕΑ">ΦΕΑ</option>
           <option value="Φιλικό">Φιλικό</option>
-          <option value="Κύπελλο">Κύπελλο</option>
           <option value="Τουρνουά">Τουρνουά</option>
         </select>
       </div>
@@ -107,12 +106,34 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
       </div>
     </div>
     <div class="field">
-      <div class="lbl">Κλειστό γήπεδο</div>
-      <input id="sVenue" placeholder="π.χ. Κλειστό Αμφιάλης">
+      <div class="lbl">Αντίπαλος</div>
+      <input id="sOpponent" placeholder="π.χ. Χαλάνδρι">
     </div>
     <div class="field">
-      <div class="lbl">Διεύθυνση</div>
-      <input id="sAddress" placeholder="π.χ. Λεωφ. Αμφιάλης 10">
+      <div class="lbl">Έδρα</div>
+      <select id="sLocation" onchange="toggleLocation()">
+        <option value="home">Εντός έδρας</option>
+        <option value="away">Εκτός έδρας</option>
+      </select>
+    </div>
+    <div id="homeFields">
+      <div class="field">
+        <div class="lbl">Γήπεδο</div>
+        <select id="sVenueType">
+          <option value="Ανοιχτό">Ανοιχτό</option>
+          <option value="Κλειστό">Κλειστό</option>
+        </select>
+      </div>
+    </div>
+    <div id="awayFields" style="display:none">
+      <div class="field">
+        <div class="lbl">Γήπεδο αντιπάλου</div>
+        <input id="sVenue" placeholder="π.χ. Κλειστό Χαλανδρίου">
+      </div>
+      <div class="field">
+        <div class="lbl">Διεύθυνση</div>
+        <input id="sAddress" placeholder="π.χ. Λεωφ. Πεντέλης 10">
+      </div>
     </div>
     <div class="field">
       <div class="lbl">Σημειώσεις (προαιρετικό)</div>
@@ -146,7 +167,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
         <button class="filter-btn" onclick="setFilter('type','ΕΣΚΑΝΑ',this)">ΕΣΚΑΝΑ</button>
         <button class="filter-btn" onclick="setFilter('type','ΦΕΑ',this)">ΦΕΑ</button>
         <button class="filter-btn" onclick="setFilter('type','Φιλικό',this)">Φιλικό</button>
-        <button class="filter-btn" onclick="setFilter('type','Κύπελλο',this)">Κύπελλο</button>
         <button class="filter-btn" onclick="setFilter('type','Τουρνουά',this)">Τουρνουά</button>
       </div>
     </div>
@@ -215,12 +235,21 @@ function renderMatches(){
     return '<div class="match-card">'
       +'<div class="match-day">'+m.day+(m.time?' · '+m.time:'')+'</div>'
       +'<div class="match-title">'+m.category+' <span class="'+tagCls+'">'+m.type+'</span></div>'
-      +(m.venue?'<div class="match-info">🏟️ '+m.venue+'</div>':'')
+      +(m.opponent?'<div class="match-info">⚔️ vs '+m.opponent+'</div>':'')
+      +(m.location==='home'
+        ?'<div class="match-info">🏠 Εντός έδρας · '+(m.venueType||'')+'</div>'
+        :'<div class="match-info">✈️ Εκτός έδρας'+(m.venue?' · '+m.venue:'')+'</div>')
       +(m.address?'<div class="match-loc">📍 '+m.address+'</div>':'')
       +(m.notes?'<div class="match-loc" style="margin-top:4px">📝 '+m.notes+'</div>':'')
       +(adminBtns?'<div class="match-actions">'+adminBtns+'</div>':'')
       +'</div>';
   }).join('');
+}
+
+function toggleLocation(){
+  var loc=document.getElementById('sLocation').value;
+  document.getElementById('homeFields').style.display=loc==='home'?'block':'none';
+  document.getElementById('awayFields').style.display=loc==='away'?'block':'none';
 }
 
 function toggleForm(){
@@ -235,9 +264,13 @@ function clearMatchForm(){
   document.getElementById('sTime').value='';
   document.getElementById('sType').value='ΕΣΚΑΝΑ';
   document.getElementById('sCategory').value='Ανδρικό';
+  document.getElementById('sOpponent').value='';
+  document.getElementById('sLocation').value='home';
+  document.getElementById('sVenueType').value='Ανοιχτό';
   document.getElementById('sVenue').value='';
   document.getElementById('sAddress').value='';
   document.getElementById('sNotes').value='';
+  toggleLocation();
   document.getElementById('formTitle').textContent='➕ Νέος αγώνας';
   document.getElementById('addForm').style.display='none';
 }
@@ -250,13 +283,17 @@ function showFormMsg(txt,ok){
 }
 
 async function saveMatch(){
+  var loc=document.getElementById('sLocation').value;
   var data={
     day:document.getElementById('sDay').value,
     time:document.getElementById('sTime').value,
     type:document.getElementById('sType').value,
     category:document.getElementById('sCategory').value,
-    venue:document.getElementById('sVenue').value.trim(),
-    address:document.getElementById('sAddress').value.trim(),
+    opponent:document.getElementById('sOpponent').value.trim(),
+    location:loc,
+    venueType:loc==='home'?document.getElementById('sVenueType').value:'',
+    venue:loc==='away'?document.getElementById('sVenue').value.trim():'',
+    address:loc==='away'?document.getElementById('sAddress').value.trim():'',
     notes:document.getElementById('sNotes').value.trim()
   };
   try{
@@ -278,7 +315,15 @@ window.editMatch=async function(id){
   document.getElementById('sTime').value=m.time||'';
   document.getElementById('sType').value=m.type||'ΕΣΚΑΝΑ';
   document.getElementById('sCategory').value=m.category||'Ανδρικό';
-  document.getElementById('sVenue').value=m.venue||'';
+  document.getElementById('sOpponent').value=m.opponent||'';
+  document.getElementById('sLocation').value=m.location||'home';
+  toggleLocation();
+  if(m.location==='home'){
+    document.getElementById('sVenueType').value=m.venueType||'Ανοιχτό';
+  }else{
+    document.getElementById('sVenue').value=m.venue||'';
+    document.getElementById('sAddress').value=m.address||'';
+  }
   document.getElementById('sAddress').value=m.address||'';
   document.getElementById('sNotes').value=m.notes||'';
   document.getElementById('formTitle').textContent='✏️ Επεξεργασία αγώνα';
