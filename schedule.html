@@ -27,13 +27,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
 .btn-blue{background:#1a3a6a;color:#fff}
 .btn-gray{background:#f5f5f5;color:#666;border:1px solid #ddd}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #ddd;background:#fff;color:#666}
+.filter-btn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid #e8e8e8;background:#f9f9f9;color:#888}
 .filter-btn.active{background:#1a3a6a;color:#fff;border-color:#1a3a6a}
-.match-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:18px;margin-bottom:12px}
-.match-day{font-size:13px;font-weight:700;color:#1a3a6a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.match-title{font-size:18px;font-weight:700;color:#222;margin-bottom:6px}
-.match-info{font-size:14px;color:#666;margin-bottom:4px}
-.match-loc{font-size:14px;color:#888}
+.match-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:10px}
+.match-day{font-size:11px;font-weight:700;color:#1a3a6a;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.match-title{font-size:14px;font-weight:700;color:#222;margin-bottom:4px}
+.match-info{font-size:12px;color:#666;margin-bottom:3px}
+.match-loc{font-size:12px;color:#888}
 .match-actions{display:flex;gap:6px;margin-top:10px}
 .tag-eskanа{background:#e8f4fd;color:#1a6fa8;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
 .tag-fea{background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
@@ -178,7 +178,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
   </div>
 
   <!-- Matches list -->
-  <div id="matchesList"><p class="empty">Φόρτωση...</p></div>
+  <div id="matchesList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><p class="empty" style="grid-column:1/-1">Φόρτωση...</p></div>
 </div>
 
 <script>
@@ -233,7 +233,7 @@ function renderMatches(){
     if(di!==0)return di;
     return (a.time||'').localeCompare(b.time||'');
   });
-  if(!filtered.length){el.innerHTML='<p class="empty">Δεν υπάρχουν αγώνες.</p>';return;}
+  if(!filtered.length){el.innerHTML='<p class="empty" style="grid-column:1/-1">Δεν υπάρχουν αγώνες.</p>';return;}
   el.innerHTML=filtered.map(function(m){
     var tagCls=m.type==='ΕΣΚΑΝΑ'?'tag-eskanа':m.type==='ΦΕΑ'?'tag-fea':'tag-filiko';
     var adminBtns=_role==='admin'
