@@ -54,8 +54,6 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
   <!-- Add user form -->
   <div class="card">
     <div class="card-title">➕ Προσθήκη / Επεξεργασία χρήστη</div>
-    <div id="msg" class="msg"></div>
-    
     <div class="field">
       <div class="lbl">Email χρήστη</div>
       <input id="uEmail" type="email" placeholder="coach@example.com">
@@ -115,9 +113,10 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
         </label>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
+    <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
       <button class="btn btn-blue" onclick="saveUser()">💾 Αποθήκευση</button>
       <button class="btn" style="background:#f5f5f5;color:#666;border:1px solid #ddd" onclick="clearForm()">✕ Καθαρισμός</button>
+      <span id="msg" style="font-size:13px;display:none"></span>
     </div>
   </div>
 
@@ -145,8 +144,9 @@ var editId=null;
 function showMsg(txt,ok){
   var el=document.getElementById('msg');
   el.textContent=txt;
-  el.className='msg '+(ok?'msg-ok':'msg-err');
-  el.style.display='block';
+  el.style.color=ok?'#3B6D11':'#721c24';
+  el.style.fontWeight='600';
+  el.style.display='inline';
   setTimeout(function(){el.style.display='none';},3000);
 }
 

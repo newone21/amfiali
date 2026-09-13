@@ -140,6 +140,29 @@ var firebaseConfig={apiKey:"AIzaSyCZZnZSz8zpChx-7ScaISKehoebtO1A-qY",authDomain:
 firebase.initializeApp(firebaseConfig);
 var db=firebase.firestore();
 
+// Refresh permissions from Firestore on each load
+(async function(){
+  try{
+    var auth2=firebase.auth();
+    firebase.auth().onAuthStateChanged(async function(user){
+      if(user&&_userRole!=='admin'){
+        var snap=await db.collection('user_roles').where('email','==',user.email).get();
+        if(!snap.empty){
+          var d=snap.docs[0].data();
+          localStorage.setItem('amfiali_role',d.role||'viewer');
+          localStorage.setItem('amfiali_teams',JSON.stringify(d.teams||[]));
+          localStorage.setItem('amfiali_permissions',JSON.stringify(d.permissions||[]));
+          // Reload to apply new permissions
+          if(d.teams&&JSON.stringify(d.teams)!==localStorage.getItem('amfiali_teams_check')){
+            localStorage.setItem('amfiali_teams_check',JSON.stringify(d.teams));
+            window.location.reload();
+          }
+        }
+      }
+    });
+  }catch(e){}
+})();
+
 var COLLECTIONS=[{col:"players",team:"Ανδρικό"},{col:"neanides_players",team:"Νεανίδες"},{col:"korasides_players",team:"Κορασίδες"},{col:"paidiko_players",team:"Παιδικό"},{col:"efiviko_players",team:"Εφηβικό"},{col:"akademies_players",team:"2016-2019"},{col:"ak_2010_2011_players",team:"2010-2011 Β"},{col:"ak_2012_2013_a_players",team:"2012-2013 Α"},{col:"ak_2012_2013_2014_players",team:"2012-2013-2014"},{col:"ak_2014_2015_2016_players",team:"2014-2015-2016"},{col:"ak_2018_2019_2020_players",team:"2018-2019-2020"},{col:"ak_koritsia_a_players",team:"Κορίτσια Α"},{col:"ak_koritsia_b_players",team:"Κορίτσια Β"}];
 var ALL_TEAMS=[{players:"players",team:"Ανδρικό",sessions:"andriko_sessions",attendance:"andriko_attendance",matches:"andriko_matches"},{players:"neanides_players",team:"Νεανίδες",sessions:"neanides_sessions",attendance:"neanides_attendance",matches:"neanides_matches"},{players:"korasides_players",team:"Κορασίδες",sessions:"korasides_sessions",attendance:"korasides_attendance",matches:"korasides_matches"},{players:"paidiko_players",team:"Παιδικό",sessions:"paidiko_sessions",attendance:"paidiko_attendance",matches:"paidiko_matches"},{players:"efiviko_players",team:"Εφηβικό",sessions:"efiviko_sessions",attendance:"efiviko_attendance",matches:"efiviko_matches"},{players:"akademies_players",team:"2016-2019",sessions:"akademies_sessions",attendance:"akademies_attendance",matches:"akademies_matches"},{players:"ak_2010_2011_players",team:"2010-2011 Β",sessions:"ak_2010_2011_sessions",attendance:"ak_2010_2011_attendance",matches:"ak_2010_2011_matches"},{players:"ak_2012_2013_a_players",team:"2012-2013 Α",sessions:"ak_2012_2013_a_sessions",attendance:"ak_2012_2013_a_attendance",matches:"ak_2012_2013_a_matches"},{players:"ak_2012_2013_2014_players",team:"2012-2013-2014",sessions:"ak_2012_2013_2014_sessions",attendance:"ak_2012_2013_2014_attendance",matches:"ak_2012_2013_2014_matches"},{players:"ak_2014_2015_2016_players",team:"2014-2015-2016",sessions:"ak_2014_2015_2016_sessions",attendance:"ak_2014_2015_2016_attendance",matches:"ak_2014_2015_2016_matches"},{players:"ak_2018_2019_2020_players",team:"2018-2019-2020",sessions:"ak_2018_2019_2020_sessions",attendance:"ak_2018_2019_2020_attendance",matches:"ak_2018_2019_2020_matches"},{players:"ak_koritsia_a_players",team:"Κορίτσια Α",sessions:"ak_koritsia_a_sessions",attendance:"ak_koritsia_a_attendance",matches:"ak_koritsia_a_matches"},{players:"ak_koritsia_b_players",team:"Κορίτσια Β",sessions:"ak_koritsia_b_sessions",attendance:"ak_koritsia_b_attendance",matches:"ak_koritsia_b_matches"}];
 var LABEL_MAP={'p':'Παρών','a':'Απών','i':'Τραυματίας','j':'Δικαιολογημένος'};
@@ -425,16 +448,14 @@ if(_userRole==='admin'){
 
 if(_userRole==='coach'||_userRole==='viewer'){
   // Hide teams not in user's list
-  if(_userTeams.length>0){
-    var allBtns=document.querySelectorAll('a.btn[href]');
-    allBtns.forEach(function(btn){
-      var href=btn.getAttribute('href');
-      if(href==='schedule.html'||href==='admin_users.html')return;
-      if(_userTeams.indexOf(href)<0){
-        btn.style.display='none';
-      }
-    });
-  }
+  var allBtns=document.querySelectorAll('a.btn[href]');
+  allBtns.forEach(function(btn){
+    var href=btn.getAttribute('href');
+    if(href==='schedule.html'||href==='admin_users.html')return;
+    if(_userTeams.indexOf(href)<0){
+      btn.style.display='none';
+    }
+  });
   // Hide sections based on permissions for non-admin
   document.querySelectorAll('.io-wrap').forEach(function(el){
     var title=el.querySelector('.io-title');
