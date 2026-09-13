@@ -66,7 +66,6 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
         <option value="coach">Coach</option>
         <option value="admin">Admin</option>
         <option value="viewer">Viewer</option>
-        <option value="schedule_viewer">Schedule Viewer</option>
       </select>
     </div>
     <div class="field" id="teamsField">
@@ -85,6 +84,23 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
         <label class="team-cb"><input type="checkbox" value="akademies_2018_2019_2020.html"> 2018-2019-2020</label>
         <label class="team-cb"><input type="checkbox" value="akademies_koritsia_a.html"> Κορίτσια Α</label>
         <label class="team-cb"><input type="checkbox" value="akademies_koritsia_b.html"> Κορίτσια Β</label>
+      </div>
+    </div>
+    <div class="field" id="permissionsField">
+      <div class="lbl">Επιπλέον πρόσβαση</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_alerts" style="width:16px;height:16px;margin:0">
+          ⚠️ Συνεχόμενες απουσίες
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_deleted" style="width:16px;height:16px;margin:0">
+          🗃️ Αρχείο Διεγραμμένων
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_schedule" style="width:16px;height:16px;margin:0">
+          📅 Πρόγραμμα Αγώνων
+        </label>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px">
@@ -125,12 +141,16 @@ function showMsg(txt,ok){
 function toggleTeams(){
   var r=document.getElementById('uRole').value;
   document.getElementById('teamsField').style.display=r==='coach'?'block':'none';
+  document.getElementById('permissionsField').style.display=(r==='coach'||r==='viewer')?'block':'none';
 }
 
 function clearForm(){
   document.getElementById('uEmail').value='';
   document.getElementById('uRole').value='coach';
   document.querySelectorAll('.teams-grid input[type=checkbox]').forEach(function(cb){cb.checked=false;});
+  document.getElementById('perm_alerts').checked=false;
+  document.getElementById('perm_deleted').checked=false;
+  document.getElementById('perm_schedule').checked=false;
   toggleTeams();
   editId=null;
 }
@@ -143,15 +163,19 @@ async function saveUser(){
     document.querySelectorAll('.teams-grid input[type=checkbox]:checked').forEach(function(cb){teams.push(cb.value);});
     if(!teams.length){showMsg('Επίλεξε τουλάχιστον μία ομάδα!',false);return;}
   }
+  var permissions=[];
+  if(document.getElementById('perm_alerts').checked)permissions.push('alerts');
+  if(document.getElementById('perm_deleted').checked)permissions.push('deleted');
+  if(document.getElementById('perm_schedule').checked)permissions.push('schedule');
   if(!email){showMsg('Βάλε email!',false);return;}
   try{
     if(editId){
-      await db.collection('user_roles').doc(editId).update({email:email,role:role,teams:teams});
+      await db.collection('user_roles').doc(editId).update({email:email,role:role,teams:teams,permissions:permissions});
     }else{
       // Check if email already exists
       var existing=await db.collection('user_roles').where('email','==',email).get();
       if(!existing.empty){showMsg('Αυτό το email υπάρχει ήδη!',false);return;}
-      await db.collection('user_roles').add({email:email,role:role,teams:teams});
+      await db.collection('user_roles').add({email:email,role:role,teams:teams,permissions:permissions});
     }
     showMsg('✅ Αποθηκεύτηκε!',true);
     clearForm();
@@ -173,10 +197,11 @@ async function loadUsers(){
       var ini=(u.email||'?').slice(0,2).toUpperCase();
       var badgeCls='badge-'+(u.role||'coach');
       var teamsStr=u.teams&&u.teams.length?u.teams.map(function(t){return t.replace('.html','').replace('basketball_','').replace('akademies_','');}).join(', '):'Όλες';
+      var permsStr=(u.permissions||[]).length?(u.permissions||[]).map(function(p){return p==='alerts'?'⚠️':p==='deleted'?'🗃️':'📅';}).join(' '):'';
       return '<div class="user-row">'
         +'<div class="user-av">'+ini+'</div>'
         +'<div class="user-info"><div class="user-name">'+u.email+'</div>'
-        +'<div class="user-role"><span class="badge '+badgeCls+'">'+u.role+'</span>'+(u.role==='coach'?' · '+teamsStr:'')+'</div></div>'
+        +'<div class="user-role"><span class="badge '+badgeCls+'">'+u.role+'</span>'+(u.role==='coach'?' · '+teamsStr:'')+(permsStr?' '+permsStr:'')+'</div></div>'
         +'<button class="btn btn-green" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="editUser(this.dataset.id)">Επεξ.</button>'
         +'<button class="btn btn-red" style="font-size:12px;height:32px;padding:0 10px" data-id="'+d.id+'" onclick="deleteUser(this.dataset.id)">Διαγρ.</button>'
         +'</div>';
@@ -194,6 +219,9 @@ window.editUser=async function(id){
   document.querySelectorAll('.teams-grid input[type=checkbox]').forEach(function(cb){
     cb.checked=(u.teams||[]).indexOf(cb.value)>=0;
   });
+  document.getElementById('perm_alerts').checked=(u.permissions||[]).indexOf('alerts')>=0;
+  document.getElementById('perm_deleted').checked=(u.permissions||[]).indexOf('deleted')>=0;
+  document.getElementById('perm_schedule').checked=(u.permissions||[]).indexOf('schedule')>=0;
   document.getElementById('uEmail').scrollIntoView({behavior:'smooth'});
 };
 

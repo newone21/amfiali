@@ -408,11 +408,9 @@ async function countAllPlayers(){
 // Apply role-based access
 var _userRole=localStorage.getItem('amfiali_role')||'admin';
 var _userTeams=JSON.parse(localStorage.getItem('amfiali_teams')||'[]');
+var _userPerms=JSON.parse(localStorage.getItem('amfiali_permissions')||'[]');
 
-// Schedule viewer - redirect to schedule
-if(_userRole==='schedule_viewer'){
-  window.location.replace('schedule.html');
-}
+
 
 // Show admin panel button and total count only for admin
 if(_userRole==='admin'){
@@ -432,13 +430,22 @@ if(_userRole==='coach'&&_userTeams.length>0){
       btn.style.display='none';
     }
   });
-  // Hide export/import and search sections
+  // Hide sections based on permissions
   document.querySelectorAll('.io-wrap').forEach(function(el){
     var title=el.querySelector('.io-title');
-    if(title&&(title.textContent.indexOf('Εξαγωγή')>=0||title.textContent.indexOf('Εισαγωγή')>=0)){
+    if(!title)return;
+    var txt=title.textContent;
+    if(txt.indexOf('Εξαγωγή')>=0||txt.indexOf('Εισαγωγή')>=0){
+      el.style.display='none';
+    }else if(txt.indexOf('Συνεχόμενες')>=0&&_userPerms.indexOf('alerts')<0){
+      el.style.display='none';
+    }else if(txt.indexOf('Αρχείο Διεγραμμένων')>=0&&_userPerms.indexOf('deleted')<0){
       el.style.display='none';
     }
   });
+  // Schedule button
+  var schedBtn=document.querySelector('a[href="schedule.html"]');
+  if(schedBtn&&_userPerms.indexOf('schedule')<0)schedBtn.parentElement.style.display='none';
   var sw=document.querySelector('.search-wrap');
   if(sw)sw.style.display='none';
 }else if(_userRole==='viewer'){

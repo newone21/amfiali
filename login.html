@@ -90,6 +90,7 @@ async function login(){
       var roleData=roleSnap.docs[0].data();
       localStorage.setItem('amfiali_role',roleData.role||'viewer');
       localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
+      localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
     }else{
       localStorage.setItem('amfiali_role','admin');
       localStorage.setItem('amfiali_teams',JSON.stringify([]));
