@@ -240,9 +240,9 @@ function renderMatches(){
       :'';
     return '<div class="match-card">'
       +'<div style="margin-bottom:6px">'
-       +'<span style="font-size:16px;font-weight:800;color:#e67e22">'+(m.day||'')+'</span>'
-       +(m.date?' <span style="font-size:11px;color:#999;font-weight:400">'+new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+'</span>':'')
-       +(m.time?' <span style="font-size:15px;font-weight:700;color:#e67e22"> '+m.time+'</span>':'')
+       +'<span style="font-size:16px;font-weight:800;color:'+(m.day==='Κυριακή'?'#e67e22':m.day==='Σάββατο'?'#3498db':'#27ae60')+'">'+( m.day||'')+'</span>'
+       +(m.date?' <span style="font-size:12px;color:#222;font-weight:600"> '+new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+'</span>':'')
+       +(m.time?' <span style="font-size:15px;font-weight:700;color:#1a3a6a"> '+m.time+'</span>':'')
        +'</div>'
       +'<div class="match-title">'+m.category+' <span class="'+tagCls+'" style="font-size:13px;padding:3px 10px">'+m.type+'</span></div>'
       +(m.opponent?'<div class="match-info">vs '+m.opponent+'</div>':'')
