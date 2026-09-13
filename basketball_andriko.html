@@ -57,6 +57,8 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a7a3f;color:#fff;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:9998;display:none;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.viewer-mode .editbtn,.viewer-mode .delbtn,.viewer-mode .btn-green,.viewer-mode .btn-blue{display:none!important}
+.viewer-mode #attact,.viewer-mode #mattact{display:none!important}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -435,15 +437,11 @@ onSnapshot(collection(db,CP),snap=>{
   const sb=document.getElementById('savebtn');
   const msb=document.getElementById('msavebtn');
   if(_role==='viewer'){
-    // Hide all edit/save/delete controls for viewer
+    // Add viewer class to body - hides all edit/delete via CSS
+    document.body.classList.add('viewer-mode');
     if(sb)sb.style.display='none';
     if(msb)msb.style.display='none';
-    document.querySelectorAll('.editbtn,.delbtn,#toggleAddBtn,.btn-green,.btn-blue').forEach(function(el){
-      if(el.id!=='stab0'&&el.id!=='stab1'&&el.id!=='stab2')el.style.display='none';
-    });
-    document.querySelectorAll('[onclick*="markAll"],[onclick*="markAllMatch"],[onclick*="saveAtt"],[onclick*="saveMatchAtt"]').forEach(function(el){el.style.display='none';});
-    // Hide sort buttons and att form
-    document.querySelectorAll('#attact,#mattact').forEach(function(el){el.style.display='none';});
+    document.querySelectorAll('#attact,#mattact,#toggleAddBtn').forEach(function(el){if(el)el.style.display='none';});
   }else{
     if(sb)sb.disabled=false;
     if(msb)msb.disabled=false;
