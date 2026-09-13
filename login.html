@@ -92,8 +92,8 @@ async function login(){
       localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
       localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
     }else{
-      localStorage.setItem('amfiali_role','admin');
-      localStorage.setItem('amfiali_teams',JSON.stringify([]));
+      // No user_roles entry - deny access
+      throw new Error('Δεν έχετε πρόσβαση στο σύστημα.');
     }
     window.location.href='index.html';
   }catch(e){
