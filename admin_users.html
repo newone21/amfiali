@@ -152,7 +152,7 @@ function showMsg(txt,ok){
 
 function toggleTeams(){
   var r=document.getElementById('uRole').value;
-  document.getElementById('teamsField').style.display=r==='coach'?'block':'none';
+  document.getElementById('teamsField').style.display=(r==='coach'||r==='viewer')?'block':'none';
   document.getElementById('permissionsField').style.display=r!=='admin'?'block':'none';
 }
 
@@ -174,9 +174,9 @@ async function saveUser(){
   var email=document.getElementById('uEmail').value.trim().toLowerCase();
   var role=document.getElementById('uRole').value;
   var teams=[];
-  if(role==='coach'){
+  if(role==='coach'||role==='viewer'){
     document.querySelectorAll('.teams-grid input[type=checkbox]:checked').forEach(function(cb){teams.push(cb.value);});
-    if(!teams.length){showMsg('Επίλεξε τουλάχιστον μία ομάδα!',false);return;}
+    if(role==='coach'&&!teams.length){showMsg('Επίλεξε τουλάχιστον μία ομάδα!',false);return;}
   }
   var permissions=[];
   if(document.getElementById('perm_alerts').checked)permissions.push('alerts');
