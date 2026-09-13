@@ -154,13 +154,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
       <div class="lbl" style="margin-bottom:6px">Ημέρα</div>
       <div class="filters" id="dayFilters">
         <button class="filter-btn active" onclick="setFilter('day','all',this)">Όλες</button>
-        <button class="filter-btn" onclick="setFilter('day','Δευτέρα',this)">Δευτ.</button>
+        <button class="filter-btn" onclick="setFilter('day','Σάββατο',this)">Σάββατο</button>
+        <button class="filter-btn" onclick="setFilter('day','Κυριακή',this)">Κυριακή</button>
+        <button class="filter-btn" onclick="setFilter('day','Δευτέρα',this)">Δευτέρα</button>
         <button class="filter-btn" onclick="setFilter('day','Τρίτη',this)">Τρίτη</button>
-        <button class="filter-btn" onclick="setFilter('day','Τετάρτη',this)">Τετ.</button>
+        <button class="filter-btn" onclick="setFilter('day','Τετάρτη',this)">Τετάρτη</button>
         <button class="filter-btn" onclick="setFilter('day','Πέμπτη',this)">Πέμπτη</button>
-        <button class="filter-btn" onclick="setFilter('day','Παρασκευή',this)">Παρ.</button>
-        <button class="filter-btn" onclick="setFilter('day','Σάββατο',this)">Σαβ.</button>
-        <button class="filter-btn" onclick="setFilter('day','Κυριακή',this)">Κυρ.</button>
+        <button class="filter-btn" onclick="setFilter('day','Παρασκευή',this)">Παρασκευή</button>
       </div>
     </div>
     <div style="margin-bottom:10px">
@@ -177,6 +177,27 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
 
   <!-- Matches list -->
   <div id="matchesList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><p class="empty" style="grid-column:1/-1">Φόρτωση...</p></div>
+  <!-- Archive section -->
+  <div id="archiveSection" style="margin-top:16px;display:none">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:700;color:#222">🗃️ Αρχείο αγώνων</div>
+        <button onclick="document.getElementById('archiveSection').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:#999">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <input type="month" id="archiveMonth" style="height:36px;border:1px solid #ddd;border-radius:6px;padding:0 10px;font-size:13px;flex:1">
+        <select id="archiveType" style="height:36px;border:1px solid #ddd;border-radius:6px;padding:0 10px;font-size:13px;flex:1">
+          <option value="all">Όλα τα είδη</option>
+          <option value="ΕΣΚΑΝΑ">ΕΣΚΑΝΑ</option>
+          <option value="ΦΕΑ">ΦΕΑ</option>
+          <option value="Φιλικό">Φιλικό</option>
+        </select>
+        <button onclick="loadArchive()" class="btn btn-blue" style="height:36px;padding:0 14px;font-size:13px">🔍 Εμφάνιση</button>
+      </div>
+      <div id="archiveList"><p class="empty">Επίλεξε φίλτρο και πάτα Εμφάνιση.</p></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -189,11 +210,22 @@ var today=new Date().toDateString();
 if(localStorage.getItem('amfiali_last_login')!==today){window.location.replace('login.html');}
 var _role=localStorage.getItem('amfiali_role')||'admin';
 
-// Show add button only for admin
+// Show add button and archive only for admin
 if(_role==='admin'){
   var abw=document.getElementById('addBtnWrap');
   if(abw)abw.style.display='block';
 }
+
+// Archive button - visible to all
+var archBtn=document.createElement('button');
+archBtn.textContent='🗃️ Αρχείο αγώνων';
+archBtn.className='btn btn-gray';
+archBtn.style.cssText='width:100%;margin-top:16px;font-size:13px';
+archBtn.onclick=function(){
+  var sec=document.getElementById('archiveSection');
+  sec.style.display=sec.style.display==='none'?'block':'none';
+};
+document.querySelector('.wrap').appendChild(archBtn);
 
 var matches=[];
 var filters={day:'all',type:'all'};
@@ -242,7 +274,7 @@ function renderMatches(){
       +'<div style="margin-bottom:6px">'
        +'<span style="font-size:16px;font-weight:800;color:'+(m.day==='Κυριακή'?'#e67e22':m.day==='Σάββατο'?'#3498db':'#27ae60')+'">'+( m.day||'')+'</span>'
        +(m.date?' <span style="font-size:12px;color:#222;font-weight:600"> '+new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+'</span>':'')
-       +(m.time?' <span style="font-size:15px;font-weight:700;color:#1a3a6a"> '+m.time+'</span>':'')
+       +(m.time?' <span style="font-size:18px;font-weight:800;color:#1a3a6a"> '+m.time+'</span>':'')
        +'</div>'
       +'<div class="match-title">'+m.category+' <span class="'+tagCls+'" style="font-size:13px;padding:3px 10px">'+m.type+'</span></div>'
       +(m.opponent?'<div class="match-info">vs '+m.opponent+'</div>':'')
@@ -356,10 +388,49 @@ window.editMatch=async function(id){
   document.getElementById('addForm').scrollIntoView({behavior:'smooth'});
 };
 
+async function loadArchive(){
+  var el=document.getElementById('archiveList');
+  el.innerHTML='<p class="empty">Φόρτωση...</p>';
+  try{
+    var snap=await db.collection('deleted_matches').get();
+    var docs=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    var month=document.getElementById('archiveMonth').value;
+    var type=document.getElementById('archiveType').value;
+    if(month)docs=docs.filter(function(d){return(d.deletedAt||'').startsWith(month);});
+    if(type!=='all')docs=docs.filter(function(d){return d.type===type;});
+    docs.sort(function(a,b){return(b.deletedAt||'').localeCompare(a.deletedAt||'');});
+    if(!docs.length){el.innerHTML='<p class="empty">Δεν βρέθηκαν αγώνες.</p>';return;}
+    el.innerHTML=docs.map(function(m){
+      var tagCls=m.type==='ΕΣΚΑΝΑ'?'tag-eskanа':m.type==='ΦΕΑ'?'tag-fea':'tag-filiko';
+      var dayColor=m.day==='Κυριακή'?'#e67e22':m.day==='Σάββατο'?'#3498db':'#27ae60';
+      return '<div class="match-card" style="opacity:0.85">'
+        +'<div style="margin-bottom:4px">'
+        +'<span style="font-size:14px;font-weight:800;color:'+dayColor+'">'+(m.day||'')+'</span>'
+        +(m.date?' <span style="font-size:11px;color:#222;font-weight:600">'+new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+'</span>':'')
+        +(m.time?' <span style="font-size:14px;font-weight:700;color:#1a3a6a"> '+m.time+'</span>':'')
+        +'</div>'
+        +'<div class="match-title">'+m.category+' <span class="'+tagCls+'" style="font-size:12px">'+m.type+'</span></div>'
+        +(m.opponent?'<div class="match-info">vs '+m.opponent+'</div>':'')
+        +(m.location==='home'&&m.venueType?'<div class="match-info">'+m.venueType+'</div>':'')
+        +(m.location==='away'&&m.venue?'<div class="match-info">'+m.venue+'</div>':'')
+        +'<div style="font-size:10px;color:#bbb;margin-top:6px">Διαγράφηκε: '+m.deletedAt+'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){el.innerHTML='<p class="empty">Σφάλμα: '+e.message+'</p>';}
+}
+
 window.delMatch=async function(id){
-  if(!confirm('Διαγραφή αγώνα;'))return;
-  try{await db.collection('weekly_schedule').doc(id).delete();}
-  catch(e){alert('Σφάλμα: '+e.message);}
+  if(!confirm('Διαγραφή αγώνα; Θα αποθηκευτεί στο αρχείο.'))return;
+  try{
+    var m=matches.find(function(x){return x.id===id;});
+    if(m){
+      var archived=Object.assign({},m);
+      delete archived.id;
+      archived.deletedAt=new Date().toISOString().slice(0,10);
+      await db.collection('deleted_matches').add(archived);
+    }
+    await db.collection('weekly_schedule').doc(id).delete();
+  }catch(e){alert('Σφάλμα: '+e.message);}
 };
 </script>
 </body>
