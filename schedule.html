@@ -124,8 +124,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
       <div class="field">
         <div class="lbl">Γήπεδο</div>
         <select id="sVenueType">
-          <option value="Ανοιχτό">Ανοιχτό</option>
-          <option value="Κλειστό">Κλειστό</option>
+          <option value="Ανοιχτό Σιταποθηκών">Ανοιχτό Σιταποθηκών</option>
+          <option value="Κλειστό Σιταποθηκών">Κλειστό Σιταποθηκών</option>
         </select>
       </div>
     </div>
@@ -241,14 +241,14 @@ function renderMatches(){
        +'<button class="btn" style="background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;font-size:13px;height:36px;padding:0 14px" data-id="'+m.id+'" onclick="delMatch(this.dataset.id)">🗑️ Διαγρ.</button>'
       :'';
     return '<div class="match-card">'
-      +'<div class="match-day">'+(m.date?new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+' · ':'')+m.day+(m.time?' · '+m.time:'')+'</div>'
+      +'<div class="match-day" style="font-size:15px;font-weight:800;color:#1a3a6a;letter-spacing:0">'+(m.date?new Date(m.date+'T00:00:00').toLocaleDateString('el-GR',{day:'2-digit',month:'2-digit',year:'numeric'})+' | ':'')+m.day+(m.time?' | '+m.time:'')+'</div>'
       +'<div class="match-title">'+m.category+' <span class="'+tagCls+'">'+m.type+'</span></div>'
-      +(m.opponent?'<div class="match-info">⚔️ vs '+m.opponent+'</div>':'')
+      +(m.opponent?'<div class="match-info">vs '+m.opponent+'</div>':'')
       +(m.location==='home'
-        ?'<div class="match-info">🏠 Εντός έδρας · '+(m.venueType||'')+'</div>'
-        :'<div class="match-info">✈️ Εκτός έδρας'+(m.venue?' · '+m.venue:'')+'</div>')
-      +(m.address?'<div class="match-loc">📍 '+m.address+'</div>':'')
-      +(m.notes?'<div class="match-loc" style="margin-top:4px">📝 '+m.notes+'</div>':'')
+        ?'<div class="match-info">Εντός έδρας · '+(m.venueType||'')+'</div>'
+        :'<div class="match-info">Εκτός έδρας'+(m.venue?' · '+m.venue:'')+'</div>')
+      +(m.address?'<div class="match-loc">'+m.address+'</div>':'')
+      +(m.notes?'<div class="match-loc" style="margin-top:4px">'+m.notes+'</div>':'')
       +(adminBtns?'<div class="match-actions">'+adminBtns+'</div>':'')
       +'</div>';
   }).join('');
