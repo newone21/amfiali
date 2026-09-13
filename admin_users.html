@@ -64,8 +64,8 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
       <div class="lbl">Ρόλος</div>
       <select id="uRole" onchange="toggleTeams()">
         <option value="coach">Coach</option>
-        <option value="admin">Admin</option>
         <option value="viewer">Viewer</option>
+        <option value="admin">Admin</option>
       </select>
     </div>
     <div class="field" id="teamsField">
@@ -100,6 +100,18 @@ input:focus,select:focus{outline:none;border-color:#1a3a6a}
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
           <input type="checkbox" id="perm_schedule" style="width:16px;height:16px;margin:0">
           📅 Πρόγραμμα Αγώνων
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_search" style="width:16px;height:16px;margin:0">
+          🔍 Αναζήτηση παίκτη
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_total" style="width:16px;height:16px;margin:0">
+          👥 Σύνολο αθλητών
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="perm_export" style="width:16px;height:16px;margin:0">
+          📥 Εξαγωγή δεδομένων
         </label>
       </div>
     </div>
@@ -141,7 +153,7 @@ function showMsg(txt,ok){
 function toggleTeams(){
   var r=document.getElementById('uRole').value;
   document.getElementById('teamsField').style.display=r==='coach'?'block':'none';
-  document.getElementById('permissionsField').style.display=(r==='coach'||r==='viewer')?'block':'none';
+  document.getElementById('permissionsField').style.display=r!=='admin'?'block':'none';
 }
 
 function clearForm(){
@@ -151,6 +163,9 @@ function clearForm(){
   document.getElementById('perm_alerts').checked=false;
   document.getElementById('perm_deleted').checked=false;
   document.getElementById('perm_schedule').checked=false;
+  document.getElementById('perm_search').checked=false;
+  document.getElementById('perm_total').checked=false;
+  document.getElementById('perm_export').checked=false;
   toggleTeams();
   editId=null;
 }
@@ -167,6 +182,9 @@ async function saveUser(){
   if(document.getElementById('perm_alerts').checked)permissions.push('alerts');
   if(document.getElementById('perm_deleted').checked)permissions.push('deleted');
   if(document.getElementById('perm_schedule').checked)permissions.push('schedule');
+  if(document.getElementById('perm_search').checked)permissions.push('search');
+  if(document.getElementById('perm_total').checked)permissions.push('total');
+  if(document.getElementById('perm_export').checked)permissions.push('export');
   if(!email){showMsg('Βάλε email!',false);return;}
   try{
     if(editId){
@@ -222,6 +240,9 @@ window.editUser=async function(id){
   document.getElementById('perm_alerts').checked=(u.permissions||[]).indexOf('alerts')>=0;
   document.getElementById('perm_deleted').checked=(u.permissions||[]).indexOf('deleted')>=0;
   document.getElementById('perm_schedule').checked=(u.permissions||[]).indexOf('schedule')>=0;
+  document.getElementById('perm_search').checked=(u.permissions||[]).indexOf('search')>=0;
+  document.getElementById('perm_total').checked=(u.permissions||[]).indexOf('total')>=0;
+  document.getElementById('perm_export').checked=(u.permissions||[]).indexOf('export')>=0;
   document.getElementById('uEmail').scrollIntoView({behavior:'smooth'});
 };
 

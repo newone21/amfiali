@@ -611,8 +611,12 @@ onSnapshot(collection(db,CP),snap=>{
     // Hide all edit/save/delete controls for viewer
     if(sb)sb.style.display='none';
     if(msb)msb.style.display='none';
-    document.querySelectorAll('.editbtn,.delbtn,#toggleAddBtn').forEach(function(el){el.style.display='none';});
-    document.querySelectorAll('[onclick*="markAll"],[onclick*="markAllMatch"]').forEach(function(el){el.style.display='none';});
+    document.querySelectorAll('.editbtn,.delbtn,#toggleAddBtn,.btn-green,.btn-blue').forEach(function(el){
+      if(el.id!=='stab0'&&el.id!=='stab1'&&el.id!=='stab2')el.style.display='none';
+    });
+    document.querySelectorAll('[onclick*="markAll"],[onclick*="markAllMatch"],[onclick*="saveAtt"],[onclick*="saveMatchAtt"]').forEach(function(el){el.style.display='none';});
+    // Hide sort buttons and att form
+    document.querySelectorAll('#attact,#mattact').forEach(function(el){el.style.display='none';});
   }else{
     if(sb)sb.disabled=false;
     if(msb)msb.disabled=false;

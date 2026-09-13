@@ -412,44 +412,50 @@ var _userPerms=JSON.parse(localStorage.getItem('amfiali_permissions')||'[]');
 
 
 
-// Show admin panel button and total count only for admin
+// Show admin panel button
 if(_userRole==='admin'){
   var adminSec=document.getElementById('adminSection');
   if(adminSec)adminSec.style.display='block';
   var totalSec=document.getElementById('totalSection');
   if(totalSec)totalSec.style.display='block';
+}else if(_userPerms.indexOf('total')>=0){
+  var totalSec=document.getElementById('totalSection');
+  if(totalSec)totalSec.style.display='block';
 }
 
-if(_userRole==='coach'&&_userTeams.length>0){
-  // Hide teams not in coach's list
-  var allBtns=document.querySelectorAll('a.btn[href]');
-  allBtns.forEach(function(btn){
-    var href=btn.getAttribute('href');
-    if(href==='schedule.html'||href==='admin_users.html')return;
-    if(_userTeams.indexOf(href)<0){
-      btn.style.display='none';
-    }
-  });
-  // Hide sections based on permissions
+if((_userRole==='coach'||_userRole==='viewer')&&(_userTeams.length>0||_userRole==='viewer')){
+  // Hide teams not in user's list (coach has specific teams, viewer sees all)
+  if(_userRole==='coach'){
+    var allBtns=document.querySelectorAll('a.btn[href]');
+    allBtns.forEach(function(btn){
+      var href=btn.getAttribute('href');
+      if(href==='schedule.html'||href==='admin_users.html')return;
+      if(_userTeams.indexOf(href)<0){
+        btn.style.display='none';
+      }
+    });
+  }
+  // Hide sections based on permissions for non-admin
   document.querySelectorAll('.io-wrap').forEach(function(el){
     var title=el.querySelector('.io-title');
     if(!title)return;
     var txt=title.textContent;
     if(txt.indexOf('Εξαγωγή')>=0||txt.indexOf('Εισαγωγή')>=0){
-      el.style.display='none';
-    }else if(txt.indexOf('Συνεχόμενες')>=0&&_userPerms.indexOf('alerts')<0){
-      el.style.display='none';
-    }else if(txt.indexOf('Αρχείο Διεγραμμένων')>=0&&_userPerms.indexOf('deleted')<0){
-      el.style.display='none';
+      if(_userPerms.indexOf('export')<0)el.style.display='none';
+    }else if(txt.indexOf('Συνεχόμενες')>=0){
+      if(_userPerms.indexOf('alerts')<0)el.style.display='none';
+    }else if(txt.indexOf('Αρχείο Διεγραμμένων')>=0){
+      if(_userPerms.indexOf('deleted')<0)el.style.display='none';
     }
   });
   // Schedule button
   var schedBtn=document.querySelector('a[href="schedule.html"]');
-  if(schedBtn&&_userPerms.indexOf('schedule')<0)schedBtn.parentElement.style.display='none';
+  if(schedBtn&&_userPerms.indexOf('schedule')<0){
+    schedBtn.closest('div').style.display='none';
+  }
+  // Search
   var sw=document.querySelector('.search-wrap');
-  if(sw)sw.style.display='none';
-}else if(_userRole==='viewer'){
-  // Viewer sees everything but no edit buttons (handled per page)
+  if(sw&&_userPerms.indexOf('search')<0)sw.style.display='none';
 }
 
 function logout(){
