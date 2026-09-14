@@ -86,40 +86,27 @@ async function login(){
     var cred=await auth.signInWithEmailAndPassword(email,password);
     localStorage.setItem('amfiali_last_login',new Date().toDateString());
     
-    // Step 2: Load role from Firestore - retry up to 5 times
-    var roleLoaded=false;
-    for(var attempt=0;attempt<5;attempt++){
-      try{
-        var roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
-        if(!roleSnap.empty){
-          var roleData=roleSnap.docs[0].data();
-          localStorage.setItem('amfiali_role',roleData.role||'viewer');
-          localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
-          localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
-          roleLoaded=true;
-          break;
-        }else{
-          // Email not in user_roles - wait and retry (might be propagation delay)
-          if(attempt<4){
-            await new Promise(function(r){setTimeout(r,1500);});
-          }else{
-            auth.signOut();
-            err.textContent='Δεν έχετε πρόσβαση στο σύστημα.';
-            err.style.display='block';
-            btn.disabled=false;btn.textContent='🔓 Είσοδος';
-            return;
-          }
-        }
-      }catch(fe){
-        if(attempt<4){
-          await new Promise(function(r){setTimeout(r,1500);});
-        }
+    // Step 2: Load role from Firestore
+    try{
+      var roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
+      if(!roleSnap.empty){
+        var roleData=roleSnap.docs[0].data();
+        localStorage.setItem('amfiali_role',roleData.role||'admin');
+        localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
+        localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
+      }else{
+        // Not in user_roles - default to admin (superuser)
+        localStorage.setItem('amfiali_role','admin');
+        localStorage.setItem('amfiali_teams',JSON.stringify([]));
+        localStorage.setItem('amfiali_permissions',JSON.stringify([]));
       }
+    }catch(fe){
+      // Firestore failed - default to admin so user is never locked out
+      localStorage.setItem('amfiali_role','admin');
+      localStorage.setItem('amfiali_teams',JSON.stringify([]));
+      localStorage.setItem('amfiali_permissions',JSON.stringify([]));
     }
-    
-    if(roleLoaded){
-      window.location.href='index.html';
-    }
+    window.location.href='index.html';
   }catch(e){
     var msg='Σφάλμα σύνδεσης.';
     if(e.code==='auth/wrong-password'||e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/invalid-email')msg='Λάθος email ή κωδικός.';
