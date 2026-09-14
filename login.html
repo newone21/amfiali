@@ -82,44 +82,49 @@ async function login(){
   
   try{
     window._loggingIn=true;
+    // Step 1: Firebase Auth
     var cred=await auth.signInWithEmailAndPassword(email,password);
     localStorage.setItem('amfiali_last_login',new Date().toDateString());
-    // Load user role from Firestore with retry
-    var roleSnap=null;
-    for(var attempt=0;attempt<3;attempt++){
+    
+    // Step 2: Load role from Firestore - retry up to 5 times
+    var roleLoaded=false;
+    for(var attempt=0;attempt<5;attempt++){
       try{
-        roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
-        break;
+        var roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
+        if(!roleSnap.empty){
+          var roleData=roleSnap.docs[0].data();
+          localStorage.setItem('amfiali_role',roleData.role||'viewer');
+          localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
+          localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
+          roleLoaded=true;
+          break;
+        }else{
+          // Email not in user_roles - wait and retry (might be propagation delay)
+          if(attempt<4){
+            await new Promise(function(r){setTimeout(r,1500);});
+          }else{
+            auth.signOut();
+            err.textContent='Δεν έχετε πρόσβαση στο σύστημα.';
+            err.style.display='block';
+            btn.disabled=false;btn.textContent='🔓 Είσοδος';
+            return;
+          }
+        }
       }catch(fe){
-        if(attempt===2)throw fe;
-        await new Promise(function(r){setTimeout(r,1000);});
+        if(attempt<4){
+          await new Promise(function(r){setTimeout(r,1500);});
+        }
       }
     }
-    if(roleSnap&&!roleSnap.empty){
-      var roleData=roleSnap.docs[0].data();
-      localStorage.setItem('amfiali_role',roleData.role||'viewer');
-      localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
-      localStorage.setItem('amfiali_permissions',JSON.stringify(roleData.permissions||[]));
-    }else{
-      // No user_roles entry - deny access
-      throw new Error('Δεν έχετε πρόσβαση στο σύστημα.');
-    }
-    window.location.href='index.html';
-  }catch(e){
-    // If Firebase Auth succeeded but Firestore failed, still let them in
-    if(e.message&&e.message.indexOf('πρόσβαση')<0&&firebase.auth().currentUser){
-      localStorage.setItem('amfiali_last_login',new Date().toDateString());
-      localStorage.setItem('amfiali_role','admin');
-      localStorage.setItem('amfiali_teams',JSON.stringify([]));
-      localStorage.setItem('amfiali_permissions',JSON.stringify([]));
+    
+    if(roleLoaded){
       window.location.href='index.html';
-      return;
     }
+  }catch(e){
     var msg='Σφάλμα σύνδεσης.';
     if(e.code==='auth/wrong-password'||e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/invalid-email')msg='Λάθος email ή κωδικός.';
     else if(e.code==='auth/too-many-requests')msg='Πολλές αποτυχημένες προσπάθειες. Δοκίμασε αργότερα.';
     else if(e.code==='auth/network-request-failed')msg='Πρόβλημα σύνδεσης internet.';
-    else if(e.message)msg=e.message;
     err.textContent=msg;err.style.display='block';
     btn.disabled=false;btn.textContent='🔓 Είσοδος';
   }
