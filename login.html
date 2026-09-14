@@ -84,9 +84,18 @@ async function login(){
     window._loggingIn=true;
     var cred=await auth.signInWithEmailAndPassword(email,password);
     localStorage.setItem('amfiali_last_login',new Date().toDateString());
-    // Load user role from Firestore
-    var roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
-    if(!roleSnap.empty){
+    // Load user role from Firestore with retry
+    var roleSnap=null;
+    for(var attempt=0;attempt<3;attempt++){
+      try{
+        roleSnap=await db.collection('user_roles').where('email','==',cred.user.email).get();
+        break;
+      }catch(fe){
+        if(attempt===2)throw fe;
+        await new Promise(function(r){setTimeout(r,1000);});
+      }
+    }
+    if(roleSnap&&!roleSnap.empty){
       var roleData=roleSnap.docs[0].data();
       localStorage.setItem('amfiali_role',roleData.role||'viewer');
       localStorage.setItem('amfiali_teams',JSON.stringify(roleData.teams||[]));
