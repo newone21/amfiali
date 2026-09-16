@@ -585,7 +585,14 @@ function renderAttForm(){
   if(editAttIdx<0&&Object.keys(curAtt).length===0){
     curAtt={};players.forEach(p=>curAtt[p.id]='p');
   }else{
-    players.forEach(p=>{if(curAtt[p.id]===undefined)curAtt[p.id]='p';});
+    // Add new players, remove deleted players
+    var currentIds=players.map(function(p){return p.id;});
+    // Remove players no longer in roster
+    Object.keys(curAtt).forEach(function(id){
+      if(currentIds.indexOf(id)<0)delete curAtt[id];
+    });
+    // Add new players with default 'p'
+    players.forEach(function(p){if(curAtt[p.id]===undefined)curAtt[p.id]='p';});
   }
   act.style.display='flex';
   document.getElementById('savebtn').textContent=editAttIdx>=0?'💾 Αποθήκευση αλλαγών':'💾 Αποθήκευση';
