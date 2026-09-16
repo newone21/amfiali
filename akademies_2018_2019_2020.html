@@ -256,6 +256,11 @@ input:focus,select:focus{outline:none;border-color:#1a6fa8}
 
 
 
+
+<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0">
+  <button class="btn btn-green" onclick="exportTeam()" style="width:100%">📥 Εξαγωγή δεδομένων ομάδας</button>
+</div>
+
 <div class="sec" id="sec4">
   <div class="card">
     <p class="sec-title">🏆 Παρουσιολόγιο Αγώνων</p>
@@ -948,6 +953,49 @@ window.importAtt=async function(event){const file=event.target.files[0];if(!file
 
 document.getElementById('adate').value=today();document.getElementById('mdate').value=today();document.getElementById('sdate').value=today();fillYearSelect('pbirth','');
 setTimeout(()=>renderAttForm(),500);
+
+window.exportTeam=async function(){
+  try{
+    var XLSX=window.XLSX;
+    if(!XLSX){alert('Σφάλμα: XLSX δεν φορτώθηκε.');return;}
+    var wb=XLSX.utils.book_new();
+    var teamName='2018-2019-2020';
+
+    // 1. Roster
+    var pSnap=await db.collection('ak_2018_2019_2020_players').get();
+    var pls=pSnap.docs.map(function(d){return{id:d.id,...d.data()};});
+    var rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία','Τηλέφωνο','Σημειώσεις']];
+    pls.forEach(function(p){rows.push([p.name||'',p.num||'',p.pos||'',p.st||'',p.birth||'',p.phone||'',p.notes||'']);});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),teamName+' Ρόστερ');
+
+    // 2. Training Attendance
+    var aSnap=await db.collection('ak_2018_2019_2020_attendance').get();
+    var rows2=[['Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
+    var LM={'p':'Παρών','a':'Απών','i':'Τραυματίας','j':'Δικαιολογημένος'};
+    aSnap.docs.forEach(function(d){
+      var s=d.data();
+      pls.forEach(function(p){
+        var v=(s.att||{})[p.id];
+        if(v)rows2.push([s.date||'',s.topic||'',p.name,LM[v]||v]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows2),(teamName+' Παρουσίες').substring(0,31));
+
+    // 3. Match Attendance
+    var mSnap=await db.collection('ak_2018_2019_2020_matches').get();
+    var rows3=[['Ημερομηνία','Αντίπαλος','Αποτέλεσμα','Έδρα','Είδος','Παίκτης','Κατάσταση']];
+    mSnap.docs.forEach(function(d){
+      var s=d.data();
+      pls.forEach(function(p){
+        var v=(s.att||{})[p.id];
+        if(v)rows3.push([s.date||'',s.opponent||'',s.result||'',s.location||'',s.mkind||'',p.name,LM[v]||v]);
+      });
+    });
+    if(rows3.length>1)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows3),(teamName+' Αγώνες').substring(0,31));
+
+    XLSX.writeFile(wb,teamName+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  }catch(e){alert('Σφάλμα εξαγωγής: '+e.message);}
+};
 </script>
 </body>
 </html>
