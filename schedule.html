@@ -163,13 +163,23 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
         <button class="filter-btn" onclick="setFilter('day','Παρασκευή',this)">Παρασκευή</button>
       </div>
     </div>
-    <div style="margin-bottom:10px">
-      <div class="lbl" style="margin-bottom:6px">Είδος</div>
-      <div class="filters" id="typeFilters">
-        <button class="filter-btn active" onclick="setFilter('type','all',this)">Όλα</button>
-        <button class="filter-btn" onclick="setFilter('type','ΕΣΚΑΝΑ',this)">ΕΣΚΑΝΑ</button>
-        <button class="filter-btn" onclick="setFilter('type','ΦΕΑ',this)">ΦΕΑ</button>
-        <button class="filter-btn" onclick="setFilter('type','Φιλικό',this)">Φιλικό</button>
+    <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px">
+        <div class="lbl" style="margin-bottom:6px">Είδος</div>
+        <div class="filters" id="typeFilters">
+          <button class="filter-btn active" onclick="setFilter('type','all',this)">Όλα</button>
+          <button class="filter-btn" onclick="setFilter('type','ΕΣΚΑΝΑ',this)">ΕΣΚΑΝΑ</button>
+          <button class="filter-btn" onclick="setFilter('type','ΦΕΑ',this)">ΦΕΑ</button>
+          <button class="filter-btn" onclick="setFilter('type','Φιλικό',this)">Φιλικό</button>
+        </div>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <div class="lbl" style="margin-bottom:6px">Γήπεδο</div>
+        <div class="filters" id="venueFilters">
+          <button class="filter-btn active" onclick="setFilter('venue','all',this)">Όλα</button>
+          <button class="filter-btn" onclick="setFilter('venue','Ανοιχτό Σιταποθηκών',this)">Ανοιχτό</button>
+          <button class="filter-btn" onclick="setFilter('venue','Κλειστό Σιταποθηκών',this)">Κλειστό</button>
+        </div>
       </div>
     </div>
 
@@ -235,7 +245,7 @@ archBtn.onclick=function(){
 document.querySelector('.wrap').appendChild(archBtn);
 
 var matches=[];
-var filters={day:'all',type:'all'};
+var filters={day:'all',type:'all',venue:'all'};
 var editId=null;
 
 var DAY_ORDER=['Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο','Κυριακή'];
@@ -248,7 +258,7 @@ db.collection('weekly_schedule').onSnapshot(function(snap){
 
 function setFilter(type,val,btn){
   filters[type]=val;
-  var group=type==='day'?'dayFilters':type==='type'?'typeFilters':'catFilters';
+  var group=type==='day'?'dayFilters':type==='type'?'typeFilters':'venueFilters';
   document.getElementById(group).querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   renderMatches();
@@ -259,6 +269,7 @@ function renderMatches(){
   var filtered=matches.filter(function(m){
     if(filters.day!=='all'&&m.day!==filters.day)return false;
     if(filters.type!=='all'&&m.type!==filters.type)return false;
+    if(filters.venue!=='all'&&m.venueType!==filters.venue)return false;
     return true;
   });
   filtered.sort(function(a,b){
