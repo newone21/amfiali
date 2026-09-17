@@ -174,7 +174,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a3a6a}
         </div>
       </div>
       <div style="flex:1;min-width:140px">
-        <div class="lbl" style="margin-bottom:6px">Γήπεδο</div>
+        <div class="lbl" style="margin-bottom:6px">Γήπεδο Σιταποθηκών</div>
         <div class="filters" id="venueFilters">
           <button class="filter-btn active" onclick="setFilter('venue','all',this)">Όλα</button>
           <button class="filter-btn" onclick="setFilter('venue','Ανοιχτό Σιταποθηκών',this)">Ανοιχτό</button>
@@ -258,9 +258,11 @@ db.collection('weekly_schedule').onSnapshot(function(snap){
 
 function setFilter(type,val,btn){
   filters[type]=val;
-  var group=type==='day'?'dayFilters':type==='type'?'typeFilters':'venueFilters';
-  document.getElementById(group).querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
+  renderMatches();
+}
+
+function setFilterDrop(type,val){
+  filters[type]=val;
   renderMatches();
 }
 

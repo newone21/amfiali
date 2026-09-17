@@ -965,14 +965,14 @@ window.exportTeam=async function(){
     var teamName='Ανδρικό';
 
     // 1. Roster
-    var pSnap=await db.collection('players').get();
+    var pSnap=await getDocs(collection(db,'players'));
     var pls=pSnap.docs.map(function(d){return{id:d.id,...d.data()};});
     var rows=[['Όνομα','Αριθμός','Θέση','Κατάσταση','Χρονολογία','Τηλέφωνο','Σημειώσεις']];
     pls.forEach(function(p){rows.push([p.name||'',p.num||'',p.pos||'',p.st||'',p.birth||'',p.phone||'',p.notes||'']);});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),teamName+' Ρόστερ');
 
     // 2. Training Attendance
-    var aSnap=await db.collection('andriko_attendance').get();
+    var aSnap=await getDocs(collection(db,'andriko_attendance'));
     var rows2=[['Ημερομηνία','Θέμα','Παίκτης','Κατάσταση']];
     var LM={'p':'Παρών','a':'Απών','i':'Τραυματίας','j':'Δικαιολογημένος'};
     aSnap.docs.forEach(function(d){
@@ -985,7 +985,7 @@ window.exportTeam=async function(){
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows2),(teamName+' Παρουσίες').substring(0,31));
 
     // 3. Match Attendance
-    var mSnap=await db.collection('andriko_matches').get();
+    var mSnap=await getDocs(collection(db,'andriko_matches'));
     var rows3=[['Ημερομηνία','Αντίπαλος','Αποτέλεσμα','Έδρα','Είδος','Παίκτης','Κατάσταση']];
     mSnap.docs.forEach(function(d){
       var s=d.data();
